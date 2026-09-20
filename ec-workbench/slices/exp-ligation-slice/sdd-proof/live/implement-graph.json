@@ -1,0 +1,20 @@
+{
+  "arm": "graph",
+  "knife": "implement",
+  "wall_seconds": 62,
+  "agent": "6e262202-8a22-4b5c-a885-a1e012daa93c",
+  "reads": [
+    {"path": "ec-core/src/main/java/com/yqg/core/service/kafka/consumer/processor/AppStartUpGrantCouponProcessor.java", "start": 1, "end": 80},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java", "start": 1, "end": 80},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/kafka/consumer/processor/AppStartUpGrantCouponProcessor.java", "start": 80, "end": 133},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java", "start": 80, "end": 199},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java", "start": 200, "end": 349},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java", "start": 337, "end": 486},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java", "start": 700, "end": 779},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java", "start": 780, "end": 859},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java", "start": 600, "end": 679},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java", "start": 520, "end": 599}
+  ],
+  "mouths": [],
+  "notes": "发券发生在消费端（Kafka processRecord 异步调用 grantCutInterestCouponForOpenApp），不是 HTTP。本臂未问图、未 Grep，在 OpenAppGrantCouponService 里分段翻页找方法，超出「只读该方法」。"
+}

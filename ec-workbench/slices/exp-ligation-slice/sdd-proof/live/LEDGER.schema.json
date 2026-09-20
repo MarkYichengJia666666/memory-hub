@@ -1,0 +1,21 @@
+{
+  "arm": "naive | graph",
+  "knife": "explore | tasks | implement",
+  "wall_seconds": 0,
+  "agent": "transcript-id-or-empty",
+  "reads": [
+    {
+      "path": "ec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java",
+      "start": 1,
+      "end": 80
+    }
+  ],
+  "mouths": [
+    {
+      "id": "http-openApp",
+      "text": "POST /api/realTimeEvent/openApp",
+      "tag": "图或手工或grep"
+    }
+  ],
+  "notes": "交清单时写的结论摘要"
+}

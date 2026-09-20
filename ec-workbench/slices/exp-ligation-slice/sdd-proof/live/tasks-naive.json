@@ -1,0 +1,16 @@
+{
+  "arm": "naive",
+  "knife": "tasks",
+  "wall_seconds": 40,
+  "agent": "ede74136-a1c9-45b9-8322-48eccf44545a",
+  "reads": [],
+  "mouths": [
+    {"id": "http-openApp", "text": "RealTimeEventController（POST /api/realTimeEvent/openApp）：开 App HTTP 主入口，tasks 必须点名", "tag": "explore"},
+    {"id": "http-startup", "text": "AppController（POST /api/app/startup）：登录用户冷热启动 HTTP 入口，tasks 必须点名", "tag": "explore"},
+    {"id": "http-home-indirect", "text": "LoanHomePageLogService（首页 /api/v5/cashloan/home 间接）：间接触发同一条启动链路，tasks 必须点名", "tag": "explore"},
+    {"id": "kafka-produce", "text": "AppStartupService：上述 HTTP 统一写 Kafka 的入口，tasks 必须点名", "tag": "explore"},
+    {"id": "kafka-processor", "text": "AppStartUpGrantCouponProcessor：消费后唯一真正发降息券的入口，tasks 必须点名", "tag": "explore"},
+    {"id": "grant-orchestrator", "text": "OpenAppGrantCouponService：开屏降息券发放核心编排入口，tasks 必须点名", "tag": "explore"}
+  ],
+  "notes": "开屏降息券是开 App 回端灌券，不是 GET /api/splashScreen。HTTP 从 openApp、startup、首页间接进入，统一经 AppStartupService 投 Kafka。真正发券只在 AppStartUpGrantCouponProcessor → OpenAppGrantCouponService。SplashScreenController、AppStartupAtLeastOnceEventProcessor、T0RiskAcceptDelayGrantCouponJob、ec-internal-api 都不是开屏发券入口。"
+}

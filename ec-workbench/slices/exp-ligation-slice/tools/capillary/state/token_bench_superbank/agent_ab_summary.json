@@ -1,0 +1,35 @@
+{
+  "method": "tiktoken cl100k_base on reconstructed tool payloads from two real explore agents with SAME prompt",
+  "prompt": "ExperimentNameSpace#SUPERBANK_CHANNEL_USER_BINDING_CARD 接入/平台key/FULL固化",
+  "agents": {
+    "nograph": "298f1aa7-9f07-494f-b7d3-e7e105158791",
+    "withgraph": "20b60f1e-b1e2-4d65-acd6-90eaf5fb4b68"
+  },
+  "note": "Cursor 不暴露子 Agent 账单 token；此处按双方自报 Read 范围 + 复现的 grep/图 API 回包实测编码。不含系统提示与模型输出 token。",
+  "rows": [
+    {
+      "path": "NO_GRAPH_agent",
+      "tokens": 5941,
+      "chars": 23396,
+      "utf8": 23648
+    },
+    {
+      "path": "WITH_GRAPH_agent_total",
+      "tokens": 4091,
+      "chars": 16199,
+      "utf8": 16761
+    },
+    {
+      "path": "WITH_GRAPH_graph_api_only",
+      "tokens": 561,
+      "chars": 2165
+    },
+    {
+      "path": "WITH_GRAPH_narrow_reads_only",
+      "tokens": 3530,
+      "chars": 14033
+    }
+  ],
+  "saved_tokens_vs_nograph": 1850,
+  "saved_pct": 31.1
+}

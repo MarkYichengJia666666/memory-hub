@@ -1,0 +1,550 @@
+### GREP SUPERBANK_CHANNEL_USER_BINDING_CARD
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:1035:        ExperimentNameSpace.SUPERBANK_CHANNEL_USER_BINDING_CARD, userId);
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/abtest/enums/ExperimentNameSpace.java:1366:  SUPERBANK_CHANNEL_USER_BINDING_CARD("Superbank渠道用户绑卡",
+
+
+### GREP isInSuperBankBindCardExperiment|filterBankTypeMediaSource|SuperBankBind|superbank_rename_0908
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:998:    if (!isInSuperBankBindCardExperiment(userId, build)) {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:1033:  private boolean isInSuperBankBindCardExperiment(Long userId, Long build) {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:1036:    String abTestResult = expFacade.fetchResultFallBackWithDefaultScene("technology-auth-abroad-loan-superbank_rename_0908", ExpFacade.ClientType.DIVERSION, request, build);
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/abtest/ABTestConfig.java:285:      .put("technology-auth-abroad-loan-superbank_rename_0908", Range.closed(36900L, 99999L))
+
+
+### GREP keepOnlySuperBankIfInExperiment
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:986:  public List<BankConfigVO> keepOnlySuperBankIfInExperiment(List<BankConfigVO> banks, Long userId, Long build, String deviceId) {
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/LoanBankAccountController.java:359:    bankList = loanBankAccountService.keepOnlySuperBankIfInExperiment(bankList,viewerContext.userId,viewerContext.build,viewerContext.deviceToken);
+
+
+### GREP keepOnlySuperBank|filterBankTypeByABTest|BankConfigVO
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/util/thirdparty/webank/WeBankFetcherService.java:5:import com.yqg.core.service.checksign.vo.WeBankConfigVO;
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/util/thirdparty/webank/WeBankFetcherService.java:56:    WeBankConfigVO config = weBankConfig.getWeBankConfigOrThrow();
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/util/thirdparty/webank/WeBankFetcherService.java:65:    WeBankConfigVO config = weBankConfig.getWeBankConfigOrThrow();
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/util/thirdparty/webank/WeBankFetcherService.java:73:    WeBankConfigVO config = weBankConfig.getWeBankConfigOrThrow();
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/util/thirdparty/webank/WeBankFetcherService.java:90:    WeBankConfigVO config = weBankConfig.getWeBankConfigOrThrow();
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/util/thirdparty/webank/WeBankFetcherService.java:106:  private WeBankCommonRequest buildAesKeyRequest(WeBankConfigVO config) {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/util/thirdparty/webank/WeBankFetcherService.java:121:  private <T> T executeRequest(WeBankConfigVO config, Object requestBody, String path, Class<T> responseType) {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/userflow/infrastructure/adapter/impl/PaymentAdapter.java:5:import com.yqg.core.service.bankconfig.vo.BankConfigVO;
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/userflow/infrastructure/adapter/impl/PaymentAdapter.java:63:  public BankConfigVO getBankVo(BankType bankType) {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/userflow/infrastructure/adapter/IPaymentAdapter.java:4:import com.yqg.core.service.bankconfig.vo.BankConfigVO;
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/userflow/infrastructure/adapter/IPaymentAdapter.java:56:  BankConfigVO getBankVo(BankType bankType);
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:38:import com.yqg.core.service.bankconfig.vo.BankConfigVO;
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:920:  public List<BankConfigVO> getSupportedBankVOList(SDKType sdkType) {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:931:  public List<BankConfigVO> getSupportedBankVOListALL(SDKType sdkType) {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:942:  public List<BankConfigVO> getSupportedBankVOListEWallet(SDKType sdkType) {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:947:  public List<BankConfigVO> sortBankAndConvers(List<BankType> bankTypeList, SDKType sdkType) {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:952:    Map<String, BankConfigVO> bankConfigVOMap = bankConfigService.getBankVoMap(Sets.newHashSet(bankTypeList), sdkType);
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:954:    List<BankConfigVO> voList = Lists.newArrayList();
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:956:      BankConfigVO vo = bankConfigVOMap.get(type.name());
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:966:  public List<BankConfigVO> filterBankTypeByABTest(List<BankConfigVO> bankList, Long userId) {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:986:  public List<BankConfigVO> keepOnlySuperBankIfInExperiment(List<BankConfigVO> banks, Long userId, Long build, String deviceId) {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:1002:    List<BankConfigVO> list = banks.stream()
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:1043:  public List<BankConfigVO> filterEWalletTypeByABTest(List<BankConfigVO> bankList, Long userId) {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/payment/pm/BankAccountPaymentMethod.java:15:import com.yqg.core.service.bankconfig.vo.BankConfigVO;
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/payment/pm/BankAccountPaymentMethod.java:177:          .map(BankConfigVO::getBankType)
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/checksign/vo/WeBankConfigVO.java:10:public class WeBankConfigVO {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/bankconfig/vo/BankConfigVO.java:8:public class BankConfigVO {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/bankconfig/BankConfigService.java:10:import com.yqg.core.service.bankconfig.vo.BankConfigVO;
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/bankconfig/BankConfigService.java:34:  public List<BankConfigVO> list() {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/bankconfig/BankConfigService.java:36:    List<BankConfigVO> bankConfigVOs = Lists.newArrayList();
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/bankconfig/BankConfigService.java:37:    bankConfigRecords.forEach(bankConfigRecord -> bankConfigVOs.add(generateBankConfigVOFromRecord(bankConfigRecord)));
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/bankconfig/BankConfigService.java:41:  public List<BankConfigVO> listDisplayed() {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/bankconfig/BankConfigService.java:43:    List<BankConfigVO> bankConfigVOs = Lists.newArrayList();
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/bankconfig/BankConfigService.java:44:    bankConfigRecords.forEach(bankConfigRecord -> bankConfigVOs.add(generateBankConfigVOFromRecord(bankConfigRecord)));
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/bankconfig/BankConfigService.java:48:  public BankConfigVO insert(BankType bankType, String logoUrl, BooleanType displayed) {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/bankconfig/BankConfigService.java:52:    return generateBankConfigVOFromRecord(record);
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/bankconfig/BankConfigService.java:55:  public BankConfigVO update(Long id, BankType bankType, String logoUrl, BooleanType displayed) {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/bankconfig/BankConfigService.java:60:    return generateBankConfigVOFromRecord(record);
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/bankconfig/BankConfigService.java:63:  public BankConfigVO update(Long id, BooleanType displayed) {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/bankconfig/BankConfigService.java:66:    return generateBankConfigVOFromRecord(record);
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/bankconfig/BankConfigService.java:73:  public Map<String, BankConfigVO> getBankVoMap(Set<BankType> bankTypes, SDKType sdkType) {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/bankconfig/BankConfigService.java:78:            (record) -> generateBankConfigVOFromRecord(record, sdkType))
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/bankconfig/BankConfigService.java:82:  public BankConfigVO getBankVo(BankType bankType) {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/bankconfig/BankConfigService.java:84:    return bankConfigRecords == null ? null : generateBankConfigVOFromRecord(bankConfigRecords);
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/bankconfig/BankConfigService.java:94:  private BankConfigVO generateBankConfigVOFromRecord(BankConfigRecord record) {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/bankconfig/BankConfigService.java:95:    BankConfigVO bankConfigVO = new BankConfigVO();
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/bankconfig/BankConfigService.java:105:  private BankConfigVO generateBankConfigVOFromRecord(BankConfigRecord record, SDKType sdkType) {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/bankconfig/BankConfigService.java:106:    BankConfigVO bankConfigVO = generateBankConfigVOFromRecord(record);
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/webank/WeBankConfig.java:4:import com.yqg.core.service.checksign.vo.WeBankConfigVO;
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/webank/WeBankConfig.java:27:  public WeBankConfigVO getWeBankConfig() {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/webank/WeBankConfig.java:28:    return JsonUtils.from(ecSiteVars.getString(ONLINE_SHOPPING_SHOPPE_CONFIG, "[]"), new TypeReference<WeBankConfigVO>() {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/webank/WeBankConfig.java:32:  public WeBankConfigVO getWeBankConfigOrThrow() {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/webank/WeBankConfig.java:33:    WeBankConfigVO weBankConfig = getWeBankConfig();
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/webank/service/WeBankService.java:11:import com.yqg.core.service.checksign.vo.WeBankConfigVO;
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/webank/service/WeBankService.java:139:    WeBankConfigVO config = weBankConfig.getWeBankConfig();
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/webank/service/WeBankService.java:430:    WeBankConfigVO config = weBankConfig.getWeBankConfig();
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/webank/service/WeBankService.java:437:    WeBankConfigVO config = weBankConfig.getWeBankConfig();
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/webank/service/WeBankService.java:442:    WeBankConfigVO config = weBankConfig.getWeBankConfig();
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/loan/account/response/BankCardCredentialResponse.java:6:import com.yqg.core.service.bankconfig.vo.BankConfigVO;
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/loan/account/response/BankCardCredentialResponse.java:55:  public static BankCardCredentialResponse from(LoanBankAccountVO bankAccountVO, BankConfigVO configVO) {
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/loan/account/response/BankCardCredentialResponse.java:62:  public static BankCardCredentialResponse from(LoanBankAccountVO bankAccountVO, BankConfigVO configVO, boolean displayEntireAccountNumber) {
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/loan/account/response/BankCardCredentialResponse.java:116:  public static List<BankCardCredentialResponse> from(List<LoanBankAccountVO> loanBankAccountVOS, Map<String, BankConfigVO> bankCodeToConfigMap) {
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/loan/account/LoanAccountController.java:50:import com.yqg.core.service.bankconfig.vo.BankConfigVO;
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/loan/account/LoanAccountController.java:537:          Map<String, BankConfigVO> bankVOMap = bankConfigService.getBankVoMap(bankTypes, viewerContext.sdkType);
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/financing/bank/FinancingBankAccountController.java:19:import com.yqg.core.service.bankconfig.vo.BankConfigVO;
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/financing/bank/FinancingBankAccountController.java:143:    List<BankConfigVO> bankList = loanBankAccountService.getSupportedBankVOList(viewerContext.sdkType);
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/intention/dto/WillingOrderPaymentCredentialInfo.java:3:import com.yqg.core.service.bankconfig.vo.BankConfigVO;
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/intention/dto/WillingOrderPaymentCredentialInfo.java:27:  public static WillingOrderPaymentCredentialInfo from(LoanBankAccountVO bankAccountVO, BankConfigVO bankConfigVO) {
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/intention/LoanIntentionController.java:15:import com.yqg.core.service.bankconfig.vo.BankConfigVO;
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/intention/LoanIntentionController.java:121:      BankConfigVO bankConfigVO = bankConfigService.getBankVo(loanBankAccountInfo.bankType);
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/response/home/PaymentCredentialDetail.java:6:import com.yqg.core.service.bankconfig.vo.BankConfigVO;
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/response/home/PaymentCredentialDetail.java:41:  public static PaymentCredentialDetail from(PaymentMethod paymentMethod, LoanBankAccountVO loanBankAccountVO, BankConfigVO bankConfigVO) {
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/response/home/PaymentCredentialDetail.java:51:  private static PaymentCredentialDetail from(LoanBankAccountVO loanBankAccountVO, boolean displayEntireAccountNumber, BankConfigVO bankConfigVO) {
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/response/SupportedBankListResponse.java:7:import com.yqg.core.service.bankconfig.vo.BankConfigVO;
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/response/SupportedBankListResponse.java:43:  public static SupportedBankListResponse from(SDKType sdkType, Integer commonBankNumbers, List<BankConfigVO> bankConfigVOList, Map<BankType, BankAttributeVO> bankTypeToBankAttributeVOMap, Boolean isShowtag) {
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/response/SupportedBankListResponse.java:44:    List<BankConfigVO> commonBankConfigVOList = Lists.newArrayList();
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/response/SupportedBankListResponse.java:47:      commonBankConfigVOList = bankConfigVOList.subList(0, commonBankNumbers);
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/response/SupportedBankListResponse.java:54:    response.commonBanks = commonBankConfigVOList.stream()
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/response/SupportedBankListResponse.java:60:  private static Bank getBank(BankConfigVO vo, Map<BankType, BankAttributeVO> bankTypeToBankAttributeVOMap, Boolean isShowtag) {
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/productdetail/basedata/PaymentBaseData.java:3:import com.yqg.core.service.bankconfig.vo.BankConfigVO;
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/productdetail/basedata/PaymentBaseData.java:25: *   <li>BankConfigVO: BankConfigService.getBankVo</li>
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/productdetail/basedata/PaymentBaseData.java:95:  private final BankConfigVO defaultBankConfigVO;
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/productdetail/basedata/PaymentBaseData.java:105:  private final BankConfigVO routedBankConfigVO;
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/productdetail/basedata/PaymentBaseData.java:113:  private final BankConfigVO specifiedBankConfigVO;
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/productdetail/basedata/PaymentBaseData.java:165:  public BankConfigVO getBankConfigVO(HomeDisplayStrategy routeStrategy) {
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/productdetail/basedata/PaymentBaseData.java:167:      return specifiedBankConfigVO;
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/productdetail/basedata/PaymentBaseData.java:169:    return isStrategyA(routeStrategy) ? defaultBankConfigVO : routedBankConfigVO;
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/productdetail/basedata/PaymentBaseData.java:235:    BankConfigVO bankConfigVO = getBankConfigVO(routeStrategy);
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/productdetail/key/OrderPageBaseKeyConstants.java:77:   *   <li>BankConfigVO: 从 BankConfigService 获取</li>
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/productdetail/builder/impl/PaymentDisplayDataBuilder.java:12:import com.yqg.core.service.bankconfig.vo.BankConfigVO;
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/productdetail/builder/impl/PaymentDisplayDataBuilder.java:92:    BankConfigVO bankConfigVO = paymentBaseData.getBankConfigVO(routeStrategy);
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/productdetail/builder/impl/PaymentDisplayDataBuilder.java:95:    // 参考原逻辑：PaymentCredentialDetail.from(PaymentMethod, LoanBankAccountVO, BankConfigVO)
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/productdetail/builder/impl/PaymentBaseDataBuilder.java:9:import com.yqg.core.service.bankconfig.vo.BankConfigVO;
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/productdetail/builder/impl/PaymentBaseDataBuilder.java:108:    BankConfigVO specifiedBankConfigVO = getBankConfig(specifiedBankAccountVO);
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/productdetail/builder/impl/PaymentBaseDataBuilder.java:109:    BankConfigVO defaultBankConfigVO = getBankConfig(defaultBankAccountVO);
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/productdetail/builder/impl/PaymentBaseDataBuilder.java:110:    BankConfigVO routedBankConfigVO = getBankConfig(routedBankAccountVO);
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/productdetail/builder/impl/PaymentBaseDataBuilder.java:123:        .specifiedBankConfigVO(specifiedBankConfigVO)
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/productdetail/builder/impl/PaymentBaseDataBuilder.java:124:        .defaultBankConfigVO(defaultBankConfigVO)
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/productdetail/builder/impl/PaymentBaseDataBuilder.java:125:        .routedBankConfigVO(routedBankConfigVO)
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/productdetail/builder/impl/PaymentBaseDataBuilder.java:169:  private BankConfigVO getBankConfig(LoanBankAccountVO bankAccountVO) {
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/LoanEWalletController.java:9:import com.yqg.core.service.bankconfig.vo.BankConfigVO;
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/LoanEWalletController.java:51:      BankConfigVO configVO = bankConfigService.getBankVo(accountVO.bankType);
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/LoanBankAccountController.java:25:import com.yqg.core.service.bankconfig.vo.BankConfigVO;
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/LoanBankAccountController.java:104:      BankConfigVO configVO = bankConfigService.getBankVo(accountVO.bankType);
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/LoanBankAccountController.java:336:    List<BankConfigVO> bankList = loanBankAccountService.getSupportedBankVOListALL(viewerContext.sdkType);
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/LoanBankAccountController.java:337:    bankList = loanBankAccountService.filterBankTypeByABTest(bankList, viewerContext.userId);
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/LoanBankAccountController.java:357:    List<BankConfigVO> bankList = loanBankAccountService.getSupportedBankVOList(viewerContext.sdkType);
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/LoanBankAccountController.java:359:    bankList = loanBankAccountService.keepOnlySuperBankIfInExperiment(bankList,viewerContext.userId,viewerContext.build,viewerContext.deviceToken);
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/LoanBankAccountController.java:378:    List<BankConfigVO> bankList = loanBankAccountService.getSupportedBankVOListEWallet(viewerContext.sdkType);
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/LoanBankAccountController.java:407:    BankConfigVO configVO = bankConfigService.getBankVo(accountVO.bankType);
+
+### GREP superbank_rename|SUPERBANK_CHANNEL|technology-auth.*superbank
+/Users/lipeng/IdeaProjects/ec/ec-api/target/site/jacoco-aggregate/ec-core/com.yqg.core.service.loan.bankaccount/LoanBankAccountService.java.html:1035:        ExperimentNameSpace.SUPERBANK_CHANNEL_USER_BINDING_CARD, userId);
+/Users/lipeng/IdeaProjects/ec/ec-api/target/site/jacoco-aggregate/ec-core/com.yqg.core.service.loan.bankaccount/LoanBankAccountService.java.html:1036:<span class="nc" id="L1036">    String abTestResult = expFacade.fetchResultFallBackWithDefaultScene(&quot;technology-auth-abroad-loan-superbank_rename_0908&quot;, ExpFacade.ClientType.DIVERSION, request, build);</span>
+/Users/lipeng/IdeaProjects/ec/ec-api/target/site/jacoco-aggregate/ec-core/com.yqg.core.service.abtest/ABTestConfig.java.html:279:      .put(&quot;technology-auth-abroad-loan-superbank_rename_0908&quot;, Range.closed(36900L, 99999L))
+Binary file /Users/lipeng/IdeaProjects/ec/.git/objects/pack/pack-09090e9da017476638f357ecfd3fa2bb429fc345.pack matches
+Binary file /Users/lipeng/IdeaProjects/ec/ec-core/bin/src/main/java/com/yqg/core/service/abtest/enums/ExperimentNameSpace.class matches
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:1035:        ExperimentNameSpace.SUPERBANK_CHANNEL_USER_BINDING_CARD, userId);
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:1036:    String abTestResult = expFacade.fetchResultFallBackWithDefaultScene("technology-auth-abroad-loan-superbank_rename_0908", ExpFacade.ClientType.DIVERSION, request, build);
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/abtest/enums/ExperimentNameSpace.java:1366:  SUPERBANK_CHANNEL_USER_BINDING_CARD("Superbank渠道用户绑卡",
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/abtest/ABTestConfig.java:285:      .put("technology-auth-abroad-loan-superbank_rename_0908", Range.closed(36900L, 99999L))
+
+### READ ec-core/src/main/java/com/yqg/core/service/abtest/enums/ExperimentNameSpace.java:1360-1389
+  LOAN_180_DAYS_REAPPLY(
+      "首贷180+被拒重审",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID, 0L, Long.MAX_VALUE),
+
+  SUPERBANK_CHANNEL_USER_BINDING_CARD("Superbank渠道用户绑卡",
+      () -> ImmutableSet.of(BooleanType.TRUE.name(), BooleanType.FALSE.name()),
+      BooleanType.FALSE.name(),
+      DiversionKeyType.USER_ID,
+      36900L,
+      Long.MAX_VALUE),
+  EC_PLUS_BUTTON("中收会员button",
+      () -> ImmutableSet.of("A", "B"),
+      "A",
+      DiversionKeyType.USER_ID,
+      36900L,
+      Long.MAX_VALUE),
+  REGISTER_LOGIN_RESOURCE_V3_FOR_REGISTER(
+      "注册登录页-营销利益点v3-注册",
+      () -> ImmutableSet.of("A2", "C1", "C2"),
+      "A2",
+      DiversionKeyType.DEVICE_TOKEN, 37900L, Long.MAX_VALUE),
+  REGISTER_LOGIN_RESOURCE_V3_FOR_LOGIN(
+      "注册登录页-营销利益点v3-登录",
+      () -> ImmutableSet.of("A2", "C1", "C2"),
+      "A2",
+      DiversionKeyType.DEVICE_TOKEN, 37900L, Long.MAX_VALUE),
+  BIND_CARD_DELAY("绑卡后置实验",
+      () -> Arrays.stream(BindCardDelayGroup.values()).map(Enum::name).collect(Collectors.toSet()),
+
+### READ ec-core/src/main/java/com/yqg/core/service/abtest/enums/ExperimentNameSpace.java:1508-1719
+  CREDIT_USAGE_RATE_EXPERIMENT(
+      "额度使用率长期实验",
+      () -> ImmutableSet.of(BooleanType.TRUE.name(), BooleanType.FALSE.name()),
+      BooleanType.TRUE.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  COUPON_LONG_TERM_EXPERIMENT(
+      "优惠券长期实验",
+      () -> ImmutableSet.of(BooleanType.TRUE.name(), BooleanType.FALSE.name()),
+      BooleanType.TRUE.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  MARKET_COUPON_GRANT(
+      "营销临额发券实验-首贷",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  JBP_VALID_UNPAID_POPUP(
+      "中收会员开通未支付弹窗实验",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name(), CommonABTestResultGroup.C.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      37300L,
+      Long.MAX_VALUE
+  ),
+  RISK_BATCH_RELOAN_FIRST_MULTI_LOAN_DIVERSION("风控复贷首续跑批分流",
+      () -> ImmutableSet.of("A", "B"),
+      "A",
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  QUICK_ORDER_CASH_ACTIVITY_V2_EXPERIMENT(
+      "一键借款5.0-改版实验",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      37300L,
+      Long.MAX_VALUE
+  ),
+  AUTH_NEED_COMPANY_NAME(
+      "Auth Need Company Name",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name(), CommonABTestResultGroup.C.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID, 0L, Long.MAX_VALUE),
+  MARKET_COUPON_GRANT_RELOAN(
+      "营销临额发券实验-复贷",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  @Deprecated
+  TOTAL_COUPON_CREDIT_LIMIT_RELOAN(
+      "营销临额上限实验-复贷",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  INCREASE_CREDIT_DECREASE_INTEREST_POPUP_WINDOW_LOAN(
+      "提额降息扑脸弹窗实验_首贷",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      37300L,
+      Long.MAX_VALUE
+  ),
+  INCREASE_CREDIT_DECREASE_INTEREST_POPUP_WINDOW_RELOAN(
+      "提额降息扑脸弹窗实验_复贷",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      37300L,
+      Long.MAX_VALUE
+  ),
+  @Deprecated
+  GUIDE_USER_BORROW_MORE(
+      "引导用户借更多实验",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      36900L,
+      Long.MAX_VALUE
+  ),
+  @Deprecated
+  POST_LOAN_AGREEMENT_FLOATING_LAYER(
+      "借款后置协议浮层实验",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  REPAY_PLAN_REDUCE(
+      "还款计划强化月还款降低实验",
+      () -> Arrays.stream(RepayPlanReduceGroup.values()).map(Enum::name).collect(Collectors.toSet()),
+      RepayPlanReduceGroup.CONTROL_GROUP.name(),
+      DiversionKeyType.USER_ID,
+      36900L,
+      Long.MAX_VALUE
+  ),
+  CREDIT_INCREASED_SENSITIVITY_V2(
+      "提额感知v2",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name(),
+          CommonABTestResultGroup.D.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      38200L,
+      Long.MAX_VALUE
+  ),
+  INIT_USER_TYPE(
+      "用户类型初始化实验",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  @Deprecated
+  CREDIT_LIMIT_ADD_SCENE(
+      "额度上限场景规则实验",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  COUPON_LONG_TERM_SUB_EXPERIMENT(
+      "优惠券长期子实验",
+      () -> ImmutableSet.of(BooleanType.TRUE.name(), BooleanType.FALSE.name()),
+      BooleanType.TRUE.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  SHOW_CUSTOMER_GUIDE_POPUP(
+      "账单页截屏转客服实验",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      38213L,
+      Long.MAX_VALUE
+  ),
+  GOPAY_DIRECT_DEBIT_OVERDUE(
+      "GOPAY 代扣实验（逾期状态）",
+      () -> ImmutableSet.of(GoPayDirectDebitStrategy.A.name(), GoPayDirectDebitStrategy.B.name()),
+      GoPayDirectDebitStrategy.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  GOPAY_DIRECT_DEBIT_NORMAL(
+      "GOPAY 代扣实验（正常状态）",
+      () -> ImmutableSet.of(GoPayDirectDebitStrategy.A.name(), GoPayDirectDebitStrategy.B.name()),
+      GoPayDirectDebitStrategy.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  REPAY_CHANNEL_SORT_NORMAL(
+      "详情页还款渠道排序-正常",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      38000L,
+      Long.MAX_VALUE
+  ),
+  REPAY_CHANNEL_SORT_OVERDUE(
+      "详情页还款渠道排序-逾期",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      38000L,
+      Long.MAX_VALUE
+  ),
+  ;
+
+  public static final Set<String> EXP_NAME_SET = Arrays.stream(ExperimentNameSpace.values())
+      .map(Enum::name).collect(Collectors.toSet());
+
+  //长期实验集合
+  public static final Set<ExperimentNameSpace> LONG_TERM_EXPERIMENT_SET = ImmutableSet.of(CREDIT_USAGE_RATE_EXPERIMENT,
+      COUPON_LONG_TERM_EXPERIMENT);
+### READ ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:960-1041
+      }
+      voList.add(vo);
+    }
+    return voList;
+  }
+
+  public List<BankConfigVO> filterBankTypeByABTest(List<BankConfigVO> bankList, Long userId) {
+    if (CollectionUtils.isEmpty(bankList)) {
+      return bankList;
+    }
+    //如果在白名单内，直接返回
+    if (loanBankConfig.getFilterBankTypeWhiteUserId().contains(userId)) {
+      return bankList;
+    }
+    Boolean needFilter = Boolean.valueOf(
+        expFacade.fetchResult(ABTestSceneType.USER_BIND_BANK_CARD_FILTER, ABTestUtil.genDiversionKeyMapByUserId(userId), "TRUE"));
+    if (needFilter) {
+      List<BankType> filterBankType = loanBankConfig.getFilterBankType();
+      bankList = bankList.stream().filter(e -> !filterBankType.contains(e.getBankType())).collect(Collectors.toList());
+    }
+    return bankList;
+  }
+
+  /**
+   * 命中"SuperBank渠道绑卡"实验组（B组）时，仅保留 SuperBank。
+   */
+  public List<BankConfigVO> keepOnlySuperBankIfInExperiment(List<BankConfigVO> banks, Long userId, Long build, String deviceId) {
+    // 基础参数校验
+    if (CollectionUtils.isEmpty(banks) || Objects.isNull(userId) || Objects.isNull(build) || Objects.isNull(deviceId)) {
+      return banks;
+    }
+
+    // 获取广告来源并校验
+    String mediaSource = getMediaSourceByDeviceId(deviceId);
+    if (Objects.isNull(mediaSource) || !isValidMediaSource(mediaSource)) {
+      return banks;
+    }
+
+    if (!isInSuperBankBindCardExperiment(userId, build)) {
+      return banks;
+    }
+
+    List<BankConfigVO> list = banks.stream()
+        .filter(Objects::nonNull)
+        .filter(b -> b.getBankType() == BankType.FAMA)
+        .collect(Collectors.toList());
+
+    if (CollectionUtils.isEmpty(list)) {
+      return banks;
+    }
+
+    return list;
+  }
+
+  private String getMediaSourceByDeviceId(String deviceId) {
+    try {
+      AdsResponse<AppsflyerResultVO> adsResponse = adsAppsflyerService.getAppsflyerMediaSourceByDeviceId(deviceId);
+      if (adsResponse == null || adsResponse.body == null) {
+        log.warn("Failed to get media source from Appsflyer, deviceId: {}", deviceId);
+        return null;
+      }
+      return adsResponse.body.getMediaSource();
+    } catch (Exception e) {
+      log.error("Error getting media source from Appsflyer", e);
+      return null;
+    }
+  }
+
+  private boolean isValidMediaSource(String mediaSource) {
+    List<String> filterMediaSourceList = loanBankConfig.getFilterBankTypeMediaSourceAllowList();
+    return !CollectionUtils.isEmpty(filterMediaSourceList) && filterMediaSourceList.contains(mediaSource);
+  }
+
+  private boolean isInSuperBankBindCardExperiment(Long userId, Long build) {
+    ABTestUserIdRequestVO request = ABTestUserIdRequestVO.from(
+        ExperimentNameSpace.SUPERBANK_CHANNEL_USER_BINDING_CARD, userId);
+    String abTestResult = expFacade.fetchResultFallBackWithDefaultScene("technology-auth-abroad-loan-superbank_rename_0908", ExpFacade.ClientType.DIVERSION, request, build);
+    if (StringUtils.isEmpty(abTestResult)) {
+      return false;
+    }
+    return Boolean.parseBoolean(abTestResult);
+  }
+### READ ec-core/src/main/java/com/yqg/core/service/abtest/ABTestConfig.java:275-314
+      .put(UserFlowExperimentEnum.RETAIN_POPUP_BOOST_COUPON_STRATEGY.getKey(), Range.closed(37300L, 99999L))
+      .put("technology-register-abroad-loan_all-loginpage_h5_0820", Range.closed(37700L, 99999L))
+      .put("risk_decision_userid-auth-abroad-loan-init_usertype_source", Range.closed(0L, 99999L))
+      .put("risk_decision_userid-not_withdraw-abroad-risk_decision-credits_limitrules_test", Range.closed(0L, 99999L))
+      .put("product_operation_bill_normal-repayment-abroad-loan_all-REPAY_CHANNEL_SORT_NORMAL", Range.closed(38000L, 99999L))
+      .put("product_operation_bill_overdue-after_overdue-abroad-loan_all-REPAY_CHANNEL_SORT_OVERDUE_copy", Range.closed(38000L, 99999L))
+      .put("product_operation_bill-repayment-abroad-loan_all-repaymentchanneldananormal", Range.closed(35300L, 99999L))
+      .put("product_operation_bill-repayment-abroad-loan_all-repaymentchanneldanaoverdue", Range.closed(35300L, 99999L))
+      .put("technology-repayment-abroad-loan_all-BillpagetoH5_reopen", Range.closed(0L, 99999L))
+      .put("technology-repayment-abroad-loan_all-BillpagetoH5overdue_reopen", Range.closed(0L, 99999L))
+      .put("technology-auth-abroad-loan-superbank_rename_0908", Range.closed(36900L, 99999L))
+      .put("technology-auth-abroad-loan-ktpocr_failure_0901", Range.closed(37113L, 99999L))
+      .put("technology-auth-abroad-loan-MOTHER_LAST_NAME_CHECK_RULE_KTP_CONFIRM_PAGE_PRO", Range.closed(0L, 99999L))
+      .put("technology-not_withdraw-abroad-loan_all-MOTHER_LAST_NAME_CHECK_RULE_ORDER_SUPPLEMENT_PAGE_PRO", Range.closed(0L, 99999L))
+      .put("product_operation_order-not_withdraw-abroad-loan_all-marketing_coupons_0814", Range.closed(36900L, 99999L))
+      .put("product_operation_order-lending-abroad-loan_all-QUICK_ORDER_LOAN_H5_0721", Range.closed(0L, 99999L))
+      .put("product_operation_order-lending-abroad-loan_all-back_Quick_ordering_V3", Range.closed(0L, 99999L))
+      .put("product_operation_order-not_withdraw-abroad-loan-T0_amount_0805", Range.closed(36900L, 99999L))
+      .put("product_operation_order-edit_user-abroad-loan_all-add_wa_popup_0903", Range.closed(0L, 99999L))
+      .put("product_operation_order-edit_user-abroad-loan_all-add_wa_page_0903", Range.closed(0L, 99999L))
+      .put("product_operation_order-lending-abroad-loan_all-CREDIT_USAGE_RATE_EXPERIMENT", Range.closed(0L, 99999L))
+      .put("long_nik-install-abroad-idle_event-Gold_new_test_0616", Range.closed(0L, 99999L))
+      .put("long_nik-install-abroad-idle_event-gold_popup_V2_new", Range.closed(0L, 99999L))
+      .put("pretii-other-abroad-loan_all-GOLDEN_CARD_CAN_BORROW_STYLE", Range.closed(36899L, 99999L))
+      .put("pretii-other-abroad-loan_all-CreditReport_V1", Range.closed(0L, 99999L))
+      .put("pretii-other-abroad-loan_all-CreditReport_PRICE", Range.closed(0L, 99999L))
+      .put("pretii-other-abroad-loan_all-CreditReport_POPUP", Range.closed(0L, 99999L))
+      .put("pretii-other-abroad-loan_all-CreditReport_POPUP_ME", Range.closed(0L, 99999L))
+      .put("pretii-other-abroad-loan_all-bill_jbp_unpaid_guide_h5_1009", Range.closed(37900L, 99999L))
+      .put("pretii-other-abroad-loan_all-bill_jbp_unpaid_guide_APP", Range.closed(37900L, 99999L))
+      .put("product_operation_order-lending-abroad-loan_all-repayment_interest_popup", Range.closed(36900L, 99999L))
+      .put("root_register-register-abroad-loan_all-mkt_authorization_check_box", Range.closed(0L, 99999L))
+      .put("root_register-register-abroad-loan-bank_prom_1022", Range.closed(0L, 99999L))
+      .put("root_register-register-abroad-loan_all-back_retention_v2_0922_copy", Range.closed(37400L, 99999L))
+      .put("technology-auth-abroad-loan-h5_ui_new_auth_1215", Range.closed(35300L, 99999L))
+      .put("product_operation_order-lending-abroad-loan_all-QUICK_ORDER_CASH_ACTIVITY_V2_EXPERIMENT", Range.closed(37300L, 99999L))
+      .put("product_operation_order-lending-abroad-loan_all-COUPON_LONG_TERM_SUB_EXPERIMENT", Range.closed(0L, 99999L))
+      .put("product_operation_order-lending-abroad-loan_all-ORDER_LOAN_PUSH_COUPON", Range.closed(36900L, 99999L))
+      .put("technology-not_withdraw-abroad-loan-first_loan_coupon_parent_pro", Range.closed(0L, 99999L))
+      .put("technology-lending-abroad-settle_reloan-market_coupon_grant_reloan", Range.closed(0L, 99999L))
+### READ ec-api/src/main/java/com/miyou/controllers/cashloan/LoanBankAccountController.java:340-379
+    SupportedBankListResponse response = SupportedBankListResponse.from(
+        viewerContext.sdkType,
+        cashLoanConfig.getCommonBanksNumbers(viewerContext.sdkType),
+        bankList,
+        bankTypeToBankAttributeVOMap,
+        true);
+    return EcResponseUtil.generate(response);
+  }
+
+  @GetMapping(path = "/api/idn/cashloan/getSupportedBank")
+  @ResponseBody
+  @ECSecuredApi
+  public Result getIdnSupportedBankListWithLogo() {
+    LoanApiViewerContext viewerContext = getViewerContextFromRequest();
+    if (viewerContext.sdkType == null) {
+      throw EcException.error("sdk is null");
+    }
+    List<BankConfigVO> bankList = loanBankAccountService.getSupportedBankVOList(viewerContext.sdkType);
+    Map<BankType, BankAttributeVO> bankTypeToBankAttributeVOMap = bankConfig.getBankAttributeVOMap();
+    bankList = loanBankAccountService.keepOnlySuperBankIfInExperiment(bankList,viewerContext.userId,viewerContext.build,viewerContext.deviceToken);
+    bankTypeToBankAttributeVOMap = loanBankAccountService.clearPopWindowTextIfInExperiment(bankTypeToBankAttributeVOMap, viewerContext.userId, viewerContext.build, viewerContext.sourceType, viewerContext.loanAccountId);
+    SupportedBankListResponse response = SupportedBankListResponse.from(
+        viewerContext.sdkType,
+        cashLoanConfig.getCommonBanksNumbers(viewerContext.sdkType),
+        bankList,
+        bankTypeToBankAttributeVOMap,
+        true);
+    return EcResponseUtil.generate(response);
+  }
+
+  @GetMapping(path = "/api/idn/cashloan/getSupportedEwallet")
+  @ResponseBody
+  @ECSecuredApi
+  public Result getIdnSupportedEwalletListWithLogo() {
+    LoanApiViewerContext viewerContext = getViewerContextFromRequest();
+    if (viewerContext.sdkType == null) {
+      throw EcException.error("sdk is null");
+    }
+    List<BankConfigVO> bankList = loanBankAccountService.getSupportedBankVOListEWallet(viewerContext.sdkType);
+    if (viewerContext.sdkType.isIdnSDKType()) {

@@ -1,0 +1,37 @@
+{
+  "arm": "graph",
+  "knife": "explore",
+  "wall_seconds": 77,
+  "agent": "6c781ed5-6cb3-456f-b463-edc8dd0b08de",
+  "reads": [
+    {"path": "ec-api/src/main/java/com/miyou/controllers/realtimeevent/RealTimeEventController.java", "start": 136, "end": 215},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java", "start": 150, "end": 199},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java", "start": 320, "end": 369},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java", "start": 530, "end": 579},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/kafka/consumer/context/AppStartUpGrantCouponConsumerGroupContext.java", "start": 1, "end": 32},
+    {"path": "ec-kafka-consumer/src/main/java/com/yqg/kafka/consumer/ConsumerPoolService.java", "start": 28, "end": 69},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java", "start": 589, "end": 638},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java", "start": 941, "end": 990},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/kafka/KafkaTopic.java", "start": 78, "end": 89},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/kafka/consumer/ConsumerGroup.java", "start": 55, "end": 69},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java", "start": 747, "end": 786},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/kafka/producer/IKafkaMessageService.java", "start": 1, "end": 23}
+  ],
+  "mouths": [
+    {"id": "http-openApp", "text": "POST /api/realTimeEvent/openApp → RealTimeEventController.openApp → processAppStartupEvent", "tag": "图"},
+    {"id": "http-startup", "text": "POST /api/app/startup → AppController.startup → processAppStartupEvent", "tag": "图"},
+    {"id": "build-param-not-grant", "text": "openApp 另调 buildOpenAppGrantCouponParam：组参给 MC 通知，不是发券", "tag": "图"},
+    {"id": "not-openApp-platform", "text": "POST /api/realTimeEvent/openApp/{platform} 广告归因，不调 processAppStartupEvent", "tag": "图"},
+    {"id": "not-internal-grant", "text": "POST /ecInternalApi/couponGrantRule/grantCoupon* 另一套 CouponGrantService，不连 grantCutInterestCouponForOpenApp", "tag": "图"},
+    {"id": "not-checkStrategy", "text": "POST /ecInternalApi/checkStrategy 资源位过滤，不是开屏发券", "tag": "图"},
+    {"id": "kafka-produce", "text": "processAppStartupEvent → sendAppStartupEvent → IKafkaMessageService.schedule(APP_STARTUP_AT_LEAST_ONCE_EVENT)", "tag": "图"},
+    {"id": "kafka-consumer-pool", "text": "ec-kafka-consumer ConsumerPoolService.run", "tag": "图"},
+    {"id": "kafka-wiring", "text": "run → kafka.topic_config → getProcessorClass → 反射 new Processor", "tag": "手工"},
+    {"id": "kafka-processor", "text": "AppStartUpGrantCouponProcessor.processRecord → grantCutInterestCouponForOpenApp", "tag": "图"},
+    {"id": "grant-reloan", "text": "复贷 doInjectCutInterestCouponForReloan → tryGrantCutInterestCoupon → grantCouponByRuleId", "tag": "图"},
+    {"id": "grant-first-loan", "text": "首贷 doInjectCutInterestCouponForLoan → grantCutInterestCouponForFirstLoan → grantCouponOrGetExist", "tag": "图"},
+    {"id": "job-none", "text": "grantCutInterestCouponForOpenApp 的 callers 只有 processRecord；CouponTaskGrantJob 存在但无 callers 连到本链", "tag": "图"}
+  ],
+  "notes": "开屏降息只有两张 C 端嘴：/api/realTimeEvent/openApp 和 /api/app/startup，都只投 Kafka。真正发券在 processRecord → grantCutInterestCouponForOpenApp。消费拉起靠 topic_config + 反射，图上没有边。没有 Job、没有 internal-api 入口。CouponTaskGrantJob / grantCoupon 是另一套统一发券。reads 按 transcript 实际 Read 记：未打开 AppController / AppStartupService / AppStartUpGrantCouponProcessor（从图上点名）。未计入 PLAYBOOK / 查图脚本。",
+  "_reads_note": "交上来的阅读清单含未 Read 的 AppController、AppStartupService、Processor；账本已剔除。"
+}

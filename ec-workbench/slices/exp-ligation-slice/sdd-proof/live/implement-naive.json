@@ -1,0 +1,22 @@
+{
+  "arm": "naive",
+  "knife": "implement",
+  "wall_seconds": 53,
+  "agent": "157669e4-1081-40b0-b466-65ce2553dddb",
+  "reads": [
+    {"path": "ec-core/src/main/java/com/yqg/core/service/kafka/consumer/processor/AppStartUpGrantCouponProcessor.java", "start": 1, "end": 80},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java", "start": 1, "end": 80},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/kafka/consumer/processor/AppStartUpGrantCouponProcessor.java", "start": 81, "end": 133},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java", "start": 80, "end": 159},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java", "start": 160, "end": 239},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java", "start": 240, "end": 319},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java", "start": 320, "end": 399},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java", "start": 400, "end": 479},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java", "start": 480, "end": 559},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java", "start": 640, "end": 719},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java", "start": 800, "end": 879},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java", "start": 560, "end": 639}
+  ],
+  "mouths": [],
+  "notes": "发券发生在消费端（Kafka IKafkaMessageProcessor.processRecord），不是 HTTP。本臂未 Grep，在 OpenAppGrantCouponService 里分段翻页找 grantCutInterestCouponForOpenApp，超出「只读该方法」。"
+}

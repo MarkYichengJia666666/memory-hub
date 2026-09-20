@@ -1,0 +1,182 @@
+### GRAPH search {"query": "SUPERBANK_CHANNEL_USER_BINDING_CARD", "limit": 5, "code_graph_id": "cg-zp42c34n"}
+**Search Results (1 found)**
+
+**SUPERBANK_CHANNEL_USER_BINDING_CARD** (enum_member)
+ec-core/src/main/java/com/yqg/core/service/abtest/enums/ExperimentNameSpace.java:1366
+
+
+### GRAPH callers {"symbol": "SUPERBANK_CHANNEL_USER_BINDING_CARD", "limit": 8, "code_graph_id": "cg-zp42c34n"}
+No callers found for "SUPERBANK_CHANNEL_USER_BINDING_CARD"
+
+### GRAPH node {"symbol": "SUPERBANK_CHANNEL_USER_BINDING_CARD", "code_graph_id": "cg-zp42c34n"}
+**SUPERBANK_CHANNEL_USER_BINDING_CARD** (enum_member)
+
+**Location:** ec-core/src/main/java/com/yqg/core/service/abtest/enums/ExperimentNameSpace.java:1366
+
+### GRAPH search {"query": "isInSuperBankBindCardExperiment", "limit": 5, "code_graph_id": "cg-zp42c34n"}
+**Search Results (1 found)**
+
+**isInSuperBankBindCardExperiment** (method)
+ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:1033
+`boolean (Long userId, Long build)`
+
+
+### GRAPH search {"query": "keepOnlySuperBankIfInExperiment", "limit": 5, "code_graph_id": "cg-zp42c34n"}
+**Search Results (1 found)**
+
+**keepOnlySuperBankIfInExperiment** (method)
+ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:986
+`List<BankConfigVO> (List<BankConfigVO> banks, Long userId, Long build, String deviceId)`
+
+
+### GRAPH callers {"symbol": "isInSuperBankBindCardExperiment", "limit": 8, "code_graph_id": "cg-zp42c34n"}
+**Callers of isInSuperBankBindCardExperiment (1 found)**
+
+- keepOnlySuperBankIfInExperiment (method) - ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:986
+
+### GRAPH callers {"symbol": "keepOnlySuperBankIfInExperiment", "limit": 8, "code_graph_id": "cg-zp42c34n"}
+**Callers of keepOnlySuperBankIfInExperiment (1 found)**
+
+- getIdnSupportedBankListWithLogo (method) - ec-api/src/main/java/com/miyou/controllers/cashloan/LoanBankAccountController.java:349
+
+### GRAPH callees {"symbol": "isInSuperBankBindCardExperiment", "limit": 8, "code_graph_id": "cg-zp42c34n"}
+**Callees of isInSuperBankBindCardExperiment (4 found)**
+
+- from (method) - ec-core/src/main/java/com/yqg/core/service/abtest/vo/ABTestUserIdRequestVO.java:10
+- fetchResultFallBackWithDefaultScene (method) - ec-core/src/main/java/com/yqg/core/service/abtest/ExpFacade.java:37
+- ExperimentNameSpace (enum) - ec-core/src/main/java/com/yqg/core/service/abtest/enums/ExperimentNameSpace.java:36 — via reference
+- ExpFacade (class) - ec-core/src/main/java/com/yqg/core/service/abtest/ExpFacade.java:24 — via reference
+
+### GRAPH callees {"symbol": "keepOnlySuperBankIfInExperiment", "limit": 8, "code_graph_id": "cg-zp42c34n"}
+**Callees of keepOnlySuperBankIfInExperiment (4 found)**
+
+- getMediaSourceByDeviceId (method) - ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:1014
+- isValidMediaSource (method) - ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:1028
+- isInSuperBankBindCardExperiment (method) - ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:1033
+- BankType (enum) - ec-core/src/main/java/com/yqg/core/model/sql/bankaccount/enums/BankType.java:9 — via reference
+
+### GRAPH callers {"symbol": "getIdnSupportedBankListWithLogo", "limit": 8, "code_graph_id": "cg-zp42c34n"}
+**Callers of getIdnSupportedBankListWithLogo (1 found)**
+
+- GET /api/idn/cashloan/getSupportedBank (route) - ec-api/src/main/java/com/miyou/controllers/cashloan/LoanBankAccountController.java:349 — via reference
+
+### GRAPH impact {"symbol": "isInSuperBankBindCardExperiment", "depth": 2, "code_graph_id": "cg-zp42c34n"}
+**Impact: "isInSuperBankBindCardExperiment" affects 3 symbols**
+
+**ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:**
+isInSuperBankBindCardExperiment:1033, keepOnlySuperBankIfInExperiment:986
+
+**ec-api/src/main/java/com/miyou/controllers/cashloan/LoanBankAccountController.java:**
+getIdnSupportedBankListWithLogo:349
+
+
+### GREP SUPERBANK_CHANNEL_USER_BINDING_CARD|isInSuperBankBindCardExperiment|keepOnlySuperBankIfInExperiment|technology-auth-abroad-loan-superbank_rename_0908
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:986:  public List<BankConfigVO> keepOnlySuperBankIfInExperiment(List<BankConfigVO> banks, Long userId, Long build, String deviceId) {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:998:    if (!isInSuperBankBindCardExperiment(userId, build)) {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:1033:  private boolean isInSuperBankBindCardExperiment(Long userId, Long build) {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:1035:        ExperimentNameSpace.SUPERBANK_CHANNEL_USER_BINDING_CARD, userId);
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:1036:    String abTestResult = expFacade.fetchResultFallBackWithDefaultScene("technology-auth-abroad-loan-superbank_rename_0908", ExpFacade.ClientType.DIVERSION, request, build);
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/abtest/enums/ExperimentNameSpace.java:1366:  SUPERBANK_CHANNEL_USER_BINDING_CARD("Superbank渠道用户绑卡",
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/abtest/ABTestConfig.java:285:      .put("technology-auth-abroad-loan-superbank_rename_0908", Range.closed(36900L, 99999L))
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/LoanBankAccountController.java:359:    bankList = loanBankAccountService.keepOnlySuperBankIfInExperiment(bankList,viewerContext.userId,viewerContext.build,viewerContext.deviceToken);
+
+### READ ec-core/src/main/java/com/yqg/core/service/abtest/enums/ExperimentNameSpace.java:1366-1371
+  SUPERBANK_CHANNEL_USER_BINDING_CARD("Superbank渠道用户绑卡",
+      () -> ImmutableSet.of(BooleanType.TRUE.name(), BooleanType.FALSE.name()),
+      BooleanType.FALSE.name(),
+      DiversionKeyType.USER_ID,
+      36900L,
+      Long.MAX_VALUE),
+### READ ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:983-1041
+  /**
+   * 命中"SuperBank渠道绑卡"实验组（B组）时，仅保留 SuperBank。
+   */
+  public List<BankConfigVO> keepOnlySuperBankIfInExperiment(List<BankConfigVO> banks, Long userId, Long build, String deviceId) {
+    // 基础参数校验
+    if (CollectionUtils.isEmpty(banks) || Objects.isNull(userId) || Objects.isNull(build) || Objects.isNull(deviceId)) {
+      return banks;
+    }
+
+    // 获取广告来源并校验
+    String mediaSource = getMediaSourceByDeviceId(deviceId);
+    if (Objects.isNull(mediaSource) || !isValidMediaSource(mediaSource)) {
+      return banks;
+    }
+
+    if (!isInSuperBankBindCardExperiment(userId, build)) {
+      return banks;
+    }
+
+    List<BankConfigVO> list = banks.stream()
+        .filter(Objects::nonNull)
+        .filter(b -> b.getBankType() == BankType.FAMA)
+        .collect(Collectors.toList());
+
+    if (CollectionUtils.isEmpty(list)) {
+      return banks;
+    }
+
+    return list;
+  }
+
+  private String getMediaSourceByDeviceId(String deviceId) {
+    try {
+      AdsResponse<AppsflyerResultVO> adsResponse = adsAppsflyerService.getAppsflyerMediaSourceByDeviceId(deviceId);
+      if (adsResponse == null || adsResponse.body == null) {
+        log.warn("Failed to get media source from Appsflyer, deviceId: {}", deviceId);
+        return null;
+      }
+      return adsResponse.body.getMediaSource();
+    } catch (Exception e) {
+      log.error("Error getting media source from Appsflyer", e);
+      return null;
+    }
+  }
+
+  private boolean isValidMediaSource(String mediaSource) {
+    List<String> filterMediaSourceList = loanBankConfig.getFilterBankTypeMediaSourceAllowList();
+    return !CollectionUtils.isEmpty(filterMediaSourceList) && filterMediaSourceList.contains(mediaSource);
+  }
+
+  private boolean isInSuperBankBindCardExperiment(Long userId, Long build) {
+    ABTestUserIdRequestVO request = ABTestUserIdRequestVO.from(
+        ExperimentNameSpace.SUPERBANK_CHANNEL_USER_BINDING_CARD, userId);
+    String abTestResult = expFacade.fetchResultFallBackWithDefaultScene("technology-auth-abroad-loan-superbank_rename_0908", ExpFacade.ClientType.DIVERSION, request, build);
+    if (StringUtils.isEmpty(abTestResult)) {
+      return false;
+    }
+    return Boolean.parseBoolean(abTestResult);
+  }
+### READ ec-api/src/main/java/com/miyou/controllers/cashloan/LoanBankAccountController.java:349-368
+  @GetMapping(path = "/api/idn/cashloan/getSupportedBank")
+  @ResponseBody
+  @ECSecuredApi
+  public Result getIdnSupportedBankListWithLogo() {
+    LoanApiViewerContext viewerContext = getViewerContextFromRequest();
+    if (viewerContext.sdkType == null) {
+      throw EcException.error("sdk is null");
+    }
+    List<BankConfigVO> bankList = loanBankAccountService.getSupportedBankVOList(viewerContext.sdkType);
+    Map<BankType, BankAttributeVO> bankTypeToBankAttributeVOMap = bankConfig.getBankAttributeVOMap();
+    bankList = loanBankAccountService.keepOnlySuperBankIfInExperiment(bankList,viewerContext.userId,viewerContext.build,viewerContext.deviceToken);
+    bankTypeToBankAttributeVOMap = loanBankAccountService.clearPopWindowTextIfInExperiment(bankTypeToBankAttributeVOMap, viewerContext.userId, viewerContext.build, viewerContext.sourceType, viewerContext.loanAccountId);
+    SupportedBankListResponse response = SupportedBankListResponse.from(
+        viewerContext.sdkType,
+        cashLoanConfig.getCommonBanksNumbers(viewerContext.sdkType),
+        bankList,
+        bankTypeToBankAttributeVOMap,
+        true);
+    return EcResponseUtil.generate(response);
+  }
+### READ ec-core/src/main/java/com/yqg/core/service/abtest/ABTestConfig.java:280-290
+      .put("product_operation_bill_overdue-after_overdue-abroad-loan_all-REPAY_CHANNEL_SORT_OVERDUE_copy", Range.closed(38000L, 99999L))
+      .put("product_operation_bill-repayment-abroad-loan_all-repaymentchanneldananormal", Range.closed(35300L, 99999L))
+      .put("product_operation_bill-repayment-abroad-loan_all-repaymentchanneldanaoverdue", Range.closed(35300L, 99999L))
+      .put("technology-repayment-abroad-loan_all-BillpagetoH5_reopen", Range.closed(0L, 99999L))
+      .put("technology-repayment-abroad-loan_all-BillpagetoH5overdue_reopen", Range.closed(0L, 99999L))
+      .put("technology-auth-abroad-loan-superbank_rename_0908", Range.closed(36900L, 99999L))
+      .put("technology-auth-abroad-loan-ktpocr_failure_0901", Range.closed(37113L, 99999L))
+      .put("technology-auth-abroad-loan-MOTHER_LAST_NAME_CHECK_RULE_KTP_CONFIRM_PAGE_PRO", Range.closed(0L, 99999L))
+      .put("technology-not_withdraw-abroad-loan_all-MOTHER_LAST_NAME_CHECK_RULE_ORDER_SUPPLEMENT_PAGE_PRO", Range.closed(0L, 99999L))
+      .put("product_operation_order-not_withdraw-abroad-loan_all-marketing_coupons_0814", Range.closed(36900L, 99999L))
+      .put("product_operation_order-lending-abroad-loan_all-QUICK_ORDER_LOAN_H5_0721", Range.closed(0L, 99999L))

@@ -1,0 +1,4065 @@
+### grep
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:986:  public List<BankConfigVO> keepOnlySuperBankIfInExperiment(List<BankConfigVO> banks, Long userId, Long build, String deviceId) {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:998:    if (!isInSuperBankBindCardExperiment(userId, build)) {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:1033:  private boolean isInSuperBankBindCardExperiment(Long userId, Long build) {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:1035:        ExperimentNameSpace.SUPERBANK_CHANNEL_USER_BINDING_CARD, userId);
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:1036:    String abTestResult = expFacade.fetchResultFallBackWithDefaultScene("technology-auth-abroad-loan-superbank_rename_0908", ExpFacade.ClientType.DIVERSION, request, build);
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/abtest/enums/ExperimentNameSpace.java:1366:  SUPERBANK_CHANNEL_USER_BINDING_CARD("Superbank渠道用户绑卡",
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/abtest/ABTestConfig.java:285:      .put("technology-auth-abroad-loan-superbank_rename_0908", Range.closed(36900L, 99999L))
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/LoanBankAccountController.java:359:    bankList = loanBankAccountService.keepOnlySuperBankIfInExperiment(bankList,viewerContext.userId,viewerContext.build,viewerContext.deviceToken);
+
+
+### READ /Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/abtest/enums/ExperimentNameSpace.java
+package com.yqg.core.service.abtest.enums;
+
+import com.google.common.collect.ImmutableSet;
+import com.yqg.common.spring.util.enums.DescriptionBaseEnum;
+import com.yqg.common.util.type.BooleanType;
+import com.yqg.core.common.enums.BooleanEnum;
+import com.yqg.core.model.sql.abtest.enums.DiversionKeyType;
+import com.yqg.core.service.cashloan.auth.step.enums.BindCardDelayGroup;
+import com.yqg.core.service.cashloan.enums.RepayPlanReduceGroup;
+import com.yqg.core.service.cashloan.repay.enums.GoPayDirectDebitStrategy;
+import com.yqg.core.service.cashloan.repay.enums.RepaymentChannelPageDisplayStrategy;
+import com.yqg.core.service.cashloan.repay.enums.RepaymentReminderStrategy;
+import com.yqg.core.service.cashloan.repay.enums.UnionRepaymentDisplayStrategy;
+import com.yqg.core.service.cashloan.vo.enums.DiscountDetailTopAreaVipUIDisplayStrategy;
+import com.yqg.core.service.directdebit.enums.DirectDebitGuidePageStrategy;
+import com.yqg.core.service.directdebit.enums.DirectDebtDisplayStrategy;
+import com.yqg.core.service.jbp.creditreport.enums.JbpCreditReportPopupResultGroup;
+import com.yqg.core.service.jbp.creditreport.enums.JbpCreditReportResultGroup;
+import com.yqg.core.service.jbp.goldencard.enums.GoldenCardStrategy;
+import com.yqg.core.service.jbp.goldencard.enums.GoldenCardV2DisplayStrategy;
+import com.yqg.core.service.loan.intention.types.LoanIntentionDisplayStrategy;
+import com.yqg.core.service.loan.repayment.account.enums.DanaExperimentResult;
+import com.yqg.core.service.orderpage.quickorder.emums.QuickOrderResultGroup;
+import com.yqg.core.service.payment.factory.collectioninfo.processors.enums.CollectInformationDuringCreateOrderABTestResultGroup;
+import com.yqg.core.service.user.thirdpartylogin.UserLoginProvider;
+import com.yqg.ec.common.enums.jbp.JbpCreditReportPriceResultGroup;
+
+import java.util.Arrays;
+import java.util.Set;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
+import static com.yqg.core.service.loan.infos.enums.LoanUserLivingSource.ADVANCE_H5;
+import static com.yqg.core.service.loan.infos.enums.LoanUserLivingSource.TENCENT_H5;
+
+public enum ExperimentNameSpace implements DescriptionBaseEnum {
+  @Deprecated
+  H5_LANDING_PAGE_ACCURATE_LOGIN("H5落地页精准登录",
+      () -> ImmutableSet.of(BooleanType.TRUE.name(), BooleanType.FALSE.name()),
+      BooleanType.FALSE.name(),
+      DiversionKeyType.DEVICE_TOKEN,
+      0L,
+      Long.MAX_VALUE),
+  LOGIN_INPUT_DISPLAY_TYPE("借贷注册登录半蒙层优化",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name(),
+          CommonABTestResultGroup.D.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.DEVICE_TOKEN,
+      0L,
+      Long.MAX_VALUE),
+  AUTO_DELAY_SEND_VERIFICATION("自动延迟发送验证码",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name(),
+          CommonABTestResultGroup.D.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.DEVICE_TOKEN,
+      0L,
+      Long.MAX_VALUE),
+  @Deprecated
+  FORCE_MERGE_ACCOUNT("强制换绑账号",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name(),
+          CommonABTestResultGroup.D.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.NIK,
+      0L,
+      Long.MAX_VALUE),
+  @Deprecated
+  LOOSE_CHANGE_BIND("宽松条件强制换绑账号",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name(),
+          CommonABTestResultGroup.D.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.NIK,
+      0L,
+      Long.MAX_VALUE),
+  APPLIST_PRE_REGISTER_OR_LOGIN_SHOW_DIALOG("APPList弹窗是否展示",
+      () -> ImmutableSet.of(BooleanType.TRUE.name(), BooleanType.FALSE.name(), "TURE"),
+      BooleanType.TRUE.name(),
+      DiversionKeyType.DEVICE_TOKEN,
+      0L,
+      Long.MAX_VALUE),
+  APPLIST_DIALOG_DISPLAY_TYPE("APPList弹窗样式",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name(),
+          CommonABTestResultGroup.D.name(),
+          CommonABTestResultGroup.E.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.DEVICE_TOKEN,
+      0L,
+      Long.MAX_VALUE),
+  REGISTER_ACTIVITY_FOR_APP("注册活动利益点--app",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name(),
+          CommonABTestResultGroup.D.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.DEVICE_TOKEN,
+      0L,
+      Long.MAX_VALUE),
+  REGISTER_ACTIVITY_FOR_H5("注册活动利益点--h5",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name(),
+          CommonABTestResultGroup.D.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.DEVICE_TOKEN,
+      0L,
+      Long.MAX_VALUE),
+  SKIP_GUIDE_PAGE("跳过引导页",
+      () -> ImmutableSet.of(BooleanType.TRUE.name(), BooleanType.FALSE.name()),
+      BooleanType.FALSE.name(),
+      DiversionKeyType.DEVICE_TOKEN,
+      0L,
+      Long.MAX_VALUE),
+  H5_LOADING_OPTIMIZATION_PRECISE("h5加载时长优化(精准)",
+      () -> ImmutableSet.of(BooleanEnum.TRUE.name(), BooleanEnum.FALSE.name(), BooleanEnum.NONE.name()),
+      BooleanEnum.NONE.name(),
+      DiversionKeyType.DEVICE_TOKEN,
+      0L,
+      Long.MAX_VALUE),
+  H5_LOADING_OPTIMIZATION_WHOLE_PROCESS("h5加载时长优化(全流程)",
+      () -> ImmutableSet.of(BooleanEnum.TRUE.name(), BooleanEnum.FALSE.name(), BooleanEnum.NONE.name()),
+      BooleanEnum.NONE.name(),
+      DiversionKeyType.DEVICE_TOKEN,
+      0L,
+      Long.MAX_VALUE),
+  APP_NSR_LOAD("APP NSR加载",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name(),
+          CommonABTestResultGroup.D.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.DEVICE_TOKEN,
+      0L,
+      Long.MAX_VALUE),
+  H5_KEEP_USER_LOGIN_STATUS("h5保持登录态",
+      () -> ImmutableSet.of(BooleanType.TRUE.name(), BooleanType.FALSE.name()),
+      BooleanType.FALSE.name(),
+      DiversionKeyType.DEVICE_TOKEN,
+      0L,
+      Long.MAX_VALUE),
+  H5_VERIFICATION_COUNT_DOWN_SECONDS("h5验证码倒计时秒数",
+      () -> ImmutableSet.of("60", "10", "20", "30"),
+      "60",
+      DiversionKeyType.DEVICE_TOKEN,
+      0L,
+      Long.MAX_VALUE),
+  LANDING_PAGE_SUPPORT_DELETE_USER_REGISTER("落地页支持注销手机号重新注册",
+      () -> ImmutableSet.of(BooleanType.TRUE.name(), BooleanType.FALSE.name()),
+      BooleanType.FALSE.name(),
+      DiversionKeyType.DEVICE_TOKEN,
+      0L,
+      Long.MAX_VALUE),
+  H5_SEND_VERIFICATION_OPT("h5验证码发送体验优化",
+      () -> ImmutableSet.of(BooleanType.TRUE.name(), BooleanType.FALSE.name()),
+      BooleanType.FALSE.name(),
+      DiversionKeyType.DEVICE_TOKEN,
+      0L,
+      Long.MAX_VALUE),
+  /**
+   * abtest scene迁移至中台
+   */
+  @Deprecated
+  ORDER_PAGE_COUPON_PROMPT("367下单页优惠券提示",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  /**
+   * abtest scene迁移至中台
+   */
+  ORDER_GUIDE_ANIMATION_368("368版本下单引导动画实验",
+      () -> ImmutableSet.of(
+          BooleanType.TRUE.name(),
+          BooleanType.FALSE.name()),
+      BooleanType.FALSE.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+
+  JBP_GOLDEN_CARD("金卡实验",
+      () -> Arrays.stream(GoldenCardStrategy.values()).map(Enum::name).collect(Collectors.toSet()),
+      GoldenCardStrategy.NONE.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  JBP_BLACK_CARD_AB("黑卡demo ab",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  JBP_GOLDEN_REPAYMENT_NOT_V("中收用户金卡不可借&无生效订单实验",
+      () -> Arrays.stream(GoldenCardStrategy.values()).map(Enum::name).collect(Collectors.toSet()),
+      GoldenCardStrategy.NONE.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+
+  PRODUCT_SHOW_BUBBLE_CONTENT_FOR_369("369版本是否展示下单页产品引导气泡",
+      () -> ImmutableSet.of(BooleanType.TRUE.name(), BooleanType.FALSE.name()),
+      BooleanType.FALSE.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  @Deprecated
+  H5_CAN_CREATE_ORDER_PAGE("native迁移H5可下单页",
+      () -> ImmutableSet.of(BooleanType.TRUE.name(), BooleanType.FALSE.name()),
+      BooleanType.FALSE.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  @Deprecated
+  WEB_AUTH_BIND_BANK_CARD("native迁移H5鉴权绑卡页",
+      () -> ImmutableSet.of(BooleanType.TRUE.name(), BooleanType.FALSE.name()),
+      BooleanType.FALSE.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  @Deprecated
+  IMMEDIATE_CONTACTINFO_BEFORE_CREATE_ORDER("下单前置校验之前填写紧急联系人",
+      () -> ImmutableSet.of(BooleanType.TRUE.name(), BooleanType.FALSE.name()),
+      BooleanType.FALSE.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+
+  @Deprecated
+  IMMEDIATE_CONTACTINFO_WHEN_CREATE_ORDER("下单校验填写紧急联系人",
+      () -> {
+        return Arrays.stream(CollectInformationDuringCreateOrderABTestResultGroup.values()).map(Enum::name).collect(Collectors.toSet());
+      },
+      CollectInformationDuringCreateOrderABTestResultGroup.NOT_COLLECT.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+
+  @Deprecated
+  IMMEDIATE_CONTACTINFO_NOT_CREATE_ORDER("在贷不能下单填写紧急联系人",
+      () -> ImmutableSet.of(BooleanType.TRUE.name(), BooleanType.FALSE.name()),
+      BooleanType.FALSE.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  RISK_CHECKING_IMMEDIATE_CONTACT_BEFORE_CREATE_ORDER("Risk Checking Immediate Contact before create order",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name(),
+          CommonABTestResultGroup.D.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  RISK_CHECKING_IMMEDIATE_CONTACT_NOT_CREATE_ORDER("Risk Checking Immediate Contact not create order",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name(),
+          CommonABTestResultGroup.D.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  CREATE_ORDER_CHECK_SWITCH("新老下单前置校验接口",
+      () -> ImmutableSet.of(BooleanType.TRUE.name(), BooleanType.FALSE.name()),
+      BooleanType.FALSE.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+
+  JBP_GOLDEN_CARD_INCREASE_CREDIT_POP_UP("金卡实验--提额分流弹窗样式实验",
+      () -> ImmutableSet.of(GoldenCardV2DisplayStrategy.GOLDEN_CARD_V2_INCREASE_CREDIT_HALF_MODAL.name(),
+          GoldenCardV2DisplayStrategy.GOLDEN_CARD_V2_INCREASE_CREDIT_POP_UP_WINDOW.name(), GoldenCardV2DisplayStrategy.GOLDEN_CARD_V2_INCREASE_CREDIT_ORIGINAL_POP_UP_WINDOW.name())
+      , GoldenCardV2DisplayStrategy.GOLDEN_CARD_V2_INCREASE_CREDIT_ORIGINAL_POP_UP_WINDOW.name(),
+      DiversionKeyType.NIK,
+      0L,
+      Long.MAX_VALUE),
+
+  JBP_GOLDEN_CARD_SPEED_UP_POP_UP("金卡实验--加速打款弹窗样式实验",
+      () -> ImmutableSet.of(GoldenCardV2DisplayStrategy.GOLDEN_CARD_V2_SPEED_UP_POP_UP_WINDOW.name(),
+          GoldenCardV2DisplayStrategy.GOLDEN_CARD_V2_SPEED_UP_HALF_MODAL.name(), GoldenCardV2DisplayStrategy.GOLDEN_CARD_V2_SPEED_UP_ORIGINAL_POP_UP_WINDOW.name()),
+      GoldenCardV2DisplayStrategy.GOLDEN_CARD_V2_SPEED_UP_ORIGINAL_POP_UP_WINDOW.name(),
+      DiversionKeyType.NIK,
+      0L,
+      Long.MAX_VALUE),
+
+  APP_MAX_FONT_SCALE("app大字体实验",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name()
+      ),
+      CommonABTestResultGroup.C.name(),
+      DiversionKeyType.DEVICE_TOKEN,
+      0L,
+      Long.MAX_VALUE),
+  ORDER_PAGE_QUICK_ORDER_BG("下单页快速下单半蒙层实验",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name(),
+          CommonABTestResultGroup.D.name(),
+          CommonABTestResultGroup.E.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  ORDER_PAGE_QUICK_ORDER_BG_NATIVE("下单页快速下单半蒙层实验-native",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name(),
+          CommonABTestResultGroup.D.name(),
+          CommonABTestResultGroup.E.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  LOAN_USER_LOAN_INTENTION_V3("授信即下单新开实验V3",
+      () -> ImmutableSet.of(
+          LoanIntentionDisplayStrategy.A0.name(),
+          LoanIntentionDisplayStrategy.A2.name(),
+          LoanIntentionDisplayStrategy.A3.name(),
+          LoanIntentionDisplayStrategy.A4.name()
+      ),
+      LoanIntentionDisplayStrategy.A0.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+
+  LOAN_USER_LOAN_INTENTION_V3_B("授信即下单新开实验V3_B",
+      () -> ImmutableSet.of(
+          LoanIntentionDisplayStrategy.A0.name(),
+          LoanIntentionDisplayStrategy.A2.name(),
+          LoanIntentionDisplayStrategy.A3.name(),
+          LoanIntentionDisplayStrategy.A4.name(),
+          LoanIntentionDisplayStrategy.B0.name(),
+          LoanIntentionDisplayStrategy.B1.name(),
+          LoanIntentionDisplayStrategy.B2.name()
+      ),
+      LoanIntentionDisplayStrategy.B0.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+
+  LOAN_USER_LOAN_INTENTION_PARENT_EXPERIMENT("授信即下单父实验",
+      () -> ImmutableSet.of(
+          BooleanType.TRUE.name(),
+          BooleanType.FALSE.name()
+      ),
+      BooleanType.FALSE.name(),
+      DiversionKeyType.USER_ID,
+      37013L,
+      Long.MAX_VALUE
+  ),
+
+  LOAN_USER_LOAN_INTENTION_V4("授信即下单实验V4",
+      () -> ImmutableSet.of(
+          LoanIntentionDisplayStrategy.D0.name(),
+          LoanIntentionDisplayStrategy.D1.name(),
+          LoanIntentionDisplayStrategy.D2.name()
+      ),
+      LoanIntentionDisplayStrategy.D0.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+
+  @Deprecated
+  AUTH_WEB_CONTACT_INFO("h5迁移鉴权紧急联系人",
+      () -> ImmutableSet.of(BooleanType.TRUE.name(), BooleanType.FALSE.name()),
+      BooleanType.FALSE.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  LOAN_KTP_OCR_PROVIDER(
+      "借款端 KTP OCR 渠道实验",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name(),
+          CommonABTestResultGroup.D.name(),
+          CommonABTestResultGroup.E.name()
+      ),
+      CommonABTestResultGroup.E.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  CAN_ORDER_PAGE_V370_DISCOUNT_STYLE("370版本下单页折扣优惠样式",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  @Deprecated
+  CHANGE_USER_WITH_EKYC_CHECK("换绑ekyc校验",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.NIK,
+      0L,
+      Long.MAX_VALUE),
+  XENDIT_DIRECT_DEBT("xendit api转化实验",
+      () -> ImmutableSet.of(
+          DirectDebtDisplayStrategy.REPAY_AFTER_DUE_DATE.name(),
+          DirectDebtDisplayStrategy.REPAY_ANYTIME.name(),
+          DirectDebtDisplayStrategy.NONE.name()),
+      DirectDebtDisplayStrategy.NONE.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+
+  INCREASE_CREDIT_DECREASE_INTEREST_POPUP_WINDOW(
+      "提额降息扑脸弹窗实验",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      37300L,
+      Long.MAX_VALUE
+  ),
+
+  AYO_CONNECT_DIRECT_DEBT("AyoConnect api转化实验",
+      () -> ImmutableSet.of(
+          DirectDebtDisplayStrategy.REPAY_AFTER_DUE_DATE.name(),
+          DirectDebtDisplayStrategy.REPAY_ANYTIME.name(),
+          DirectDebtDisplayStrategy.NONE.name()),
+      DirectDebtDisplayStrategy.NONE.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  BCA_DIRECT_DEBT("BCA api 转化实验",
+      () -> ImmutableSet.of(
+          DirectDebtDisplayStrategy.REPAY_AFTER_DUE_DATE.name(),
+          DirectDebtDisplayStrategy.REPAY_ANYTIME.name(),
+          DirectDebtDisplayStrategy.NONE.name()),
+      DirectDebtDisplayStrategy.NONE.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  DISCOUNT_DETAIL_TOP_AREA_VIP_UI_DISPLAY_STRATEGY_V3("优惠模块，头图，vip皮肤展示分流V3",
+      () -> Arrays.stream(DiscountDetailTopAreaVipUIDisplayStrategy.values()).map(Enum::name).collect(Collectors.toSet()),
+      DiscountDetailTopAreaVipUIDisplayStrategy.CONTROL_GROUP.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  LOAN_ORDER_PAGE_SHOW_TERMS("下单页借款期限展示&引导借长期",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name(),
+          CommonABTestResultGroup.D.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  COUPON_LIST_STYLE_371("优惠券列表样式，371版本",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  @Deprecated
+  HOME_API_OPTIMIZATION_TEST("首页API优化实验",
+      () -> ImmutableSet.of(BooleanType.TRUE.name(), BooleanType.FALSE.name()),
+      BooleanType.FALSE.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  KTP_MARKETING_POPUP_DISPLAY("ktp环节营销奖励活动",
+      () -> ImmutableSet.of("A", "B", "C", "D", "E", "F", "G", "H", "I", "J"),
+      "A",
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  KTP_MARKETING_POPUP_DISPLAY_V3("ktp环节营销奖励活动V3",
+      () -> ImmutableSet.of("C", "C1", "C2", "C3"),
+      "C",
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  KTP_MARKETING_POPUP_DISPLAY_V3_AUTO_JUMP("ktp弹窗自动跳转",
+      () -> ImmutableSet.of("A", "B", "C"),
+      "A",
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  CREATE_ORDER_INCENTIVE_ACTIVITY_AB_H5("下单激励活动AB实验H5",
+      () -> ImmutableSet.of("A", "B", "C"),
+      "A",
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  CREATE_ORDER_INCENTIVE_ACTIVITY_AB_V2(
+      "下单激励活动AB实验H5分流V2",
+      () -> ImmutableSet.of("A", "B", "C"),
+      "A",
+      DiversionKeyType.USER_ID,
+      37300L,
+      Long.MAX_VALUE),
+  CREATE_ORDER_INCENTIVE_ACTIVITY_AB_V3(
+      "下单激励活动AB实验H5分流V3",
+      () -> ImmutableSet.of("A", "B", "C", "D"),
+      "D",
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  @Deprecated
+  CREATE_ORDER_INCENTIVE_ACTIVITY_AB_V4(
+      "下单激励活动AB实验H5分流V4",
+      () -> ImmutableSet.of("A", "B", "C"),
+      "A",
+      DiversionKeyType.USER_ID,
+      37300L,
+      Long.MAX_VALUE
+  ),
+  CREATE_ORDER_INCENTIVE_ACTIVITY_AB_NATIVE("下单激励活动AB实验NATIVE",
+      () -> ImmutableSet.of("A", "B", "C"),
+      "A",
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  ORDER_PAGE_RETURN_BUTTON_QUICK_ORDER_POPUP_FOR_CASH("下单页返回按钮快速下单弹窗",
+      () -> ImmutableSet.of("A", "B", "C", "D"),
+      "A",
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  ORDER_PAGE_RETURN_BUTTON_QUICK_ORDER_POPUP_FOR_CASH_NATIVE("下单页返回按钮快速下单弹窗",
+      () -> ImmutableSet.of("A", "B", "C", "D"),
+      "A",
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  HOME_PAGE_POPUP_FOR_CASH("首页弹窗现金实验",
+      () -> ImmutableSet.of("A", "B"),
+      "A",
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  USER_IP_REGISTER_PROVIDER("用户ip注册供应商实验",
+      () -> ImmutableSet.of(
+          UserLoginProvider.EASY_CASH.name(),
+          UserLoginProvider.IPIFICATION.name(),
+          UserLoginProvider.ALIBABA_IP.name()
+      ),
+      UserLoginProvider.IPIFICATION.name(),
+      DiversionKeyType.DEVICE_TOKEN,
+      0L,
+      Long.MAX_VALUE),
+  SHOPEE_ONLINE_SHOPPING_INFO_AB("shopee电商信息实验",
+      () -> {
+        return ImmutableSet.of("NONE", "WE_BANK");
+      },
+      "NONE",
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  USER_REGISTER_PAGE_AUTHORIZATION_CONTENT("注册页授权文案",
+      () -> ImmutableSet.of("A", "B"),
+      "A",
+      DiversionKeyType.DEVICE_TOKEN, 0L, Long.MAX_VALUE),
+
+  USER_REGISTER_PAGE_BANK_AUTHORIZATION_CONTENT("注册页银行营销授权文案",
+      () -> ImmutableSet.of("A", "B"),
+      "A",
+      DiversionKeyType.DEVICE_TOKEN, 0L, Long.MAX_VALUE),
+
+  ME_PAGE_WALLET_URL(
+      "用户页钱包按钮分流实验",
+      () -> ImmutableSet.of(BooleanType.TRUE.name(), BooleanType.FALSE.name()),
+      BooleanType.FALSE.name(),
+      DiversionKeyType.USER_ID,
+      0L, Long.MAX_VALUE),
+
+  USER_AUTHORIZATION_POPUP_WINDOW(
+      "用户授权弹窗展示实验",
+      () -> ImmutableSet.of(BooleanType.TRUE.name(), BooleanType.FALSE.name()),
+      BooleanType.FALSE.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  NOT_SHOW_SPLASH_SCREEN(
+      "不展示开屏页",
+      () -> ImmutableSet.of(
+          "A", "B"
+      ),
+      "A",
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  RETURN_BUTTON_COUPON_POP_UP_EXPERIMENT(
+      "挽留弹窗（有优惠券）",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  REGISTER_MARKETING_POINT(
+      "注册头图实验",
+      () -> ImmutableSet.of(
+          "A", "B", "C", "A1", "A2", "A3", "B1", "B2", "B3"
+      ),
+      "A",
+      DiversionKeyType.DEVICE_TOKEN,
+      0L,
+      Long.MAX_VALUE
+  ),
+  RETURN_BUTTON_CREDIT_POP_UP_EXPERIMENT(
+      "挽留弹窗（有临时额度）",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  RETURN_BUTTON_NO_COUPON_CREDIT_AND_LIMIT_AUTH_POP_UP_EXPERIMENT(
+      "挽留弹窗（无优惠券、和临时额度且完件三天内）",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  RETURN_BUTTON_NO_COUPON_CREDIT_AND_AUTH_LONG_POP_UP_EXPERIMENT(
+      "挽留弹窗（无优惠券、临时额度且完件4天以上）",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  QUICK_ORDER_LOAN_AMOUNT_EXPERIMENT(
+      "快速下单额度测试实验",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  ACCEPT_BUT_CAN_NOT_LOAN(
+      "授信通过但不可解",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  AUTO_JUMP_LEVEL2_FREQUENCY("首页自动跳转二级下单页频次限制",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  QUICK_ORDER_RELOAN_EXPERIMENT_H5(
+      "快速下单-H5实验（有借款）",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name(),
+          CommonABTestResultGroup.D.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  QUICK_ORDER_FIRST_LOAN_EXPERIMENT_H5(
+      "快速下单-H5实验（无借款）",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name(),
+          CommonABTestResultGroup.D.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  QUICK_ORDER_RELOAN_EXPERIMENT_NATIVE(
+      "快速下单-NATIVE实验（有借款）",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name(),
+          CommonABTestResultGroup.D.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  @Deprecated
+  QUICK_ORDER_FIRST_LOAN_EXPERIMENT_NATIVE(
+      "快速下单-NATIVE实验（无借款）",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name(),
+          CommonABTestResultGroup.D.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  QUICK_ORDER_H5_STYLE_EXPERIMENT(
+      "快速下单1.0（H5版）样式测试",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  REGISTER_MARKETING_POINT_SUB1(
+      "注册头图实验-子实验1",
+      () -> ImmutableSet.of(
+          "A1", "A2", "A3"
+      ),
+      "A1",
+      DiversionKeyType.DEVICE_TOKEN,
+      0L,
+      Long.MAX_VALUE
+  ),
+  REGISTER_MARKETING_POINT_SUB2(
+      "注册头图实验-子实验2",
+      () -> ImmutableSet.of(
+          "B1", "B2", "B3"
+      ),
+      "B1",
+      DiversionKeyType.DEVICE_TOKEN,
+      0L,
+      Long.MAX_VALUE
+  ),
+  LOGIN_SEND_VERIFICATION_AGAIN("登录otp重发",
+      () -> ImmutableSet.of(
+          "A",
+          "B",
+          "C"
+      ),
+      "A",
+      DiversionKeyType.DEVICE_TOKEN,
+      0L,
+      Long.MAX_VALUE
+  ),
+  ORDER_SEND_VERIFICATION_AGAIN("下单otp重发",
+      () -> ImmutableSet.of(
+          "A",
+          "D",
+          "E"
+      ),
+      "A",
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  BACK_UP_HOST_EXPERIMENT("获取域名列表实验",
+      () -> ImmutableSet.of("A", "B"),
+      "A",
+      DiversionKeyType.DEVICE_TOKEN,
+      0L,
+      Long.MAX_VALUE),
+  APP_NOTIFICATION_POPUP_DISPLAY_EXP("注册登陆-系统通知权限弹窗时机后置实验",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name(),
+          CommonABTestResultGroup.D.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.DEVICE_TOKEN,
+      0L,
+      Long.MAX_VALUE
+  ),
+  APP_NOTIFICATION_POPUP_DISPLAY_EXP_SUB("注册登陆-系统通知权限弹窗时机后置实验-子实验",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name(),
+          CommonABTestResultGroup.D.name()
+      ),
+      CommonABTestResultGroup.B.name(),
+      DiversionKeyType.DEVICE_TOKEN,
+      0L,
+      Long.MAX_VALUE
+  ),
+  DIRECT_DEBIT_GUIDE_PAGE_EXPERIMENT("代扣引导页样式实验",
+      () -> ImmutableSet.of(
+          DirectDebitGuidePageStrategy.ORIGINAL_PAGE.name(),
+          DirectDebitGuidePageStrategy.PAGE_A.name(),
+          DirectDebitGuidePageStrategy.PAGE_B.name()),
+      DirectDebitGuidePageStrategy.ORIGINAL_PAGE.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  EASYPLUS_POP_UP_V1("账单页增加中收铺脸弹窗",
+      () -> ImmutableSet.of(
+          "A",
+          "B",
+          "C"
+      ),
+      "A",
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  STANDARD_INTEREST_RATE_AB("标准利率",
+      () -> ImmutableSet.of("A", "B"),
+      "A",
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  RISK_BATCH_TASK_MULTI_LOAN_DIVERSION("风控续借跑批分流",
+      () -> ImmutableSet.of("A", "B", "C", "D", "E"),
+      "A",
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  AUTH_NEED_POB("鉴权出生地填写分流",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  VERIFY_LIVING_METHOD_H5("借贷H5鉴权活体采集分流",
+      () -> ImmutableSet.of(ADVANCE_H5.name(), TENCENT_H5.name()),
+      ADVANCE_H5.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  KTP_SELECT_PHOTO_BUTTON_DISPLAY("ktp照片从相册获取",
+      () -> ImmutableSet.of(BooleanType.TRUE.name(), BooleanType.FALSE.name()),
+      BooleanType.FALSE.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  @Deprecated
+  REJECT_LOAN_MARKET_INFO_NOT_INCREASE("被拒贷超实验--不能增信重申",
+      () -> {
+        return ImmutableSet.of("A", "B");
+      },
+      "A",
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  @Deprecated
+  REJECT_LOAN_MARKET_INFO_CAN_INCREASE("被拒贷超实验--能增信重申",
+      () -> {
+        return ImmutableSet.of("A", "B");
+      },
+      "A",
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  ORDER_STEP_NEED_POB("下单前出生地填写分流",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  VIRTUAL_CREDITS("降额虚拟额度分流",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name(), CommonABTestResultGroup.C.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+
+  UNION_REPAYMENT_EXPR("中收合并还款展示分流",
+      () -> Arrays.stream(UnionRepaymentDisplayStrategy.values()).map(Enum::name).collect(Collectors.toSet()),
+      UnionRepaymentDisplayStrategy.ORIGINAL_PAGE.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  QUICK_ORDER_OPTIONAL_LOAN_AMOUNT_EXPERIMENT(
+      "快速下单额度可选择实验",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  PARTIAL_REPAYMENT_EXPERIMENT(
+      "部分还款实验",
+      () -> ImmutableSet.of(
+          RepaymentChannelPageDisplayStrategy.A.name(),
+          RepaymentChannelPageDisplayStrategy.B.name(),
+          RepaymentChannelPageDisplayStrategy.C.name(),
+          RepaymentChannelPageDisplayStrategy.D.name()
+      ),
+      RepaymentChannelPageDisplayStrategy.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  HOMEPAGE_V3_AUTH_UNFINISHED_EXPERIMENT("未完件用户/状态的新老首页实验",
+      () -> ImmutableSet.of("V1", "V2", "V3_INCENTIVE", "V3_PROGRESSBAR"),
+      "V2",
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  HOMEPAGE_V3_AUTH_FINISHED_EXPERIMENT("已完件用户/状态的新老首页实验",
+      () -> ImmutableSet.of("V1", "V2", "V3"),
+      "V2",
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  AUTH_WEB_LIVING_INFO("鉴权web迁移",
+      () -> ImmutableSet.of("TRUE", "FALSE"),
+      "FALSE",
+      DiversionKeyType.USER_ID, 0L, Long.MAX_VALUE),
+
+  REPAYMENT_UI_ENHANCEMENT(
+      "还款页面样式强化实验",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      37500L, Long.MAX_VALUE),
+  IDN_DANA_EWALLET_REPAYMENT_METHOD_V2("dana 还款方式的分流",
+      () -> ImmutableSet.of("DYNAMIC", "STATIC_VA", "NONE"),
+      "NONE",
+      DiversionKeyType.USER_ID, 35300L, Long.MAX_VALUE),
+  HOME_V3_LOAN_COUPON("新首页优惠券样式",
+      () -> ImmutableSet.of("A", "B"),
+      "A",
+      DiversionKeyType.USER_ID, 0L, Long.MAX_VALUE),
+  QUICK_ORDER_CASH_ACTIVITY_EXPERIMENT(
+      "快速下单3.0与现金奖励融合实验",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L, Long.MAX_VALUE),
+  QUICK_ORDER_RETAIN_DIALOG_UI("下单页挽留弹窗+一键借款+现金奖励1.0-UI",
+      () -> ImmutableSet.of("C", "C1", "C2"),
+      "C",
+      DiversionKeyType.USER_ID,
+      0L, Long.MAX_VALUE),
+  ORDER_PAGE_NEW_STYLE_EXPERIMENT(
+      "下单页新样式重构2.0实验",
+      () -> ImmutableSet.of(
+          "V1", "V2_AGREEMENT", "V2_NO_AGREEMENT"
+      ),
+      "V1",
+      DiversionKeyType.USER_ID,
+      0L, Long.MAX_VALUE),
+  AUTH_RETURN_AC("鉴权返回页挽留参与活动",
+      () -> ImmutableSet.of("A", "B", "C", "D"),
+      "A",
+      DiversionKeyType.USER_ID, 0L, Long.MAX_VALUE),
+  REGISTER_MARKETING_POINT_V2_TYPE_1(
+      "注册头图实验V2-Type1",
+      () -> ImmutableSet.of(
+          "A0", "A1", "A2", "A3", "B1", "B2", "B3"
+      ),
+      "B2",
+      DiversionKeyType.DEVICE_TOKEN,
+      0L, Long.MAX_VALUE),
+  REGISTER_MARKETING_POINT_V2_TYPE_2(
+      "注册头图实验V2-Type2",
+      () -> ImmutableSet.of(
+          "A0", "A1", "A2", "A3", "B1", "B2", "B3"
+      ),
+      "A0",
+      DiversionKeyType.DEVICE_TOKEN,
+      0L, Long.MAX_VALUE),
+  HOMEPAGE_WHATSAPP(
+      "首页填写whatsapp",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID, 0L, Long.MAX_VALUE),
+  ORDER_SUCCESS_WHATSAPP(
+      "下单成功后填写whatsapp",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L, Long.MAX_VALUE),
+  QUICK_ORDER_REOPEN_EXPERIMENT(
+      "一键借款实验策略调整",
+      () -> Arrays.stream(QuickOrderResultGroup.values()).map(Enum::name).collect(Collectors.toSet()),
+      QuickOrderResultGroup.CONTROL_GROUP.name(),
+      DiversionKeyType.USER_ID, 0L, Long.MAX_VALUE),
+  ORDER_STEP_NEED_COMPANY_NAME(
+      "Order Step Need Company Name",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name(), CommonABTestResultGroup.C.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID, 0L, Long.MAX_VALUE),
+  AUTH_NEED_COMPANY_NAME_COMPANY_NUMBER(
+      "Auth Need Company Name Company Number",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name(), CommonABTestResultGroup.C.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID, 0L, Long.MAX_VALUE),
+  AUTO_JUMP_AUTH("自动跳转鉴权页",
+      () -> ImmutableSet.of(BooleanType.TRUE.name(), BooleanType.FALSE.name()),
+      BooleanType.FALSE.name(),
+      DiversionKeyType.USER_ID, 0L, Long.MAX_VALUE),
+  LOAN_T0_CREDIT_SENSITIVITY(
+      "首贷过件T0额度感知",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name(), CommonABTestResultGroup.C.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID, 36900L, Long.MAX_VALUE),
+  @Deprecated
+  ORDER_PAGE_RETAIN_V3_P(
+      "下单页挽留V3-父实验",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID, 0L, Long.MAX_VALUE),
+  ORDER_PAGE_RETAIN_V3_S(
+      "下单页挽留V3-子实验",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID, 0L, Long.MAX_VALUE),
+  @Deprecated
+  CREDIT_INCREASED_AFTER_REPAY_AWARE_POPUP(
+      "还款后额度恢复/提升弹窗展示实验",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L, Long.MAX_VALUE),
+  JBP_CREDIT_REPORT_ME_DISPLAY_EXPERIMENT(
+      "中收信用报告产品me频道页信用报告可见父实验",
+      () -> Arrays.stream(JbpCreditReportResultGroup.values()).map(Enum::name).collect(Collectors.toSet()),
+      JbpCreditReportResultGroup.HIDE.name(),
+      DiversionKeyType.USER_ID, 0L, Long.MAX_VALUE),
+  MOTHER_LAST_NAME_CHECK_RULE_KTP_CONFIRM_PAGE(
+      "母亲姓氏校验规则-KTP确认页",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID, 0L, Long.MAX_VALUE),
+  MOTHER_LAST_NAME_CHECK_RULE_ORDER_SUPPLEMENT_PAGE(
+      "母亲姓氏校验规则-下单补件页",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID, 0L, Long.MAX_VALUE),
+  SECOND_RISK_REJECT_DISPLAY(
+      "首页二次风控拒绝展示",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID, 38200L, Long.MAX_VALUE),
+  MARKETING_CREDIT_SENSITIVITY(
+      "营销临额感知",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name(), CommonABTestResultGroup.C.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID, 36900L, Long.MAX_VALUE),
+  @Deprecated
+  FIXED_CREDIT_SENSITIVITY(
+      "固定额度感知",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID, 0L, Long.MAX_VALUE),
+  JBP_CREDIT_REPORT_HOMEPAGE_POPUP_EXPERIMENT(
+      "中收信用报告产品首页信用报告弹窗子实验",
+      () -> Arrays.stream(JbpCreditReportPopupResultGroup.values()).map(Enum::name).collect(Collectors.toSet()),
+      JbpCreditReportPopupResultGroup.HIDE.name(),
+      DiversionKeyType.USER_ID, 0L, Long.MAX_VALUE),
+  JBP_CREDIT_REPORT_ME_POPUP_EXPERIMENT(
+      "中收信用报告产品me频道页信用报告弹窗子实验",
+      () -> Arrays.stream(JbpCreditReportPopupResultGroup.values()).map(Enum::name).collect(Collectors.toSet()),
+      JbpCreditReportPopupResultGroup.HIDE.name(),
+      DiversionKeyType.USER_ID, 0L, Long.MAX_VALUE),
+  USER_ENTER_REVOLVING_CREDITS_V2(
+      "用户是否进入循环额度流程-重开",
+      () -> ImmutableSet.of(BooleanType.TRUE.name(), BooleanType.FALSE.name()),
+      BooleanType.FALSE.name(),
+      DiversionKeyType.USER_ID, 0L, Long.MAX_VALUE),
+  USER_RECALL_TRIGGER_SECOND_RISK_ORDER(
+      "回捞场景自动触发二次风控下单",
+      () -> ImmutableSet.of("A", "B", "C", "D", "E"),
+      "A",
+      DiversionKeyType.USER_ID, 0L, Long.MAX_VALUE),
+  NATIONAL_DAY_2025_ORDER_PAGE_BACK_BUTTON_RETENTION_POP_UP(
+      "国庆 2025 下单页返回降息挽留弹窗",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L, Long.MAX_VALUE),
+  NATIONAL_DAY_2025_HOMEPAGE_INTEREST_RATE_CUT_POP_UP(
+      "国庆 2025 首页降息动效弹窗",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L, Long.MAX_VALUE),
+  NATIONAL_DAY_2025_ORDER_PAGE_INTEREST_RATE_CUT_POP_UP(
+      "国庆 2025 下单页降息动效弹窗",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L, Long.MAX_VALUE),
+  JBP_CREDIT_REPORT_PRICE_EXPERIMENT(
+      "中收信用报告产品价格子实验",
+      () -> Arrays.stream(JbpCreditReportPriceResultGroup.values()).map(Enum::name).collect(Collectors.toSet()),
+      JbpCreditReportPriceResultGroup.ONE.name(),
+      DiversionKeyType.USER_ID, 0L, Long.MAX_VALUE),
+  BILL_PAGE_TO_H5_NOT_OVERDUE(
+      "未逾期用户Bill页切H5实验",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID, 0L, Long.MAX_VALUE),
+  BILL_PAGE_TO_H5_OVERDUE(
+      "逾期用户Bill页切H5实验",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID, 0L, Long.MAX_VALUE),
+  GOLD_CARD_V2("中收V2实验--先付后用",
+      () -> Arrays.stream(GoldCardVersion.values()).map(Enum::name).collect(Collectors.toSet()),
+      GoldCardVersion.V1.name(),
+      DiversionKeyType.USER_ID, 38700L, Long.MAX_VALUE),
+  QUICK_ORDER_CASH_ACTIVITY_STYLE_EXPERIMENT(
+      "一键借款样式文案",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      37300L, Long.MAX_VALUE),
+  QUICK_ORDER_CASH_ACTIVITY_RIGHTS(
+      "一键借款权益",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      37300L, Long.MAX_VALUE),
+  REPAY_PLAN_INTEREST_COUPON(
+      "还款计划免息券",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      36900L, Long.MAX_VALUE),
+  REGISTER_LOGIN_DYNAMIC_H5_RESOURCE(
+      "注册登录页资源位做局部动态H5化",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.DEVICE_TOKEN, 37700L, Long.MAX_VALUE),
+  SUB_REGISTER_LOGIN_DYNAMIC_H5_RESOURCE(
+      "注册登录页资源位做局部动态H5化-子实验极简版",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.DEVICE_TOKEN, 37800L, Long.MAX_VALUE),
+  REPAYMENT_PARTIAL_REPAYMENT_NORMAL(
+      "部分还款实验-正常状态",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name(),
+          CommonABTestResultGroup.D.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      37413L, Long.MAX_VALUE,
+      CommonABTestResultGroup.B.name()
+  ),
+  REPAYMENT_PARTIAL_REPAYMENT_OVERDUE(
+      "部分还款实验-逾期状态",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name(),
+          CommonABTestResultGroup.D.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      37413L, Long.MAX_VALUE,
+      CommonABTestResultGroup.B.name()
+  ),
+  REPAYMENT_REMINDER_NORMAL(
+      "还款强化样式实验-正常状态",
+      () -> ImmutableSet.of(
+          RepaymentReminderStrategy.A.name(),
+          RepaymentReminderStrategy.B.name(),
+          RepaymentReminderStrategy.C.name()
+      ),
+      RepaymentReminderStrategy.B.name(),
+      DiversionKeyType.USER_ID,
+      38113L, Long.MAX_VALUE
+  ),
+  REPAYMENT_REMINDER_OVERDUE(
+      "还款强化样式实验-逾期状态",
+      () -> ImmutableSet.of(
+          RepaymentReminderStrategy.A.name(),
+          RepaymentReminderStrategy.B.name(),
+          RepaymentReminderStrategy.C.name()
+      ),
+      RepaymentReminderStrategy.B.name(),
+      DiversionKeyType.USER_ID,
+      38113L, Long.MAX_VALUE
+  ),
+  REPAYMENT_CHANNEL_DANA_NORMAL(
+      "DANA 还款渠道实验-正常状态",
+      () -> ImmutableSet.of(
+          DanaExperimentResult.NONE.name(),
+          DanaExperimentResult.STATIC_VA.name(),
+          DanaExperimentResult.DYNAMIC.name()
+      ),
+      DanaExperimentResult.NONE.name(),
+      DiversionKeyType.USER_ID,
+      35300L, Long.MAX_VALUE
+  ),
+  REPAYMENT_CHANNEL_DANA_OVERDUE(
+      "DANA 还款渠道实验-逾期状态",
+      () -> ImmutableSet.of(
+          DanaExperimentResult.NONE.name(),
+          DanaExperimentResult.STATIC_VA.name(),
+          DanaExperimentResult.DYNAMIC.name()
+      ),
+      DanaExperimentResult.NONE.name(),
+      DiversionKeyType.USER_ID,
+      35300L, Long.MAX_VALUE
+  ),
+  USER_RECALL_TRIGGER_SECOND_RISK_ORDER_FOR_LOAN(
+      "回捞场景自动触发二次风控下单（首贷场景）",
+      () -> ImmutableSet.of("A", "B", "C", "D", "E"),
+      "A",
+      DiversionKeyType.USER_ID, 0L, Long.MAX_VALUE),
+  USER_RECALL_TRIGGER_SECOND_RISK_ORDER_FOR_RELOAN(
+      "回捞场景自动触发二次风控下单（复贷场景）",
+      () -> ImmutableSet.of("A", "B", "C", "D", "E"),
+      "A",
+      DiversionKeyType.USER_ID, 0L, Long.MAX_VALUE),
+  @Deprecated
+  ORDER_AGREEMENT_FLOATING_LAYER(
+      "下单协议浮层实验",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID, 0L, Long.MAX_VALUE),
+  LOAN_AMOUNT_DISPLAY_LOGIC_WHEN_ENTER_ORDER_PAGE(
+      "进入下单页时额度展示逻辑",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID, 36900L, Long.MAX_VALUE),
+  CAN_NOT_SKIP_OCR(
+      "ocr环节不可跳过实验",
+      () -> ImmutableSet.of(BooleanType.TRUE.name(), BooleanType.FALSE.name()),
+      BooleanType.FALSE.name(),
+      DiversionKeyType.USER_ID, 37113L, Long.MAX_VALUE),
+  ORDER_PAGE_POPUP_PRIORITY(
+      "下单页扑脸弹窗优先级调整实验",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID, 36899L, Long.MAX_VALUE),
+  ORDER_PAGE_POPUP_MATERIAL_OPTIMIZATION(
+      "下单页扑脸弹窗样式优化实验",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID, 36900L, Long.MAX_VALUE),
+  @Deprecated
+  REPAYMENT_DIRECT_DEBIT_STRATEGY(
+      "代扣规则实验",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID, 0L, Long.MAX_VALUE),
+  GOLDEN_CARD_CAN_BORROW_STYLE(
+      "中收金卡可借用户弹窗素材实验",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID, 36899L, Long.MAX_VALUE),
+  LOAN_180_DAYS_REAPPLY(
+      "首贷180+被拒重审",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID, 0L, Long.MAX_VALUE),
+
+  SUPERBANK_CHANNEL_USER_BINDING_CARD("Superbank渠道用户绑卡",
+      () -> ImmutableSet.of(BooleanType.TRUE.name(), BooleanType.FALSE.name()),
+      BooleanType.FALSE.name(),
+      DiversionKeyType.USER_ID,
+      36900L,
+      Long.MAX_VALUE),
+  EC_PLUS_BUTTON("中收会员button",
+      () -> ImmutableSet.of("A", "B"),
+      "A",
+      DiversionKeyType.USER_ID,
+      36900L,
+      Long.MAX_VALUE),
+  REGISTER_LOGIN_RESOURCE_V3_FOR_REGISTER(
+      "注册登录页-营销利益点v3-注册",
+      () -> ImmutableSet.of("A2", "C1", "C2"),
+      "A2",
+      DiversionKeyType.DEVICE_TOKEN, 37900L, Long.MAX_VALUE),
+  REGISTER_LOGIN_RESOURCE_V3_FOR_LOGIN(
+      "注册登录页-营销利益点v3-登录",
+      () -> ImmutableSet.of("A2", "C1", "C2"),
+      "A2",
+      DiversionKeyType.DEVICE_TOKEN, 37900L, Long.MAX_VALUE),
+  BIND_CARD_DELAY("绑卡后置实验",
+      () -> Arrays.stream(BindCardDelayGroup.values()).map(Enum::name).collect(Collectors.toSet()),
+      BindCardDelayGroup.CONTROL_GROUP.name(),
+      DiversionKeyType.USER_ID,
+      37900L,
+      Long.MAX_VALUE),
+  REGISTER_LOGIN_RETAIN_DIALOG_V2("注册登录挽留弹窗实验v2",
+      () -> ImmutableSet.of("D", "E", "F"),
+      "D",
+      DiversionKeyType.DEVICE_TOKEN,
+      37400L,
+      Long.MAX_VALUE),
+  CASH_REWARD_EDITION_ADDS_BORROW_OTHER_AMOUNT_BUTTON(
+      "一键借款5.0-现金奖励版增加【借其他金额按钮】",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      36900L,
+      Long.MAX_VALUE
+  ),
+  BILL_AUTO_JUMP_LEVEL2_FREQUENCY(
+      "账单即将到期用户自动跳转下单页降频",
+      () -> ImmutableSet.of("A", "B"),
+      "A",
+      DiversionKeyType.USER_ID,
+      37200L,
+      Long.MAX_VALUE
+  ),
+  REPAYMENT_CHANNEL_GOPAY_NORMAL(
+      "GoOay 还款渠道展示实验-正常状态",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      31900L, Long.MAX_VALUE
+  ),
+  REPAYMENT_CHANNEL_GOPAY_OVERDUE(
+      "GoOay 还款渠道展示实验-逾期状态",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      31900L, Long.MAX_VALUE
+  ),
+  JBP_CARD_CREDIT_GUIDED_PAYMENT_APP(
+      "中收会员账单页先用后付支付引导弹窗-app",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      37900L,
+      Long.MAX_VALUE
+  ),
+  JBP_CARD_CREDIT_GUIDED_PAYMENT_H5(
+      "中收会员账单页先用后付支付引导弹窗-H5",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      37900L,
+      Long.MAX_VALUE
+  ),
+  ORDER_LOAN_PUSH_COUPON(
+      "下单页PUSH发券实验",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID, 36900L, Long.MAX_VALUE),
+  SECOND_ORDER_AUTO_JUMP_AND_POPUP_FOR_RECALL(
+      "二次下单自动跳转和引导弹窗-回捞流转",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      36900L,
+      Long.MAX_VALUE
+  ),
+  SECOND_ORDER_AUTO_JUMP_AND_POPUP_FOR_QUICK_REDUCE(
+      "二次下单自动跳转和引导弹窗-降额快速下单",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      38000L,
+      Long.MAX_VALUE
+  ),
+  KTP_POINT_V4("ktp环节营销奖励活动V4",
+      () -> ImmutableSet.of("C2", "D1", "D2"),
+      "C2",
+      DiversionKeyType.USER_ID,
+      36900L,
+      Long.MAX_VALUE),
+  H5_WHOLE_PROCESS_AUTH_UI_JUMP(
+      "h5全流程ui对齐完件跳转UI实验",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      35300L,
+      Long.MAX_VALUE,
+      CommonABTestResultGroup.A.name()
+  ),
+  H5_WHOLE_PROCESS_ORDER_UI_JUMP(
+      "h5全流程ui对齐下单跳转UI实验",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      35300L,
+      Long.MAX_VALUE,
+      CommonABTestResultGroup.A.name()
+  ),
+  //  MARKET_COUPON_GRANT(
+//      "营销临额发券实验-首贷",
+//      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+//      CommonABTestResultGroup.A.name(),
+//      DiversionKeyType.USER_ID,
+//      0L,
+//      Long.MAX_VALUE
+//  ),
+  //⚠️⚠️⚠️ 这个实验用到了 getLastResult 的逻辑，该逻辑及时实验关量了也会真的取上次实验的结果
+  RISK_COUPON_LIMIT_LOAN(
+      "营销临额上限实验-首贷",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  CREDIT_USAGE_RATE_EXPERIMENT(
+      "额度使用率长期实验",
+      () -> ImmutableSet.of(BooleanType.TRUE.name(), BooleanType.FALSE.name()),
+      BooleanType.TRUE.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  COUPON_LONG_TERM_EXPERIMENT(
+      "优惠券长期实验",
+      () -> ImmutableSet.of(BooleanType.TRUE.name(), BooleanType.FALSE.name()),
+      BooleanType.TRUE.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  MARKET_COUPON_GRANT(
+      "营销临额发券实验-首贷",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  JBP_VALID_UNPAID_POPUP(
+      "中收会员开通未支付弹窗实验",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name(), CommonABTestResultGroup.C.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      37300L,
+      Long.MAX_VALUE
+  ),
+  RISK_BATCH_RELOAN_FIRST_MULTI_LOAN_DIVERSION("风控复贷首续跑批分流",
+      () -> ImmutableSet.of("A", "B"),
+      "A",
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  QUICK_ORDER_CASH_ACTIVITY_V2_EXPERIMENT(
+      "一键借款5.0-改版实验",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      37300L,
+      Long.MAX_VALUE
+  ),
+  AUTH_NEED_COMPANY_NAME(
+      "Auth Need Company Name",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name(), CommonABTestResultGroup.C.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID, 0L, Long.MAX_VALUE),
+  MARKET_COUPON_GRANT_RELOAN(
+      "营销临额发券实验-复贷",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  @Deprecated
+  TOTAL_COUPON_CREDIT_LIMIT_RELOAN(
+      "营销临额上限实验-复贷",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  INCREASE_CREDIT_DECREASE_INTEREST_POPUP_WINDOW_LOAN(
+      "提额降息扑脸弹窗实验_首贷",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      37300L,
+      Long.MAX_VALUE
+  ),
+  INCREASE_CREDIT_DECREASE_INTEREST_POPUP_WINDOW_RELOAN(
+      "提额降息扑脸弹窗实验_复贷",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      37300L,
+      Long.MAX_VALUE
+  ),
+  @Deprecated
+  GUIDE_USER_BORROW_MORE(
+      "引导用户借更多实验",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      36900L,
+      Long.MAX_VALUE
+  ),
+  @Deprecated
+  POST_LOAN_AGREEMENT_FLOATING_LAYER(
+      "借款后置协议浮层实验",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE),
+  REPAY_PLAN_REDUCE(
+      "还款计划强化月还款降低实验",
+      () -> Arrays.stream(RepayPlanReduceGroup.values()).map(Enum::name).collect(Collectors.toSet()),
+      RepayPlanReduceGroup.CONTROL_GROUP.name(),
+      DiversionKeyType.USER_ID,
+      36900L,
+      Long.MAX_VALUE
+  ),
+  CREDIT_INCREASED_SENSITIVITY_V2(
+      "提额感知v2",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name(),
+          CommonABTestResultGroup.D.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      38200L,
+      Long.MAX_VALUE
+  ),
+  INIT_USER_TYPE(
+      "用户类型初始化实验",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  @Deprecated
+  CREDIT_LIMIT_ADD_SCENE(
+      "额度上限场景规则实验",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  COUPON_LONG_TERM_SUB_EXPERIMENT(
+      "优惠券长期子实验",
+      () -> ImmutableSet.of(BooleanType.TRUE.name(), BooleanType.FALSE.name()),
+      BooleanType.TRUE.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  SHOW_CUSTOMER_GUIDE_POPUP(
+      "账单页截屏转客服实验",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      38213L,
+      Long.MAX_VALUE
+  ),
+  GOPAY_DIRECT_DEBIT_OVERDUE(
+      "GOPAY 代扣实验（逾期状态）",
+      () -> ImmutableSet.of(GoPayDirectDebitStrategy.A.name(), GoPayDirectDebitStrategy.B.name()),
+      GoPayDirectDebitStrategy.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  GOPAY_DIRECT_DEBIT_NORMAL(
+      "GOPAY 代扣实验（正常状态）",
+      () -> ImmutableSet.of(GoPayDirectDebitStrategy.A.name(), GoPayDirectDebitStrategy.B.name()),
+      GoPayDirectDebitStrategy.A.name(),
+      DiversionKeyType.USER_ID,
+      0L,
+      Long.MAX_VALUE
+  ),
+  REPAY_CHANNEL_SORT_NORMAL(
+      "详情页还款渠道排序-正常",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      38000L,
+      Long.MAX_VALUE
+  ),
+  REPAY_CHANNEL_SORT_OVERDUE(
+      "详情页还款渠道排序-逾期",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      38000L,
+      Long.MAX_VALUE
+  ),
+  ;
+
+  public static final Set<String> EXP_NAME_SET = Arrays.stream(ExperimentNameSpace.values())
+      .map(Enum::name).collect(Collectors.toSet());
+
+  //长期实验集合
+  public static final Set<ExperimentNameSpace> LONG_TERM_EXPERIMENT_SET = ImmutableSet.of(CREDIT_USAGE_RATE_EXPERIMENT,
+      COUPON_LONG_TERM_EXPERIMENT);
+  /**
+   * 场景支持的选项
+   */
+  public final Supplier<Set<String>> options;
+  /**
+   * web展示用名称
+   */
+  public final String experimentDefaultName;
+  /**
+   * 支持的diversionKeyType
+   */
+  public final DiversionKeyType diversionKeyType;
+  /**
+   * 场景类型默认的场景，用于代码上线admin还没配置的情况
+   */
+  public final String defaultScene;
+  /**
+   * 最小版本号限制
+   */
+  public final Long minVersion;
+  /**
+   * 最大版本号限制
+   */
+  public final Long maxVersion;
+
+  /**
+   * API默认场景
+   */
+  public final String apiChannelDefaultScene;
+
+  ExperimentNameSpace(String experimentDefaultName, Supplier<Set<String>> options, String defaultScene, DiversionKeyType supportKeyType, Long minVersion, Long maxVersion) {
+    this(experimentDefaultName, options, defaultScene, supportKeyType, minVersion, maxVersion, defaultScene);
+  }
+
+  ExperimentNameSpace(String experimentDefaultName, Supplier<Set<String>> options, String defaultScene, DiversionKeyType supportKeyType, Long minVersion, Long maxVersion, String apiChannelDefaultScene) {
+    this.experimentDefaultName = experimentDefaultName;
+    this.options = options;
+    this.diversionKeyType = supportKeyType;
+    this.defaultScene = defaultScene;
+    this.minVersion = minVersion;
+    this.maxVersion = maxVersion;
+    this.apiChannelDefaultScene = apiChannelDefaultScene;
+  }
+
+  @Override
+  public String getDescription() {
+    return experimentDefaultName;
+  }
+
+  public Boolean containsScene(String scene) {
+    return options.get().contains(scene);
+  }
+}
+
+
+### READ /Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java
+package com.yqg.core.service.loan.bankaccount;
+
+import static com.yqg.core.model.sql.bankaccount.enums.BankAccountAvailableStatus.CHECK_STATUS_LIST;
+
+import com.google.common.collect.ComparisonChain;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.yqg.apichannel.dto.response.commonInternal.ApiChannelUserResponse;
+import com.yqg.common.util.hashid.YqgHashids;
+import com.yqg.core.common.UserFlowConstants;
+import com.yqg.core.common.enums.RequestClientType;
+import com.yqg.core.model.core.ThreadTransactionalModel;
+import com.yqg.core.model.generated.tables.records.LoanBankAccountRecord;
+import com.yqg.core.model.loader.AddBankAccountNotMatchTimesLoader;
+import com.yqg.core.model.sql.abtest.enums.ABTestSceneType;
+import com.yqg.core.model.sql.apichannel.enums.ApiChannel;
+import com.yqg.core.model.sql.bankaccount.LoanBankAccountModel;
+import com.yqg.core.model.sql.bankaccount.LoanBankAccountSearchCondition;
+import com.yqg.core.model.sql.bankaccount.enums.BankAccountAvailableStatus;
+import com.yqg.core.model.sql.bankaccount.enums.BankType;
+import com.yqg.core.model.sql.loan.account.UserCheckHistoryModel;
+import com.yqg.core.model.sql.loan.account.enums.BankAccountType;
+import com.yqg.core.model.sql.loan.account.enums.CheckType;
+import com.yqg.core.model.sql.loan.additionalinfo.LoanUserAdditionalInfoModel;
+import com.yqg.core.model.sql.loan.additionalinfo.enums.LoanUserAdditionalInfoType;
+import com.yqg.core.service.abtest.ABTestUtil;
+import com.yqg.core.service.abtest.AbstractExpClient;
+import com.yqg.core.service.abtest.ExpDiversionClient;
+import com.yqg.core.service.abtest.ExpUser;
+import com.yqg.core.service.abtest.ExpFacade;
+import com.yqg.core.service.abtest.enums.ExperimentNameSpace;
+import com.yqg.core.service.abtest.vo.ABTestUserIdRequestVO;
+import com.yqg.core.service.apichannel.ApiChannelUserService;
+import com.yqg.core.service.apichannel.config.ApiChannelConfig;
+import com.yqg.core.service.bankconfig.BankConfigService;
+import com.yqg.core.service.bankconfig.vo.BankAttributeVO;
+import com.yqg.core.service.bankconfig.vo.BankConfigVO;
+import com.yqg.core.service.cashloan.HomepageV5Config;
+import com.yqg.core.service.cashloan.auth.AuthService;
+import com.yqg.core.service.cashloan.auth.BindCardDelayService;
+import com.yqg.core.service.cashloan.ordercenter.EcOrderService;
+import com.yqg.core.service.cashloan.vo.enums.AddBankAccountNotMatchStrategy;
+import com.yqg.core.service.cashloan.vo.enums.FinalValidationBankAccountStatus;
+import com.yqg.core.service.cashloan.vo.enums.HomeDisplayStrategy;
+import com.yqg.core.service.cashloan.vo.enums.ValidationCardStatus;
+import com.yqg.core.service.cashloan.vo.enums.ValidationVersion;
+import com.yqg.core.service.cashloan.vo.loanbankaccount.ValidationResult;
+import com.yqg.core.service.cashloan.vo.loanbankaccount.ValidationResultV3;
+import com.yqg.core.service.loan.account.AuthCheckTimeCostMonitorService;
+import com.yqg.core.service.loan.account.LoanAccountService;
+import com.yqg.core.service.loan.account.vo.CheckAuthConfigVO;
+import com.yqg.core.service.loan.bankaccount.enums.VerifyEWalletAccountMethod;
+import com.yqg.core.service.loan.bankaccount.monitor.BankCardUniqueKeyCheckMonitorService;
+import com.yqg.core.service.loan.vo.SimpleLoanAccountVO;
+import com.yqg.core.service.loan.vo.UserInfoVO;
+import com.yqg.core.service.loan.vo.bankaccount.BindCardResultVO;
+import com.yqg.core.service.loan.vo.bankaccount.LoanBankAccountVO;
+import com.yqg.core.service.payment.ICredential;
+import com.yqg.core.service.payment.PaymentAccount;
+import com.yqg.core.service.payment.PaymentBusinessNameMapper;
+import com.yqg.core.service.payment.PaymentCredential;
+import com.yqg.core.service.payment.PaymentService;
+import com.yqg.core.service.payment.UserPaymentCredential;
+import com.yqg.core.service.payment.pm.BankAccountPaymentMethod;
+import com.yqg.core.service.payment.pm.PaymentMethod;
+import com.yqg.core.service.payment.utils.BankAccountValidationUtil;
+import com.yqg.core.service.secure.UserSecureConfig;
+import com.yqg.core.service.tool.IdGeneratorService;
+import com.yqg.core.service.user.UserEventService;
+import com.yqg.core.service.user.UserService;
+import com.yqg.core.util.scope.ImpliedContextUtils;
+import com.yqg.core.util.thirdparty.loan.LoanCreditService;
+import com.yqg.core.util.thirdparty.loan.vo.TongDunNodeTriggerParam;
+import com.yqg.core.util.validator.GlobalBankAccountNumValidator;
+import com.yqg.ec.common.configuration.ISiteVars;
+import com.yqg.ec.common.constant.ExperimentKeyConstants;
+import com.yqg.ec.common.enums.PaymentBusinessName;
+import com.yqg.ec.common.enums.SDKType;
+import com.yqg.ec.common.enums.loan.SourceType;
+import com.yqg.ec.common.enums.order.CashLoanOrderStatus;
+import com.yqg.ec.common.exception.EcException;
+import com.yqg.ec.common.exception.EcExceptionType;
+import com.yqg.ec.common.i18n.YqgLocale;
+import com.yqg.ec.common.i18n.mobile.MobileConverter;
+import com.yqg.ec.common.i18n.time.Clock;
+import com.yqg.ec.common.serialization.JsonUtils;
+import com.yqg.ec.common.utils.EcAsserts;
+import com.yqg.ec.common.utils.SysEnvironment;
+import com.yqg.overseas.ads.client.api.IAdsAppsflyerService;
+import com.yqg.overseas.ads.client.common.response.AdsResponse;
+import com.yqg.overseas.ads.client.common.vo.appsflyer.AppsflyerResultVO;
+import com.yqg.translation.client.utils.TT;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
+import me.xdrop.fuzzywuzzy.FuzzySearch;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+/**
+ * Created by xiahonggao on 2/16/16.
+ */
+@Service
+@Slf4j
+public class LoanBankAccountService {
+  @Autowired
+  private LoanCreditService loanCreditService;
+  @Autowired
+  private LoanBankAccountModel loanBankAccountModel;
+  @Autowired
+  private BindCardLocker bindCardLocker;
+  @Autowired
+  private BankConfigService bankConfigService;
+  @Autowired
+  private BankAccountPaymentMethod bankAccountPaymentMethod;
+  @Autowired
+  private ThreadTransactionalModel transactionalModel;
+  @Autowired
+  private IdGeneratorService idGeneratorService;
+  @Autowired
+  private ISiteVars ecSiteVars;
+  @Autowired
+  private BindCardRequestService bindCardRequestService;
+  @Autowired
+  private LoanBankAccountMonitorService bankAccountMonitorService;
+  @Autowired
+  private LoanBankConfig bankConfig;
+  @Autowired
+  private UserService userService;
+  @Autowired
+  private ApiChannelUserService apiChannelUserService;
+  @Autowired
+  private ApiChannelConfig apiChannelConfig;
+  @Autowired
+  private LoanAccountService loanAccountService;
+  @Autowired
+  private AddBankAccountNotMatchTimesLoader addBankAccountNotMatchTimesLoader;
+  @Autowired
+  private GlobalBankAccountNumValidator globalBankAccountNumValidator;
+  @Autowired
+  private ExpFacade expFacade;
+  @Autowired
+  private LoanBankConfig loanBankConfig;
+  @Autowired
+  private BankAccountValidationUtil bankAccountValidationUtil;
+  @Autowired
+  private UserSecureConfig userSecureConfig;
+  @Autowired
+  private LoanUserAdditionalInfoModel loanUserAdditionalInfoModel;
+  @Autowired
+  private AuthCheckTimeCostMonitorService authCheckTimeCostMonitorService;
+  @Autowired
+  private UserCheckHistoryModel userCheckHistoryModel;
+  @Autowired
+  private EcOrderService ecOrderService;
+  @Autowired
+  private PaymentService paymentService;
+  @Autowired
+  private UserEventService userEventService;
+  @Autowired
+  private HomepageV5Config homepageV5Config;
+  @Autowired
+  private IAdsAppsflyerService adsAppsflyerService;
+  @Autowired
+  private BindCardDelayService bindCardDelayService;
+  @Autowired
+  private ExpDiversionClient expDiversionClient;
+  @Autowired
+  private AuthService authService;
+  @Autowired
+  private BankCardUniqueKeyCheckMonitorService bankCardUniqueKeyCheckMonitorService;
+  @Autowired
+  private BindCardNameSimilarityCheckService bindCardNameSimilarityCheckService;
+
+  public List<LoanBankAccountVO> getAvailableBankAccounts(Long userId, SDKType sdkType) {
+    PaymentBusinessName businessName = PaymentBusinessNameMapper.getBusinessName(sdkType);
+    List<LoanBankAccountRecord> bankAccountRecords = loanBankAccountModel.findAvailableByUserIdAndBusiness(userId, businessName);
+    List<LoanBankAccountVO> vos = new LinkedList<>();
+    bankAccountRecords.forEach(record -> vos.add(loanBankAccountModel.findVOById(record.getId())));
+    return vos;
+  }
+
+  public List<LoanBankAccountVO> getBankAccounts(Long userId, SDKType sdkType) {
+    return getBankAccounts(userId, sdkType, null, null);
+  }
+
+  public boolean hasAvailableBankAccount(Long userId, SDKType sdkType) {
+    PaymentBusinessName businessName = PaymentBusinessNameMapper.getBusinessName(sdkType);
+    return loanBankAccountModel.countAvailableByUserIdAndBusiness(userId, businessName) > 0;
+  }
+
+  public List<LoanBankAccountVO> getBankAccounts(Long userId, SDKType sdkType, Long timeStarted, Long timeEnded) {
+    PaymentBusinessName businessName = PaymentBusinessNameMapper.getBusinessName(sdkType);
+    List<LoanBankAccountRecord> bankAccountRecords = loanBankAccountModel.findByUserIdAndBusiness(userId, businessName, timeStarted, timeEnded);
+    List<LoanBankAccountVO> bankAccountVOs = new ArrayList<>();
+    for (LoanBankAccountRecord bankAccountRecord : bankAccountRecords) {
+      LoanBankAccountVO bankAccountVO = loanBankAccountModel.findVOById(bankAccountRecord.getId());
+      bankAccountVOs.add(bankAccountVO);
+    }
+    return bankAccountVOs;
+  }
+
+  public LoanBankAccountVO findVOById(Long id) {
+    return loanBankAccountModel.findVOById(id);
+  }
+
+  public LoanBankAccountVO addBankAccountOrWarning(Long userId, SDKType sdkType, BankType bankType, String accountNumber, String name, Long build) {
+    return addBankAccountOrWarningV2(userId, sdkType, bankType, accountNumber, name, null, build);
+  }
+
+  public LoanBankAccountVO addBankAccountOrWarningV2(Long userId, SourceType sourceType, SDKType sdkType, BankType bankType,
+      String accountNumber, String name, BankAccountType bankAccountType, Long build) {
+    BindCardResultVO bindCardResultVO = addBankAccount(userId, sourceType, sdkType, bankType, accountNumber, name, bankAccountType, build, null);
+    BankAccountAvailableStatus status = bindCardResultVO.loanBankAccountVO.bankAccountAvailableStatus;
+    //只有UNAVAILABLE状态需要抛错
+    if (BankAccountAvailableStatus.INACTIVE_STATUS_LIST.contains(status) && bindCardResultVO.errRemind != null) {
+      throw EcException.warn(EcExceptionType.LOAN_BANK_ACCOUNT_UNAVAILABLE, bindCardResultVO.errRemind, "bind card failed, userId is {}, accountNumber is {}", userId, accountNumber);
+    }
+    return bindCardResultVO.loanBankAccountVO;
+  }
+
+  public LoanBankAccountVO addBankAccountOrWarningV2(Long userId, SDKType sdkType, BankType bankType, String accountNumber, String name,
+      BankAccountType bankAccountType, Long build) {
+    return addBankAccountOrWarningV2(userId, null, sdkType, bankType, accountNumber, name, bankAccountType, build);
+  }
+
+  public BindCardResultVO queryBankValidationResult(LoanBankAccountVO bankAccountVO, SDKType sdkType) {
+    if (bankAccountVO.isCredentialAvailable()) {
+      return BindCardResultVO.from(bankAccountVO);
+    }
+
+    ValidationResultV3 validationResultV3 = bankAccountPaymentMethod.queryValidationResultV3(
+        bankAccountVO.userId,
+        bankAccountVO.bankType,
+        bankAccountVO.accountNumber,
+        bankAccountVO.validationId,
+        bankAccountVO.name,
+        bankAccountVO.sdk,
+        bankAccountVO.bankAccountId,
+        true
+    );
+    return updateIdnLoanBankStatusV3(
+        bankAccountVO.userId,
+        bankAccountVO.bankAccountId,
+        validationResultV3,
+        bankAccountVO.name,
+        sdkType,
+        bankAccountVO.bankType,
+        null,
+        ValidationVersion.V1);
+  }
+
+  public BindCardResultVO queryIdnValidationResultV2(LoanBankAccountVO bankAccountVO, SDKType sdkType) {
+    if (bankAccountVO.isCredentialAvailable()) {
+      return BindCardResultVO.from(bankAccountVO);
+    }
+    String nationalMobileNumber = getNationalMobileNumberForBindCard(bankAccountVO.userId, sdkType);
+
+    ValidationResultV3 validationResultV3 = bankAccountPaymentMethod.queryValidationResultV3(
+        bankAccountVO.userId,
+        bankAccountVO.bankType,
+        bankAccountVO.accountNumber,
+        bankAccountVO.validationId,
+        bankAccountVO.name,
+        bankAccountVO.sdk,
+        bankAccountVO.bankAccountId,
+        true
+    );
+    return updateIdnLoanBankStatusV3(
+        bankAccountVO.userId,
+        bankAccountVO.bankAccountId,
+        validationResultV3,
+        bankAccountVO.name,
+        sdkType,
+        bankAccountVO.bankType,
+        nationalMobileNumber,
+        ValidationVersion.V2);
+  }
+
+  public BindCardResultVO addBankAccount(Long userId,
+      SourceType sourceType,
+      SDKType sdkType,
+      BankType bankType,
+      String accountNumber,
+      String name,
+      BankAccountType bankAccountType,
+      Long build,
+      TongDunNodeTriggerParam tongDunParam) {
+    checkParam(sdkType, name);
+    bindCardNameSimilarityCheckService.check(userId, sdkType, accountNumber, name, build,
+        BindCardNameSimilarityCheckService.BindCardEntry.NATIVE_REBIND);
+    bindCardRequestService.storeRequestInfo(userId, accountNumber, bankType, sdkType);
+    // 绑卡请求落库后触发同盾（BIND_CARD_TG，请求即触发、不等验卡/返回）；内部异步、失败兜底在 LoanCreditService，不阻断绑卡主流程
+    loanCreditService.triggerBindCard(tongDunParam);
+    String nationalMobileNumber = getNationalMobileNumberForBindCard(userId, sourceType, sdkType);
+    log.info("addBankAccount, userId: {}, sourceType: {}, sdkType: {}, nationalMobileNumber: {}", userId, sourceType, sdkType,
+        nationalMobileNumber);
+    BindCardResultVO resultVO = preCheckOrGetErrResultVO(userId, sdkType, bankType, accountNumber, name, bankAccountType, nationalMobileNumber);
+    if (resultVO != null) {
+      return resultVO;
+    }
+    PaymentBusinessName businessName = PaymentBusinessNameMapper.getBusinessName(sdkType);
+
+    if (sdkType.isIdnLoanSDKType()) {
+      checkBankAccountNumberBindUserCount(userId, sdkType, bankType, accountNumber, build);
+    }
+    return bindCardLocker.lockAndRunResult(accountNumber, () -> {
+      LoanBankAccountRecord record = getExistLoanBankAccountRecord(userId, sdkType, bankType, accountNumber, businessName);
+      if (record != null) {
+        BankAccountAvailableStatus status = BankAccountAvailableStatus.fromCodeOrThrow(record.getAvailableStatus());
+        if (!BankAccountAvailableStatus.INACTIVE_STATUS_LIST.contains(status)) {
+          return BindCardResultVO.from(LoanBankAccountVO.from(record));
+        } else {
+          record = loanBankAccountModel.updateName(record, name);
+        }
+      }
+
+      //不需要验卡
+      if (bankConfig.noNeedValidation(sdkType) || bankConfig.noNeedValidationByUserId(userId)) {
+        record = dealLoanBankAccountWithNoValidate(
+            userId,
+            sdkType,
+            bankType,
+            accountNumber,
+            name,
+            bankAccountType,
+            record,
+            build
+        );
+        return BindCardResultVO.from(LoanBankAccountVO.from(record));
+      }
+
+      // 进行验卡
+      String validationId = idGeneratorService.genId(IdGeneratorService.Type.BANK_CARD_NV);
+
+      if (record == null) {
+        record = initLoanBankAccountNewLogic(
+            userId,
+            sdkType,
+            bankType,
+            bankAccountType,
+            accountNumber,
+            name,
+            BankAccountAvailableStatus.INIT,
+            validationId
+        );
+      } else {
+        loanBankAccountModel.updateValidationId(record, bankType, validationId);
+      }
+
+      return getIdnLoanValidResultAndUpdateStatusV3(userId, sdkType, bankType, accountNumber, name, record, validationId, null, ValidationVersion.V1);
+    });
+  }
+
+  public BindCardResultVO addBankAccount(Long userId,
+      SDKType sdkType,
+      BankType bankType,
+      String accountNumber,
+      String name,
+      BankAccountType bankAccountType,
+      Long build,
+      TongDunNodeTriggerParam tongDunParam) {
+    return addBankAccount(userId, null, sdkType, bankType, accountNumber, name, bankAccountType, build, tongDunParam);
+  }
+
+  public BindCardResultVO addBankAccount(Long userId,
+      SDKType sdkType,
+      BankType bankType,
+      String accountNumber,
+      String name,
+      BankAccountType bankAccountType,
+      Long build) {
+    return addBankAccount(userId, sdkType, bankType, accountNumber, name, bankAccountType, build, null);
+  }
+
+  public BindCardResultVO addIdnBankAccountV2(Long userId,
+                                              SDKType sdkType,
+                                              BankType bankType,
+                                              String accountNumber,
+                                              String name,
+                                              Long build) {
+    return addIdnBankAccountV2(userId, sdkType, bankType, accountNumber, name, build, null);
+  }
+
+  public BindCardResultVO addIdnBankAccountV2(Long userId,
+                                              SDKType sdkType,
+                                              BankType bankType,
+                                              String accountNumber,
+                                              String name,
+                                              Long build,
+                                              TongDunNodeTriggerParam tongDunParam) {
+    checkParam(sdkType, name);
+    bindCardNameSimilarityCheckService.check(userId, sdkType, accountNumber, name, build,
+        BindCardNameSimilarityCheckService.BindCardEntry.H5_AUTH);
+    bindCardRequestService.storeRequestInfo(userId, accountNumber, bankType, sdkType);
+    // 绑卡请求落库后触发同盾（BIND_CARD_TG，请求即触发、不等验卡/返回）；内部异步、失败兜底在 LoanCreditService，不阻断绑卡主流程
+    loanCreditService.triggerBindCard(tongDunParam);
+    String nationalMobileNumber = getNationalMobileNumberForBindCard(userId, sdkType);
+    BindCardResultVO resultVO = preCheckOrGetErrResultVO(userId, sdkType, bankType, accountNumber, name, null, nationalMobileNumber);
+    if (resultVO != null) {
+      return resultVO;
+    }
+    PaymentBusinessName businessName = PaymentBusinessNameMapper.getBusinessName(sdkType);
+
+    if (sdkType.isIdnLoanSDKType()) {
+      checkBankAccountNumberBindUserCount(userId, sdkType, bankType, accountNumber, build);
+    }
+
+    return bindCardLocker.lockAndRunResult(accountNumber, () -> {
+      LoanBankAccountRecord record = getExistLoanBankAccountRecord(userId, sdkType, bankType, accountNumber, businessName);
+      if (record != null) {
+        BankAccountAvailableStatus status = BankAccountAvailableStatus.fromCodeOrThrow(record.getAvailableStatus());
+        if (!BankAccountAvailableStatus.INACTIVE_STATUS_LIST.contains(status)) {
+          return BindCardResultVO.from(LoanBankAccountVO.from(record));
+        } else {
+          record = loanBankAccountModel.updateName(record, name);
+        }
+      }
+
+      //不需要验卡
+      if (bankConfig.noNeedValidation(sdkType) || bankConfig.noNeedValidationByUserId(userId)) {
+        record = dealLoanBankAccountWithNoValidate(
+            userId,
+            sdkType,
+            bankType,
+            accountNumber,
+            name,
+            null,
+            record,
+            build
+        );
+        return BindCardResultVO.from(LoanBankAccountVO.from(record));
+      }
+
+      // 进行验卡
+      String validationId = idGeneratorService.genId(IdGeneratorService.Type.BANK_CARD_NV);
+      if (record == null) {
+        record = initLoanBankAccountNewLogic(
+            userId,
+            sdkType,
+            bankType,
+            null,
+            accountNumber,
+            name,
+            BankAccountAvailableStatus.INIT,
+            validationId
+        );
+      } else {
+        loanBankAccountModel.updateValidationId(record, bankType, validationId);
+      }
+      return getIdnLoanValidResultAndUpdateStatusV3(userId, sdkType, bankType, accountNumber, name, record, validationId, nationalMobileNumber, ValidationVersion.V2);
+    });
+  }
+
+  @Nullable
+  private BindCardResultVO preCheckOrGetErrResultVO(Long userId, SDKType sdkType, BankType bankType, String accountNumber, String name, BankAccountType bankAccountType, String nationalMobileNumber) {
+    precheckBankCard(bankType, accountNumber, name);
+    YqgLocale locale = sdkType.getLocale();
+    boolean expression = globalBankAccountNumValidator.isValidBankAccountNumber(locale, bankType, bankAccountType, accountNumber);
+    if (!expression) {
+      log.warn("银行卡号格式不正确, userId:{}, accountNumber: {}, ", userId, accountNumber);
+      String errMsg = bankType.isEWallet ? "账号格式不正确" : "银行账户格式不正确";
+      return BindCardResultVO.from(LoanBankAccountVO.from(bankType, accountNumber, name, BankAccountAvailableStatus.UNAVAILABLE), TT.gen(errMsg));
+    }
+
+    if (!bankType.isEWallet) {
+      return null;
+    }
+
+    if (sdkType.isIdnSDKType() && (bankConfig.getVerifyGoPayAccountMethod() == VerifyEWalletAccountMethod.MOBILE_NUMBER || bankConfig.getVerifyGoPayAccountMethod() == VerifyEWalletAccountMethod.NAME_AND_MOBILE_NUMBER)) {
+      if (!accountNumber.equals(nationalMobileNumber)) {
+        return BindCardResultVO.fromIdnLoanEWalletV2(
+            LoanBankAccountVO.from(bankType, accountNumber, name, BankAccountAvailableStatus.UNAVAILABLE),
+            FinalValidationBankAccountStatus.E_WALLET_MOBILE_NUMBER_NOT_MATCH,
+            false);
+      }
+    }
+    return null;
+  }
+
+  public void precheckBankCard(BankType bankType, String accountNumber, String name) {
+    Map<String, String> bankCardValidationCheckVO = loanBankConfig.getBankCardVallidationCheck(bankType);
+    if (Objects.isNull(bankCardValidationCheckVO)) {
+      return;
+    }
+
+    //todo shubo/andrey later will ask pm provider content how to descibe this
+    if (!StringUtils.isBlank(bankCardValidationCheckVO.get("length")) && accountNumber.length() > Integer.parseInt(bankCardValidationCheckVO.get("length"))) {
+      throw EcException.warn(EcExceptionType.COMMON_CUSTOM_MESSAGE, TT.gen("Add Bank Card Failed. Account Number Length={0}, Max Length={1}, BankType={2}", accountNumber.length(), bankCardValidationCheckVO.get("length"), bankType.name()));
+    }
+    if (!StringUtils.isBlank(bankCardValidationCheckVO.get("prefix")) && !accountNumber.startsWith(bankCardValidationCheckVO.get("prefix"))) {
+      throw EcException.warn(EcExceptionType.COMMON_CUSTOM_MESSAGE, TT.gen("Add Bank Card Failed. Account Number={0}, Prefix Required={1}, BankType={2}", accountNumber, bankCardValidationCheckVO.get("prefix"), bankType.name()));
+    }
+  }
+
+  public LoanBankAccountRecord getExistLoanBankAccountRecord(
+      Long userId,
+      SDKType sdkType,
+      BankType bankType,
+      String accountNumber,
+      PaymentBusinessName businessName) {
+    LoanBankAccountRecord record;
+    boolean isBankCardUniqueKeyWithBankCode = bankType.isEWallet || isBankCardUniqueKeyWithBankCode(userId);
+    if (isBankCardUniqueKeyWithBankCode) {
+      record = loanBankAccountModel.findByUserIdAndAccountNumberAndBankCode(userId, businessName, accountNumber, bankType.name());
+    } else {
+      record = loanBankAccountModel.findByUserIdAndAccountNumber(userId, businessName, accountNumber);
+    }
+    boolean recordIsNull = Objects.isNull(record);
+    log.info(
+        "getExistLoanBankAccountRecord, userId: {}, sdkType: {}, bankType: {}, accountNumber: {}, businessName: {}, isEWallet: {}, isBankCardUniqueKeyWithBankCode: {}, record is null: {}",
+        userId, sdkType, bankType, accountNumber, businessName, bankType.isEWallet, isBankCardUniqueKeyWithBankCode, recordIsNull);
+    bankCardUniqueKeyCheckMonitorService.log(userId, sdkType, bankType, accountNumber, businessName, isBankCardUniqueKeyWithBankCode,
+        recordIsNull);
+    return record;
+  }
+
+  public LoanBankAccountVO getExistLoanBankAccountVO(Long userId,
+                                                     SDKType sdkType,
+                                                     BankType bankType,
+                                                     String accountNumber,
+                                                     PaymentBusinessName businessName) {
+    return LoanBankAccountVO.from(getExistLoanBankAccountRecord(userId, sdkType, bankType, accountNumber, businessName));
+  }
+
+  /**
+   * 3.25版本下掉此分流，都使用c分流
+   */
+  public AddBankAccountNotMatchStrategy getAddBankAccountNotMatchStrategy() {
+    return AddBankAccountNotMatchStrategy.C;
+  }
+
+  private BindCardResultVO getIdnLoanValidResultAndUpdateStatusV3(
+      Long userId,
+      SDKType sdkType,
+      BankType bankType,
+      String accountNumber,
+      String name,
+      LoanBankAccountRecord record,
+      String validationId,
+      String nationalMobileNumber,
+      ValidationVersion validationVersionFrom) {
+    PaymentAccount paymentAccount = PaymentAccount.getDefaultAccount(sdkType);
+    ValidationResultV3 validationResultV3 = bankAccountPaymentMethod.validateBankAccountV3(
+        userId,
+        paymentAccount,
+        bankType,
+        accountNumber,
+        name,
+        validationId,
+        record.getId(),
+        sdkType
+    );
+    return updateIdnLoanBankStatusV3(userId, record.getId(), validationResultV3, name, sdkType, bankType, nationalMobileNumber, validationVersionFrom);
+  }
+
+  private String getNationalMobileNumberForBindCard(Long userId, SDKType sdkType) {
+    return getNationalMobileNumberForBindCard(userId, null, sdkType);
+  }
+
+
+  private String getNationalMobileNumberForBindCard(Long userId, SourceType sourceType, SDKType sdkType) {
+    if (!Boolean.TRUE.equals(apiChannelConfig.getChangeMobileSource())) {
+      return userService.getNationalMobileNumberOrThrow(userId, sdkType);
+    }
+    if (sourceType != null) {
+      return getNationalMobileNumberWithSourceType(userId, sourceType, sdkType);
+    }
+    SourceType requestSourceType = ImpliedContextUtils.sourceType();
+    if (requestSourceType != null && requestSourceType.isApiChannelSourceType()) {
+      return getNationalMobileNumberForApi(userId, requestSourceType, sdkType);
+    }
+    return userService.getNationalMobileNumberOrThrow(userId, sdkType);
+  }
+
+  private String getNationalMobileNumberWithSourceType(Long userId, SourceType sourceType, SDKType sdkType) {
+    if (sourceType.isApiChannelSourceType()) {
+      return getNationalMobileNumberForApi(userId, sourceType, sdkType);
+    }
+    return userService.getNationalMobileNumberOrThrow(userId, sdkType);
+  }
+
+  private String getNationalMobileNumberForApi(Long userId, SourceType sourceType, SDKType sdkType) {
+    ApiChannel apiChannel = ApiChannel.fromSourceType(sourceType);
+    ApiChannelUserResponse apiChannelUserResponse = apiChannelUserService.getApiChannelUser(userId, apiChannel);
+    if (apiChannelUserResponse == null || StringUtils.isBlank(apiChannelUserResponse.getNormalizedMobileNumber())) {
+      throw EcException.error("failed to get api channel user mobile number, userId: {}, apiChannel: {}", userId, apiChannel);
+    }
+    return MobileConverter.getNationalOrThrow(sdkType.getLocale(), apiChannelUserResponse.getNormalizedMobileNumber());
+  }
+
+  private BindCardResultVO updateIdnLoanBankStatusV3(
+      Long userId,
+      Long bankAccountId,
+      ValidationResultV3 validationResultV3,
+      String name,
+      SDKType sdkType,
+      BankType bankType,
+      String nationalMobileNumber,
+      ValidationVersion validationVersionFrom) {
+    boolean canModifyName = false;
+    BankAccountAvailableStatus curStatus;
+    LoanBankAccountVO bankAccountVO;
+    switch (validationVersionFrom) {
+      case V1:
+        ValidationCardStatus validationCardStatus;
+        if (sdkType == SDKType.IDN_FIN) {
+          validationCardStatus = bankAccountValidationUtil.getFinValidationStatusFromResultV3(validationResultV3, name, bankType, sdkType);
+        } else {
+          Long loanAccountId = loanAccountService.getAccountIdByUserIdOrThrow(userId, sdkType);
+          if (StringUtils.isBlank(nationalMobileNumber)) {
+            nationalMobileNumber = getNationalMobileNumberForBindCard(userId, sdkType);
+          }
+          validationCardStatus = bankAccountValidationUtil.getLoanValidationStatusFromResultV3(name, nationalMobileNumber, validationResultV3, bankType, sdkType);
+          if (ValidationCardStatus.NOT_MATCH_LIST.contains(validationCardStatus)) {
+            long notMatchTimes = increaseAndGetNotMatchRemindTimes(loanAccountId);
+            canModifyName = notMatchTimes > bankConfig.getAddBankAccountMaxNotMatchTimes();
+          }
+        }
+
+        curStatus = getBindAccountStatus(validationCardStatus);
+        bankAccountVO = updateBankStatus(bankAccountId, name, curStatus);
+        if (curStatus == BankAccountAvailableStatus.UNAVAILABLE) {
+          log.info("validation v3 convert to v1 result status: {}, user name: {}, userId: {}", validationCardStatus.name(), name, userId);
+        }
+        return BindCardResultVO.from(bankAccountVO, validationCardStatus, sdkType, canModifyName);
+      case V2:
+        Long loanAccountId = loanAccountService.getAccountIdByUserIdOrThrow(userId, sdkType);
+        if (StringUtils.isBlank(nationalMobileNumber)) {
+          nationalMobileNumber = getNationalMobileNumberForBindCard(userId, sdkType);
+        }
+        LoanBankAccountVO loanBankAccountVO = getBankAccountVO(bankAccountId);
+        FinalValidationBankAccountStatus finalValidationStatus = bankAccountValidationUtil.getFinalValidationStatusFromResultV3(validationResultV3, name, loanBankAccountVO.accountNumber, nationalMobileNumber, bankType);
+        if (FinalValidationBankAccountStatus.E_WALLET_MOBILE_NUMBER_AND_NAME_NOT_MATCH == finalValidationStatus ||
+            FinalValidationBankAccountStatus.NAME_NOT_MATCH == finalValidationStatus) {
+          long notMatchTimes = increaseAndGetNotMatchRemindTimes(loanAccountId);
+          canModifyName = notMatchTimes > bankConfig.getAddBankAccountMaxNotMatchTimes();
+        }
+
+        curStatus = getBindAccountStatusV2(finalValidationStatus);
+        bankAccountVO = updateBankStatus(bankAccountId, name, curStatus);
+        if (curStatus == BankAccountAvailableStatus.UNAVAILABLE) {
+          log.info("validation v3 convert to v2 result status: {}, user name: {}, userId: {}", finalValidationStatus.name(), name, userId);
+        }
+        return bankAccountVO.bankType.isEWallet ?
+            BindCardResultVO.fromIdnLoanEWalletV2(bankAccountVO, finalValidationStatus, canModifyName) :
+            BindCardResultVO.fromIdnLoanBankCardV2(bankAccountVO, finalValidationStatus, canModifyName);
+      default:
+        throw EcException.error("unsupported Bank Card Validation Version Switch");
+    }
+  }
+
+  private void checkParam(SDKType sdkType, String name) {
+    if (sdkType == null) {
+      throw EcException.error("sdk is null");
+    }
+    if (StringUtils.isBlank(name)) {
+      throw EcException.error("持卡人姓名不能为空");
+    }
+    if (name.length() > 50) {
+      throw EcException.warn(EcExceptionType.COMMON_CUSTOM_MESSAGE, TT.gen("姓名不能超过50个字符"));
+    }
+  }
+
+  private LoanBankAccountRecord initLoanBankAccountNewLogic(Long userId,
+                                                            SDKType sdkType,
+                                                            BankType bankType,
+                                                            BankAccountType bankAccountType,
+                                                            String accountNumber,
+                                                            String name,
+                                                            BankAccountAvailableStatus status,
+                                                            String validationId) {
+    checkBankAccountNumberMultiple(sdkType, bankType, accountNumber, userId);
+    //更新绑卡后置log的绑卡时间
+    bindCardDelayService.updateTimeBind(userId);
+    return loanBankAccountModel.initAllowMultipleBindCard(
+        userId,
+        sdkType,
+        bankType,
+        bankAccountType,
+        accountNumber,
+        name,
+        status,
+        validationId
+    );
+  }
+
+  public LoanBankAccountRecord dealLoanBankAccountWithNoValidate(Long userId,
+                                                                 SDKType sdkType,
+                                                                 BankType bankType,
+                                                                 String accountNumber,
+                                                                 String name,
+                                                                 BankAccountType bankAccountType,
+                                                                 LoanBankAccountRecord existRecord,
+                                                                 Long build) {
+    if (sdkType.isIdnLoanSDKType()) {
+      checkBankAccountNumberBindUserCount(userId, sdkType, bankType, accountNumber, build);
+    }
+    if (existRecord == null) {
+      //先初始化一条PENDING，调用payment成功后，再置为AVAILABLE
+      existRecord = initLoanBankAccountNewLogic(
+          userId,
+          sdkType,
+          bankType,
+          bankAccountType,
+          accountNumber,
+          name,
+          BankAccountAvailableStatus.INIT,
+          null
+      );
+    }
+    BankAccountAvailableStatus status = BankAccountAvailableStatus.fromCodeOrThrow(existRecord.getAvailableStatus());
+    if (status == BankAccountAvailableStatus.AVAILABLE) {
+      return existRecord;
+    }
+    return registerAndUpdateToAvailable(sdkType, bankType, accountNumber, name, existRecord);
+  }
+
+  public LoanBankAccountRecord registerAndUpdateToAvailable(
+      SDKType sdkType,
+      BankType bankType,
+      String accountNumber,
+      String name,
+      LoanBankAccountRecord existRecord
+  ) {
+    bankAccountPaymentMethod.registerOverseasPayment(sdkType, PaymentAccount.getDefaultAccount(sdkType), bankType, accountNumber, name, existRecord.getId());
+    return updateAvailableStatus(existRecord.getId(), BankAccountAvailableStatus.AVAILABLE);
+  }
+
+  private void checkBankAccountNumberMultiple(SDKType sdkType, BankType bankType, String accountNumber, Long userId) {
+    if (!curEnvSupportMultipleCheck()) {
+      return;
+    }
+
+    //印尼现在只有IDN_YQD和IDN_FIN，这里弃用之前bySdkType取配置的方式
+    switch (sdkType) {
+      //理财同一个SDK不允许重复，跨SDK不允许重复 ---> 有任何一条都不行
+      case IDN_FIN:
+        Integer countByAccountNumber;
+        if (isBankCardUniqueKeyWithBankCode(userId)) {
+          countByAccountNumber = loanBankAccountModel.countByAccountNumberAndBankCode(bankType, accountNumber);
+        } else {
+          countByAccountNumber = loanBankAccountModel.countByAccountNumber(bankType, accountNumber);
+        }
+        assertTrueOrThrowBankAccountDuplicate(countByAccountNumber <= 0, accountNumber);
+        return;
+      case IDN_YQD:
+        //借贷同一个SDK允许重复，跨SDK允许重复 ---> 百无禁忌
+        return;
+      default:
+        throw EcException.error("Unsupported sdk type: {}!", sdkType);
+    }
+  }
+
+  public void checkBankAccountNumberBindUserCount(Long userId, SDKType sdkType, BankType bankType, String accountNumber, Long build) {
+    if (build < userSecureConfig.getAuthCheckMinBuild()) {
+      return;
+    }
+
+    if (loanBankConfig.getAuthCheckBankAccountNumberWhitelist().contains(accountNumber)) {
+      return;
+    }
+
+    UserInfoVO userInfoVO = userService.fetchById(userId, sdkType);
+    String channel = userInfoVO.channel;
+    SourceType sourceType = userInfoVO.sourceType;
+
+    if (sourceType.isApiChannelSourceType()) {
+      return;
+    }
+
+    Map<String, CheckAuthConfigVO> channelAndLimitCountMap = userSecureConfig.getCheckNeedMergeAccountChannelMap();
+    if (!channelAndLimitCountMap.containsKey(channel)) {
+      return;
+    }
+    //配置里面没有添加银行卡的数量限制
+    if (Objects.isNull(channelAndLimitCountMap.get(channel).bankCardBindUserLimit)) {
+      return;
+    }
+
+    long startTime = Clock.now();
+
+    long limitTime = startTime - userSecureConfig.getAuthCheckStartTime() * Clock.MILLS_PER_DAY;
+    Set<String> nikSet = getNikSet(sdkType, bankType, accountNumber, limitTime);
+
+    authCheckTimeCostMonitorService.log(userId, sourceType, sdkType, CheckType.BANK_ACCOUNT, channel, Clock.now() - startTime);
+    if (nikSet.size() >= channelAndLimitCountMap.get(channel).bankCardBindUserLimit) {
+      userCheckHistoryModel.insert(userId, userInfoVO.loanAccountId, sourceType, CheckType.BANK_ACCOUNT, String.valueOf(nikSet.size()));
+      assertTrueOrThrowBankAccountDuplicate(false, accountNumber);
+    }
+
+  }
+
+  public Set<String> getNikSet(SDKType sdkType, BankType bankType, String accountNumber, long limitTime) {
+    List<LoanBankAccountRecord> loanBankAccountRecordList = loanBankAccountModel.findListByAccountNumberAndBankCodeAndAvailableStatusAndTimeCreate(sdkType,
+        accountNumber,
+        bankType,
+        CHECK_STATUS_LIST,
+        limitTime);
+    List<Long> userIdSet = loanBankAccountRecordList
+        .stream()
+        .map(LoanBankAccountRecord::getUserId)
+        .collect(Collectors.toList());
+
+    List<Long> loanAccountIds = loanAccountService.fetchLoanAccountIdsByUserIdsAndSDK(userIdSet, sdkType);
+
+    return loanUserAdditionalInfoModel.getInfosByAccountsAndTypes(loanAccountIds, ImmutableList.of(LoanUserAdditionalInfoType.IDN_ID_NO))
+        .stream()
+        .map(vo -> vo.value)
+        .collect(Collectors.toSet());
+  }
+
+  private boolean curEnvSupportMultipleCheck() {
+    if (SysEnvironment.isProd() || SysEnvironment.isFeat()) {
+      return true;
+    }
+    return bankConfig.supportMultipleCheckForNonProd();
+  }
+
+  private static void assertTrueOrThrowBankAccountDuplicate(boolean expression, String accountNumber) {
+    if (!expression) {
+      log.warn("bank account Multiple check failed！accountNumber is {}", accountNumber);
+      throw EcException.warn(EcExceptionType.LOAN_BANK_ACCOUNT_DUPLICATE, TT.gen("该银行卡已被其他账号绑定"));
+    }
+  }
+
+  private long increaseAndGetNotMatchRemindTimes(Long loanAccountId) {
+    Long expireSeconds = bankConfig.getAddBankAccountPeriodSeconds();
+    return addBankAccountNotMatchTimesLoader.incrNotMatchTimes(loanAccountId, expireSeconds);
+  }
+
+  @NotNull
+  private BankAccountAvailableStatus getBindAccountStatus(ValidationCardStatus validationCardStatus) {
+    switch (validationCardStatus) {
+      case MATCH:
+        return BankAccountAvailableStatus.AVAILABLE;
+      case IN_REVIEW:
+        return BankAccountAvailableStatus.IN_REVIEW;
+      case PENDING:
+        return BankAccountAvailableStatus.PENDING;
+      default:
+        return BankAccountAvailableStatus.UNAVAILABLE;
+    }
+  }
+
+  @NotNull
+  private BankAccountAvailableStatus getBindAccountStatusV2(FinalValidationBankAccountStatus finalValidationStatus) {
+    switch (finalValidationStatus) {
+      case MATCH:
+        return BankAccountAvailableStatus.AVAILABLE;
+      case PENDING:
+        return BankAccountAvailableStatus.PENDING;
+      default:
+        return BankAccountAvailableStatus.UNAVAILABLE;
+    }
+  }
+
+  private LoanBankAccountVO updateBankStatus(Long bankAccountId, String name, BankAccountAvailableStatus curStatus) {
+    return transactionalModel.transactionResult(configuration -> {
+      LoanBankAccountRecord record = loanBankAccountModel.findByIdForUpdateOrThrow(bankAccountId);
+      BankAccountAvailableStatus lastStatus = BankAccountAvailableStatus.fromCodeOrThrow(record.getAvailableStatus());
+      if (lastStatus == curStatus) {
+        return LoanBankAccountVO.from(record);
+      }
+      switch (curStatus) {
+        case UNAVAILABLE:
+          updateAvailableStatus(bankAccountId, curStatus);
+          break;
+        case PENDING:
+        case IN_REVIEW:
+        case AVAILABLE:
+          updateAvailableStatusAndName(bankAccountId, name, curStatus);
+          break;
+        default:
+          throw EcException.error("invalid loan_bank_account_status. id: {}, status: {}", record.getId(), curStatus);
+      }
+      record = loanBankAccountModel.findById(bankAccountId);
+      return LoanBankAccountVO.from(record);
+    });
+  }
+
+  private LoanBankAccountRecord updateAvailableStatusAndName(Long bankAccountId, String name, BankAccountAvailableStatus curStatus) {
+    LoanBankAccountRecord record = loanBankAccountModel.findByIdOrThrow(bankAccountId);
+    record = loanBankAccountModel.updateByValidationResult(record, curStatus, name);
+    userEventService.publishBindBankAccountAvailableEvent(record.getUserId(), SDKType.fromCode(record.getSdkType()), record.getBankCode(), record.getAccountNumber(), curStatus);
+    return record;
+  }
+
+  public List<BankType> getSupportedChannelList(SDKType sdkType, boolean isEWallet) {
+    PaymentAccount paymentAccount = PaymentAccount.getDefaultAccount(sdkType);
+    return bankAccountPaymentMethod.getAvailableBankType(paymentAccount).stream()
+        .filter(bankType -> Objects.nonNull(bankType) && isEWallet == bankType.isEWallet).collect(Collectors.toList());
+  }
+
+  public List<BankType> getSupportedChannelListALL(SDKType sdkType) {
+    PaymentAccount paymentAccount = PaymentAccount.getDefaultAccount(sdkType);
+    return bankAccountPaymentMethod.getAvailableBankType(paymentAccount).stream()
+        .filter(bankType -> Objects.nonNull(bankType)).collect(Collectors.toList());
+  }
+
+  /**
+   * 获取银行卡 不包含电子钱包
+   *
+   * @param sdkType
+   * @return
+   */
+  public List<BankConfigVO> getSupportedBankVOList(SDKType sdkType) {
+    List<BankType> bankTypeList = getSupportedChannelList(sdkType, false);
+    return this.sortBankAndConvers(bankTypeList, sdkType);
+  }
+
+  /**
+   * 获取银行卡（所有的类型）
+   *
+   * @param sdkType
+   * @return
+   */
+  public List<BankConfigVO> getSupportedBankVOListALL(SDKType sdkType) {
+    List<BankType> bankTypeList = getSupportedChannelListALL(sdkType);
+    return this.sortBankAndConvers(bankTypeList, sdkType);
+  }
+
+  /**
+   * 只获取电子钱包
+   *
+   * @param sdkType
+   * @return
+   */
+  public List<BankConfigVO> getSupportedBankVOListEWallet(SDKType sdkType) {
+    List<BankType> bankTypeList = getSupportedChannelList(sdkType, true);
+    return this.sortBankAndConvers(bankTypeList, sdkType);
+  }
+
+  public List<BankConfigVO> sortBankAndConvers(List<BankType> bankTypeList, SDKType sdkType) {
+    bankTypeList = sortBank(bankTypeList, bankConfig.getDisplayRule(sdkType));
+    if (CollectionUtils.isEmpty(bankTypeList)) {
+      throw EcException.error("can't find bind_card_config for sdk: " + sdkType);
+    }
+    Map<String, BankConfigVO> bankConfigVOMap = bankConfigService.getBankVoMap(Sets.newHashSet(bankTypeList), sdkType);
+
+    List<BankConfigVO> voList = Lists.newArrayList();
+    for (BankType type : bankTypeList) {
+      BankConfigVO vo = bankConfigVOMap.get(type.name());
+      if (vo == null) {
+        log.error("can't find bank config. bank_type:{}", type);
+        continue;
+      }
+      voList.add(vo);
+    }
+    return voList;
+  }
+
+  public List<BankConfigVO> filterBankTypeByABTest(List<BankConfigVO> bankList, Long userId) {
+    if (CollectionUtils.isEmpty(bankList)) {
+      return bankList;
+    }
+    //如果在白名单内，直接返回
+    if (loanBankConfig.getFilterBankTypeWhiteUserId().contains(userId)) {
+      return bankList;
+    }
+    Boolean needFilter = Boolean.valueOf(
+        expFacade.fetchResult(ABTestSceneType.USER_BIND_BANK_CARD_FILTER, ABTestUtil.genDiversionKeyMapByUserId(userId), "TRUE"));
+    if (needFilter) {
+      List<BankType> filterBankType = loanBankConfig.getFilterBankType();
+      bankList = bankList.stream().filter(e -> !filterBankType.contains(e.getBankType())).collect(Collectors.toList());
+    }
+    return bankList;
+  }
+
+  /**
+   * 命中"SuperBank渠道绑卡"实验组（B组）时，仅保留 SuperBank。
+   */
+  public List<BankConfigVO> keepOnlySuperBankIfInExperiment(List<BankConfigVO> banks, Long userId, Long build, String deviceId) {
+    // 基础参数校验
+    if (CollectionUtils.isEmpty(banks) || Objects.isNull(userId) || Objects.isNull(build) || Objects.isNull(deviceId)) {
+      return banks;
+    }
+
+    // 获取广告来源并校验
+    String mediaSource = getMediaSourceByDeviceId(deviceId);
+    if (Objects.isNull(mediaSource) || !isValidMediaSource(mediaSource)) {
+      return banks;
+    }
+
+    if (!isInSuperBankBindCardExperiment(userId, build)) {
+      return banks;
+    }
+
+    List<BankConfigVO> list = banks.stream()
+        .filter(Objects::nonNull)
+        .filter(b -> b.getBankType() == BankType.FAMA)
+        .collect(Collectors.toList());
+
+    if (CollectionUtils.isEmpty(list)) {
+      return banks;
+    }
+
+    return list;
+  }
+
+  private String getMediaSourceByDeviceId(String deviceId) {
+    try {
+      AdsResponse<AppsflyerResultVO> adsResponse = adsAppsflyerService.getAppsflyerMediaSourceByDeviceId(deviceId);
+      if (adsResponse == null || adsResponse.body == null) {
+        log.warn("Failed to get media source from Appsflyer, deviceId: {}", deviceId);
+        return null;
+      }
+      return adsResponse.body.getMediaSource();
+    } catch (Exception e) {
+      log.error("Error getting media source from Appsflyer", e);
+      return null;
+    }
+  }
+
+  private boolean isValidMediaSource(String mediaSource) {
+    List<String> filterMediaSourceList = loanBankConfig.getFilterBankTypeMediaSourceAllowList();
+    return !CollectionUtils.isEmpty(filterMediaSourceList) && filterMediaSourceList.contains(mediaSource);
+  }
+
+  private boolean isInSuperBankBindCardExperiment(Long userId, Long build) {
+    ABTestUserIdRequestVO request = ABTestUserIdRequestVO.from(
+        ExperimentNameSpace.SUPERBANK_CHANNEL_USER_BINDING_CARD, userId);
+    String abTestResult = expFacade.fetchResultFallBackWithDefaultScene("technology-auth-abroad-loan-superbank_rename_0908", ExpFacade.ClientType.DIVERSION, request, build);
+    if (StringUtils.isEmpty(abTestResult)) {
+      return false;
+    }
+    return Boolean.parseBoolean(abTestResult);
+  }
+
+  public List<BankConfigVO> filterEWalletTypeByABTest(List<BankConfigVO> bankList, Long userId) {
+    Boolean needFilter = Boolean.valueOf(
+        expFacade.fetchResult(ABTestSceneType.IDN_EWALLET_BIND_DISPLAY_FILTER, ABTestUtil.genDiversionKeyMapByUserId(userId), "TRUE"));
+    if (needFilter) {
+      List<BankType> filterEWalletType = loanBankConfig.getFilterEWalletType();
+      bankList = bankList.stream().filter(e -> !filterEWalletType.contains(e.getBankType())).collect(Collectors.toList());
+    }
+    return bankList;
+  }
+
+  /**
+   * 命中"IDN银行弹窗文案实验"实验组时，返回一个新的 Map，其中所有 value 的 popWindowText 设置为空字符串
+   * 避免直接修改传入的共享配置对象，防止跨请求数据污染
+   *
+   * @param bankTypeToBankAttributeVOMap 原始配置 map
+   * @param userId 用户ID
+   * @param build 构建版本
+   * @param sourceType 来源类型
+   * @return 如果命中实验，返回新的 Map（popWindowText 为空字符串）；否则返回原始 map（不创建新对象）
+   */
+  public Map<BankType, BankAttributeVO> clearPopWindowTextIfInExperiment(Map<BankType, BankAttributeVO> bankTypeToBankAttributeVOMap, Long userId, Long build, SourceType sourceType, Long loanAccountId) {
+    if (bankTypeToBankAttributeVOMap == null || userId == null || build == null) {
+      return bankTypeToBankAttributeVOMap;
+    }
+    
+    boolean shouldClearText = isInPopWindowTextExperiment(userId, build, sourceType, loanAccountId);
+    
+    if (!shouldClearText) {
+      return bankTypeToBankAttributeVOMap;
+    }
+    
+    // 命中实验时，创建新的 Map 和新的 BankAttributeVO 对象
+    return bankTypeToBankAttributeVOMap.entrySet().stream()
+        .collect(Collectors.toMap(
+            Map.Entry::getKey,
+            entry -> {
+              BankAttributeVO originalVO = entry.getValue();
+              if (originalVO == null) {
+                return null;
+              }
+              // 使用 copy 方法，代码更简洁清晰
+              return originalVO.copy("");
+            }
+        ));
+  }
+
+  private boolean isInPopWindowTextExperiment(Long userId, Long build, SourceType sourceType, Long loanAccountId) {
+    boolean authFinished = authService.isAuthFinished(loanAccountId);
+    if (authFinished) {
+      //  若已完件，直接返回
+      return false;
+    }
+    String tempKey = "technology-auth-abroad-loan-card_page_notification_remove";
+    ExpUser expUser = ExpUser.builder()
+        .userId(userId)
+        .versionBuild(build)
+        .sourceType(sourceType)
+        .build();
+    String result = expDiversionClient.getResult(tempKey, expUser);
+    if (StringUtils.isEmpty(result) || AbstractExpClient.BLANK_GROUP.equals(result)) {
+      return false;
+    }
+    return "B".equals(result);
+  }
+
+  private List<BankType> sortBank(List<BankType> bankTypeList, Map<BankType, Integer> displayRule) {
+    int defaultIndex = displayRule.size();
+    return bankTypeList
+        .stream()
+        .sorted((o1, o2) -> ComparisonChain.start()
+            .compare(displayRule.getOrDefault(o1, defaultIndex), displayRule.getOrDefault(o2, defaultIndex))
+            .compare(o1.name(), o2.name())
+            .result())
+        .collect(Collectors.toList());
+  }
+
+  public void updateStatusBy3rdPartyResult(Long startTime, Long endTime) {
+    List<LoanBankAccountRecord> accountRecords = loanBankAccountModel.findPendingAccountListInUpdatedTimeWindow(startTime, endTime);
+
+    accountRecords.forEach(record -> {
+      try {
+        ValidationResultV3 validationResultV3 = bankAccountPaymentMethod.queryValidationResultV3(
+            record.getUserId(),
+            BankType.valueOf(record.getBankCode()),
+            record.getAccountNumber(),
+            record.getValidationId(),
+            record.getName(),
+            SDKType.fromCode(record.getSdkType()),
+            record.getId(),
+            true);
+        updateIdnLoanBankStatusV3(
+            record.getUserId(),
+            record.getId(),
+            validationResultV3,
+            record.getName(),
+            SDKType.fromCode(record.getSdkType()),
+            BankType.valueOf(record.getBankCode()),
+            null,
+            ValidationVersion.V1);
+      } catch (Exception e) {
+        log.error("validation bank card failed, bankAccountId is {}", record.getId(), e);
+      }
+    });
+  }
+
+  public LoanBankAccountVO verifyBankAccount(Long bankAccountId) {
+    LoanBankAccountRecord accountRecord = loanBankAccountModel.findByIdOrThrow(bankAccountId);
+    if (accountRecord.getAvailableStatus().equals(BankAccountAvailableStatus.IN_REVIEW.charCode)) {
+      accountRecord = updateAvailableStatus(bankAccountId, BankAccountAvailableStatus.AVAILABLE);
+    }
+    return LoanBankAccountVO.from(accountRecord);
+  }
+
+  public LoanBankAccountVO vetoedBankAccount(Long bankAccountId) {
+    LoanBankAccountRecord accountRecord = loanBankAccountModel.findByIdOrThrow(bankAccountId);
+    if (accountRecord.getAvailableStatus().equals(BankAccountAvailableStatus.IN_REVIEW.charCode)) {
+      accountRecord = updateAvailableStatus(bankAccountId, BankAccountAvailableStatus.UNAVAILABLE);
+    }
+    return LoanBankAccountVO.from(accountRecord);
+  }
+
+  public LoanBankAccountVO vetoedBankAccountForForeignerAuth(Long bankAccountId) {
+    LoanBankAccountRecord accountRecord = updateAvailableStatus(bankAccountId, BankAccountAvailableStatus.UNAVAILABLE);
+    return LoanBankAccountVO.from(accountRecord);
+  }
+
+  private ValidationCardStatus getFinValidationStatusFromResult(ValidationResult validationResult, String name) {
+    if (validationResult.validationStatus == ValidationResult.ValidationStatus.PENDING) {
+      return ValidationCardStatus.PENDING;
+    }
+    if (validationResult.validationStatus == ValidationResult.ValidationStatus.FAILURE) {
+      return ValidationCardStatus.CARD_UNAVAILABLE;
+    }
+    //直接根据result获取
+    if (validationResult.result != null) {
+      switch (validationResult.result) {
+        case MATCH:
+          return ValidationCardStatus.MATCH;
+        case UNCLEAR:
+          return ValidationCardStatus.IN_REVIEW;
+        case NOT_MATCH:
+          return ValidationCardStatus.NAME_NOT_MATCH;
+        default:
+          throw EcException.error("unsupported result : {}", validationResult.result);
+      }
+    }
+    //不存在result的情况
+    // 检查 用户提供的姓名与第三方返回的姓名 是否一致 忽略大小写
+    if ((validationResult.name).equalsIgnoreCase(name)) {
+      return ValidationCardStatus.MATCH;
+    } else if (isNameSimilarForFinancing(validationResult.name.toLowerCase(), name.toLowerCase())) {
+      // 检查 用户提供的姓名与第三方返回的姓名 是否相似 忽略大小写
+      return ValidationCardStatus.IN_REVIEW;
+    } else {
+      // 如果用户提供的姓名与第三方返回的姓名相似度低于配置 直接拒绝
+      log.warn("The provided account name is not similar the actual account name; actual name from 3rdParty: {}, provided name: {}",
+          validationResult.name, name);
+      return StringUtils.isNotBlank(validationResult.account) ? ValidationCardStatus.EWALLET_NOT_MATCH : ValidationCardStatus.NAME_NOT_MATCH;
+    }
+  }
+
+  private boolean isNameSimilarForFinancing(String validationResultName, String name) {
+    int result = FuzzySearch.tokenSetRatio(validationResultName, name);
+    return result >= getFinancingBankAccountNameSimilarityLimit();
+  }
+
+  public LoanBankAccountVO getAvailableBankAccountVO(long paymentCredentialId) {
+    LoanBankAccountRecord accountRecord = loanBankAccountModel.findByIdOrThrow(paymentCredentialId);
+    if (!BankAccountAvailableStatus.AVAILABLE.charCode.equals(accountRecord.getAvailableStatus())) {
+      throw EcException.warn(EcExceptionType.COMMON_CUSTOM_MESSAGE, TT.gen("The loan bank account is no longer available. credential_id:{0}", paymentCredentialId));
+    }
+    return LoanBankAccountVO.from(accountRecord);
+  }
+
+  public LoanBankAccountVO getBankAccountVO(long paymentCredentialId) {
+    LoanBankAccountRecord accountRecord = loanBankAccountModel.findByIdOrThrow(paymentCredentialId);
+    return LoanBankAccountVO.from(accountRecord);
+  }
+
+  public Map<Long, LoanBankAccountVO> getBankAccountVOMap(Set<Long> paymentCredentialIds) {
+    List<LoanBankAccountRecord> accountRecordList = loanBankAccountModel.fetchByIds(paymentCredentialIds);
+    return accountRecordList
+        .stream()
+        .map(LoanBankAccountVO::from)
+        .collect(Collectors.toMap(LoanBankAccountVO::getId, bankAccountVO -> bankAccountVO));
+  }
+
+  public LoanBankAccountVO getFinancingBankAccountVO(Long userId, SDKType sdkType) {
+    List<LoanBankAccountVO> loanBankAccountVOS = getAvailableBankAccounts(userId, sdkType);
+    if (CollectionUtils.isEmpty(loanBankAccountVOS)) {
+      throw EcException.error(EcExceptionType.LOAN_BANK_ACCOUNT_NOT_FOUND, "用户未绑卡! userId = " + userId);
+    }
+    if (loanBankAccountVOS.size() > 1) {
+      throw EcException.error("用户绑定了超过一张卡! userId = " + userId);
+    }
+    return loanBankAccountVOS.get(0);
+  }
+
+  public LoanBankAccountVO getFinancingBankAccountVOOrNull(Long userId, SDKType sdkType) {
+    List<LoanBankAccountVO> loanBankAccountVOS = getAvailableBankAccounts(userId, sdkType);
+    if (CollectionUtils.isEmpty(loanBankAccountVOS)) {
+      return null;
+    }
+    if (loanBankAccountVOS.size() > 1) {
+      throw EcException.error("用户绑定了超过一张卡! userId = " + userId);
+    }
+    return loanBankAccountVOS.get(0);
+  }
+
+  private int getFinancingBankAccountNameSimilarityLimit() {
+    return ecSiteVars.getInt("financing.bank_account_name_similarity_limit", 0);
+  }
+
+  public void checkLoanBankCardMatch(LoanBankAccountVO bankAccountVO) {
+    //TODO(chaoye,T00000) 下单前校验暂不使用V2的验卡结果，等未来验卡方法全量替换成V2了再修改
+    ValidationCardStatus validationCardStatus;
+    String validationResultAsString;
+    ValidationResultV3 validationResultV3 = bankAccountPaymentMethod.queryValidationResultV3(
+        bankAccountVO.userId,
+        bankAccountVO.bankType,
+        bankAccountVO.accountNumber,
+        bankAccountVO.validationId,
+        bankAccountVO.name,
+        bankAccountVO.sdk,
+        bankAccountVO.bankAccountId,
+        false);
+    String nationalMobileNumber = userService.getNationalMobileNumberOrThrow(bankAccountVO.userId, bankAccountVO.sdk);
+    validationCardStatus = bankAccountValidationUtil.getLoanValidationStatusFromResultV3(bankAccountVO.name, nationalMobileNumber, validationResultV3, bankAccountVO.bankType, bankAccountVO.sdk);
+    validationResultAsString = JsonUtils.toString(validationResultV3);
+    boolean isMatch = validationCardStatus == ValidationCardStatus.MATCH;
+    bankAccountMonitorService.logCreateOrderBankCardMatch(validationCardStatus, bankAccountVO.userId, isMatch);
+    if (ValidationCardStatus.NOT_MATCH_LIST.contains(validationCardStatus)) {
+      log.info("validation result: {}, create order user name: {}, userId: {}", validationResultAsString, bankAccountVO.name, bankAccountVO.userId);
+      if (bankAccountVO.bankType.isEWallet) {
+        throw EcException.warn(EcExceptionType.COMMON_CUSTOM_MESSAGE_DIALOG, TT.gen("不能用非本人账号提现，请点击收款账户绑定本人的收款账号"));
+      }
+      throw EcException.warn(EcExceptionType.COMMON_CUSTOM_MESSAGE_DIALOG, TT.gen("不能用非本人银行卡提现，请点击收款账户重新绑卡"));
+    }
+    if (validationCardStatus != ValidationCardStatus.MATCH) {
+      throw EcException.warn(EcExceptionType.LOAN_BANK_ACCOUNT_FAIL, TT.gen(validationCardStatus.getLoanRemind()));
+    }
+  }
+
+  public ValidationCardStatus getLoanValidationStatusFromResult(Long userId, String createOrderUserName, ValidationResult validationResult,
+                                                                SDKType sdkType, BankType bankType) {
+    if (validationResult.validationStatus == ValidationResult.ValidationStatus.PENDING) {
+      return ValidationCardStatus.PENDING;
+    }
+    if (validationResult.validationStatus == ValidationResult.ValidationStatus.FAILURE) {
+      return ValidationCardStatus.CARD_UNAVAILABLE;
+    }
+    if (StringUtils.isNotBlank(validationResult.account)) {
+      String nationalMobileNumber = userService.getNationalMobileNumberOrThrow(userId, sdkType);
+      return bankAccountValidationUtil.isUserEWalletAccountValid(bankType, validationResult.account, validationResult.name, createOrderUserName, nationalMobileNumber) ? ValidationCardStatus.MATCH : ValidationCardStatus.EWALLET_NOT_MATCH;
+    }
+    if (StringUtils.isBlank(validationResult.name)) {
+      return validationResult.result == ValidationResult.Result.MATCH ? ValidationCardStatus.MATCH : ValidationCardStatus.NAME_NOT_MATCH;
+    }
+    return bankAccountValidationUtil.isNameMatch(bankType, validationResult.name, createOrderUserName) ? ValidationCardStatus.MATCH : ValidationCardStatus.NAME_NOT_MATCH;
+  }
+
+  public LoanBankAccountRecord updateAvailableStatus(Long bankAccountId, BankAccountAvailableStatus status) {
+    LoanBankAccountRecord accountRecord = loanBankAccountModel.findByIdOrThrow(bankAccountId);
+    accountRecord = loanBankAccountModel.updateAvailableStatus(accountRecord, status);
+    userEventService.publishBindBankAccountAvailableEvent(accountRecord.getUserId(), SDKType.fromCode(accountRecord.getSdkType()), accountRecord.getBankCode(), accountRecord.getAccountNumber(), BankAccountAvailableStatus.AVAILABLE);
+    return accountRecord;
+  }
+
+  public LoanBankAccountVO updateAvailableStatusAndReturnBankAccountVO(Long bankAccountId, BankAccountAvailableStatus status) {
+    updateAvailableStatus(bankAccountId, status);
+    return findVOById(bankAccountId);
+  }
+
+  public void updateLoanBankLastTimeUsed(PaymentCredential paymentCredential, Long timePayout) {
+    if (paymentCredential.getMethod() == PaymentMethod.BANKCARD) {
+      LoanBankAccountRecord record = loanBankAccountModel.findByIdOrThrow(paymentCredential.getId());
+      loanBankAccountModel.updateLastTimeUsed(record, timePayout);
+    }
+  }
+
+  public LoanBankAccountVO getByUserIdAndBankNumberAndType(Long userId, SDKType sdkType, String accountNumber, BankType bankType) {
+    LoanBankAccountRecord bankAccountRecord = loanBankAccountModel.getByUserIdAndBankNumberAndType(userId, sdkType, accountNumber, bankType);
+    if (bankAccountRecord == null) {
+      return null;
+    }
+    return LoanBankAccountVO.from(bankAccountRecord);
+  }
+
+  public void checkBankNameMatch(ICredential credentialInfo, SDKType sdkType, Long loanAccountId) {
+    //只有印尼需要校验银行卡姓名
+    if (!sdkType.isIdnLoanSDKType()) {
+      return;
+    }
+    if (!bankConfig.getNeedCheckNameMatch()) {
+      return;
+    }
+
+    SimpleLoanAccountVO simpleLoanAccountVo = loanAccountService.getSimpleLoanAccountVo(loanAccountId);
+    if (loanBankConfig.noNeedValidationByUserId(simpleLoanAccountVo.userId)) {
+      return;
+    }
+    if (!(credentialInfo instanceof LoanBankAccountVO)) {
+      throw EcException.error("credentialInfo is not a instance of LoanBankAccountVO, sdkType: {}, credentialId: {}, loanAccountId: {}",
+          sdkType, credentialInfo.getId(), loanAccountId);
+    }
+    LoanBankAccountVO loanBankAccountVO = (LoanBankAccountVO) credentialInfo;
+    if (canSkipBankCardCheck(loanAccountId, UserPaymentCredential.from(loanBankAccountVO))) {
+      return;
+    }
+    checkLoanBankCardMatch(loanBankAccountVO);
+  }
+
+  //存在结清订单，且申请银行卡打款成功过
+  private boolean canSkipBankCardCheck(Long loanAccountId, UserPaymentCredential paymentCredential) {
+    return ecOrderService.existOrder(loanAccountId, CashLoanOrderStatus.COMPLETE) && ecOrderService.existOrder(paymentCredential, Arrays.asList(CashLoanOrderStatus.PAYOUT_STATUSES));
+  }
+
+  public void checkBankTypeSupported(ICredential credentialInfo, SDKType sdkType, Long loanAccountId, SourceType sourceType) {
+    if (!(credentialInfo instanceof LoanBankAccountVO)) {
+      throw EcException.error("credentialInfo is not a instance of LoanBankAccountVO, sdkType: {}, credentialId: {}, loanAccountId: {}",
+          sdkType, credentialInfo.getId(), loanAccountId);
+    }
+    LoanBankAccountVO loanBankAccountVO = (LoanBankAccountVO) credentialInfo;
+    checkEWallet(loanBankAccountVO, sourceType);
+    if (bankConfig.getUnsupportedBankType().contains(loanBankAccountVO.bankType)) {
+      throw EcException.warn(EcExceptionType.COMMON_CUSTOM_MESSAGE_DIALOG, TT.gen("该银行卡不可用, 请点击收款账户重新绑卡"));
+    }
+  }
+
+  //电子钱包类型检查
+  private void checkEWallet(LoanBankAccountVO loanBankAccountVO, SourceType sourceType) {
+    if (!loanBankAccountVO.bankType.isEWallet) {
+      return;
+    }
+
+    List<BankType> illegalEWalletBankTypeList = bankConfig.getIllegalEWalletBankType();
+    //是可用电子钱包
+    if (!illegalEWalletBankTypeList.contains(loanBankAccountVO.bankType)) {
+      return;
+    }
+
+    //电子钱包不可用时，根据分流决定是否检查并提示用户
+    Boolean needCheck = Boolean.valueOf(expFacade.fetchResult(ABTestSceneType.CHECK_EWALLET_WHEN_CREATE_ORDER,
+        ABTestUtil.genDiversionKeyMapByUserId(loanBankAccountVO.userId), "TRUE"));
+    if (!needCheck) {
+      return;
+    }
+
+    boolean h5Redirect = false;
+    if (sourceType == SourceType.WEB) {
+      h5Redirect = Boolean.valueOf(expFacade.fetchExistOrDefaultResult(ABTestSceneType.H5_LOAN_BIND_CARD, ABTestUtil.genDiversionKeyMapByUserId(loanBankAccountVO.userId), "TRUE"));
+    }
+    try {
+      List<BankType> legalEWalletBankTypeList = bankConfig.getLegalEWalletBankType();
+      //所有电子钱包都不可用
+      if (legalEWalletBankTypeList.isEmpty()) {
+        throw EcException.warn(EcExceptionType.COMMON_CUSTOM_MESSAGE_DIALOG, TT.gen("抱歉，{0}电子钱包不能提供本次借款的放款服务，请您使用本人银行账号进行借款", loanBankAccountVO.bankType.description));
+      }
+
+      String legalEWalletStr = legalEWalletBankTypeList
+          .stream()
+          .map(o -> o.description)
+          .collect(Collectors.joining("/"));
+      //用户所选电子钱包不可用，部分电子钱包可用
+      throw EcException.warn(EcExceptionType.COMMON_CUSTOM_MESSAGE_DIALOG, TT.gen("抱歉，{0}不能提供本次借款的放款服务，请您使用本人银行账号或者绑定其他电子钱包({1})进行借款。", loanBankAccountVO.bankType.description, legalEWalletStr));
+    } catch (EcException e) {
+      if (e.exceptionType == EcExceptionType.COMMON_CUSTOM_MESSAGE_DIALOG && h5Redirect) {
+        throw EcException.warn(EcExceptionType.CREATE_ORDER_CHECK_EWALLET_ERROR, e.detailTT);
+      }
+      throw e;
+    }
+
+  }
+
+  public void checkPaymentCredential(PaymentMethod paymentMethod, String hashPaymentCredentialId, SDKType sdkType, Long loanAccountId, SourceType sourceType) {
+    // 判断是否删卡
+    ICredential credentialInfo = checkAndGetAvailableCredential(paymentMethod, hashPaymentCredentialId);
+
+    //下单仅支持本人银行卡
+    checkBankNameMatch(credentialInfo, sdkType, loanAccountId);
+
+    //检查银行是否支持打款
+    checkBankTypeSupported(credentialInfo, sdkType, loanAccountId, sourceType);
+  }
+
+  private ICredential checkAndGetAvailableCredential(PaymentMethod paymentMethod, String hashPaymentCredentialId) {
+    Long paymentCredentialId = YqgHashids.decode(hashPaymentCredentialId);
+    PaymentCredential paymentCredential = new PaymentCredential(paymentMethod, paymentCredentialId);
+    ICredential credentialInfo = paymentService.getCredentialInfo(paymentCredential);
+    Boolean isCredentialAvailable = credentialInfo.isCredentialAvailable();
+    EcAsserts.assertNotNull(isCredentialAvailable, "isCredentialAvailable can not be null");
+    if (!isCredentialAvailable) {
+      throw EcException.warn(EcExceptionType.COMMON_CUSTOM_MESSAGE_DIALOG, TT.gen("该银行卡不可用, 请点击收款账户重新绑卡"));
+    }
+    return credentialInfo;
+  }
+
+  public List<LoanBankAccountVO> getByCondition(LoanBankAccountSearchCondition condition) {
+    List<LoanBankAccountRecord> loanBankAccountRecords = loanBankAccountModel.fetchByCondition(condition);
+
+    return loanBankAccountRecords.stream()
+        .map(LoanBankAccountVO::from)
+        .collect(Collectors.toList());
+  }
+
+  // 获取用户可用的打款账号
+  public List<LoanBankAccountVO> getAvailableLoanBankAccount(Long userId, SDKType sdkType) {
+    Map<PaymentMethod, List<ICredential>> paymentMethodAndCredentialsMap = paymentService.getPayoutCredentialInfo(userId, sdkType);
+    if (null == paymentMethodAndCredentialsMap) {
+      return Lists.newArrayList();
+    }
+    List<ICredential> credentialList = paymentMethodAndCredentialsMap.get(PaymentMethod.BANKCARD);
+    if (CollectionUtils.isEmpty(credentialList)) {
+      return Lists.newArrayList();
+    }
+    return credentialList.stream()
+        .map(v -> (LoanBankAccountVO) v)
+        .collect(Collectors.toList());
+  }
+
+  public List<LoanBankAccountVO> getAvailableBankAccountForIllegalEWallet(Long userId, SDKType sdkType) {
+    List<LoanBankAccountVO> availableLoanBankAccount = getAvailableLoanBankAccount(userId, sdkType);
+    if (CollectionUtils.isEmpty(availableLoanBankAccount)) {
+      return Lists.newArrayList();
+    }
+    List<BankType> illegalEWalletBankTypeList = bankConfig.getIllegalEWalletBankType();
+    return availableLoanBankAccount.stream()
+        .filter(v -> !illegalEWalletBankTypeList.contains(v.bankType))
+        .collect(Collectors.toList());
+  }
+
+  // 获取用户默认的打款账号
+  public LoanBankAccountVO getDefaultLoanBankAccount(Long userId, SDKType sdkType) {
+    List<LoanBankAccountVO> availableLoanBankAccounts = getAvailableLoanBankAccount(userId, sdkType);
+    if (CollectionUtils.isEmpty(availableLoanBankAccounts)) {
+      return null;
+    }
+
+    return availableLoanBankAccounts.get(0);
+  }
+
+  public HomeDisplayStrategy routePaymentCredentialStrategy(Long userId, SDKType sdkType, Long build, SourceType sourceType) {
+    LoanBankAccountVO loanBankAccountVO = getDefaultLoanBankAccount(userId, sdkType);
+    List<BankType> illegalEWalletBankTypeList = bankConfig.getIllegalEWalletBankType();
+
+    if (homepageV5Config.getUnavailableLoanAccountVersion() > build
+        || Objects.isNull(loanBankAccountVO)
+        || SourceType.WEB == sourceType) {
+      return HomeDisplayStrategy.A;
+    }
+
+    String result = expFacade.fetchResultOrDefaultOrNullByUserIdAndABTestSceneType(ABTestSceneType.UNSUPPORTED_BANK, userId, "B");
+    if (StringUtils.isNotEmpty(result)) {
+      return HomeDisplayStrategy.valueOf(result);
+    }
+
+    if (!illegalEWalletBankTypeList.contains(loanBankAccountVO.bankType)) {
+      return HomeDisplayStrategy.A;
+    }
+
+    return HomeDisplayStrategy.valueOf(expFacade.fetchResult(ABTestSceneType.UNSUPPORTED_BANK, ABTestUtil.genDiversionKeyMapByUserId(userId), "B"));
+  }
+
+  public LoanBankAccountVO getLatestUsedBankAccountVO(Long userId, SDKType sdkType) {
+    List<LoanBankAccountVO> accountVOS = getAvailableBankAccounts(userId, sdkType);
+    if (CollectionUtils.isEmpty(accountVOS)) {
+      return null;
+    }
+    return accountVOS.stream()
+        .max(Comparator.comparing(LoanBankAccountVO::getLastTimeUsed))
+        .orElse(null);
+  }
+
+  private boolean isBankCardUniqueKeyWithBankCode(Long userId) {
+    if (!bankConfig.isBankCardUniqueKeyWithBankCode()) {
+      return false;
+    }
+
+    ExpUser expUser = ExpUser
+        .builder()
+        .userId(userId)
+        .sourceType(ImpliedContextUtils.sourceType())
+        .versionBuild(Optional.ofNullable(ImpliedContextUtils.build()).orElse(1L))
+        .build();
+    String res = expDiversionClient.getResult(ExperimentKeyConstants.BANK_CARD_UNIQUE_KEY_WITH_BANK_CODE, expUser);
+    return UserFlowConstants.isExperimentGroup(res);
+  }
+}
+
+
+### READ /Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/LoanBankAccountController.java
+package com.miyou.controllers.cashloan;
+
+import com.miyou.configure.aop.AuthEcExceptionPointDW;
+import com.miyou.controllers.cashloan.response.BindBankInitWritingResponse;
+import com.miyou.controllers.cashloan.response.SupportedBankListResponse;
+import com.miyou.controllers.cashloan.utilities.BankAccountApiMessageConvertUtil;
+import com.miyou.controllers.loan.BaseLoanController;
+import com.miyou.controllers.loan.account.request.UploadBankCardInfo;
+import com.miyou.controllers.loan.account.request.UploadBankCardWithIdInfo;
+import com.miyou.controllers.loan.account.request.VerifyBankAccountInfoRequest;
+import com.miyou.controllers.loan.account.response.AddBankAccountNotMatchStrategyResponse;
+import com.miyou.controllers.loan.account.response.BankCardCredentialResponse;
+import com.yqg.core.service.cashloan.auth.BindCardDelayService;
+import com.yqg.core.service.loan.viewercontext.LoanApiViewerContext;
+import com.miyou.controllers.secure.SecureCheckUserContextFactory;
+import com.miyou.controllers.user.BaseViewerDeviceContext;
+import com.miyou.utilities.secureapi.ECSecuredApi;
+import com.miyou.utilities.secureapi.RequestParser;
+import com.yqg.common.util.hashid.YqgHashids;
+import com.yqg.core.model.sql.bankaccount.enums.BankAccountAvailableStatus;
+import com.yqg.core.model.sql.bankaccount.enums.BankType;
+import com.yqg.core.model.sql.mobile.enums.VerificationPurposeType;
+import com.yqg.core.service.bankconfig.BankConfigService;
+import com.yqg.core.service.bankconfig.vo.BankAttributeVO;
+import com.yqg.core.service.bankconfig.vo.BankConfigVO;
+import com.yqg.core.service.cashloan.CashLoanConfig;
+import com.yqg.core.service.cashloan.vo.enums.AddBankAccountNotMatchStrategy;
+import com.yqg.core.service.cashloan.vo.enums.FinalValidationBankAccountStatus;
+import com.yqg.core.service.cashloan.vo.enums.ValidationCardStatus;
+import com.yqg.core.service.loan.bankaccount.LoanBankAccountService;
+import com.yqg.core.service.loan.bankaccount.LoanBankConfig;
+import com.yqg.core.service.loan.infos.BindBankInitWritingInfo;
+import com.yqg.core.service.loan.vo.bankaccount.BindBankAccountResultLogApi;
+import com.yqg.core.service.loan.vo.bankaccount.BindBankAccountResultLogVO;
+import com.yqg.core.service.loan.vo.bankaccount.BindCardResultVO;
+import com.yqg.core.service.loan.vo.bankaccount.LoanBankAccountVO;
+import com.yqg.core.service.mobile.verification.VerificationService;
+import com.yqg.core.service.monitor.AuthExceptionMonitor;
+import com.yqg.core.service.secure.UserSecureService;
+import com.yqg.core.service.secure.check.context.SecureCheckUserContext;
+import com.yqg.core.service.secure.enums.SecureCheckAspect;
+import com.yqg.core.service.user.UserService;
+import com.yqg.core.util.log.DwLogUtil;
+import com.yqg.core.util.log.LogBusinessType;
+import com.yqg.core.util.thirdparty.loan.vo.TongDunNodeTriggerParam;
+import com.yqg.ec.common.enums.SDKType;
+import com.yqg.ec.common.enums.loan.SourceType;
+import com.yqg.ec.common.exception.EcException;
+import com.yqg.ec.common.exception.EcExceptionType;
+import com.yqg.ec.common.spring.response.EcResponseUtil;
+import com.yqg.ec.common.spring.response.Result;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import static com.yqg.core.service.secure.enums.SecureCheckAspect.LIVING_INFO;
+import static com.yqg.core.service.secure.enums.SecureCheckAspect.SMS_CODE;
+import static com.yqg.core.service.secure.enums.SecureCheckPurpose.MODIFY_BANK_CARD_INFO;
+
+/**
+ * Created by xiuqichenyang on 17/7/12.
+ */
+@RestController
+@Slf4j
+public class LoanBankAccountController extends BaseLoanController {
+  @Autowired
+  private LoanBankAccountService loanBankAccountService;
+  @Autowired
+  private UserService userService;
+  @Autowired
+  private VerificationService verificationService;
+  @Autowired
+  private AuthExceptionMonitor authExceptionMonitor;
+  @Autowired
+  private CashLoanConfig cashLoanConfig;
+  @Autowired
+  private UserSecureService userSecureService;
+  @Autowired
+  private BankConfigService bankConfigService;
+  @Autowired
+  private LoanBankConfig bankConfig;
+  @Autowired
+  private SecureCheckUserContextFactory userContextFactory;
+  @Autowired
+  private BindCardDelayService bindCardDelayService;
+
+  @PostMapping(path = "/api/cashloan/addBankAccount")
+  @ResponseBody
+  @ECSecuredApi
+  public Result addBankAccount(@RequestBody @Valid UploadBankCardInfo request) {
+    LoanApiViewerContext viewerContext = getViewerContextFromRequest();
+    //TODO(shihaoqu, T00000) 后续等前端上了根据pwd加卡的接口时，这块儿需要限制只能在未鉴权完成前才能调用
+    try {
+      LoanBankAccountVO accountVO = addBankCardOrWarning(viewerContext, request);
+      BankConfigVO configVO = bankConfigService.getBankVo(accountVO.bankType);
+      authExceptionMonitor.logAuthException(viewerContext.loanAccountId, viewerContext.sdkType, viewerContext.build, "REAL_BIND_BANK_CARD", null);
+      return EcResponseUtil.generate(BankCardCredentialResponse.from(accountVO, configVO, true));
+    } catch (EcException e) {
+      authExceptionMonitor.logAuthException(viewerContext.loanAccountId, viewerContext.sdkType, viewerContext.build, "REAL_BIND_BANK_CARD", e);
+      throw e;
+    }
+  }
+
+  @PostMapping(path = "/api/v2/cashloan/addBankAccount")
+  @ResponseBody
+  @ECSecuredApi(invalidForFrozenUser = true)
+  @AuthEcExceptionPointDW("binding")
+  public Result addBankAccountV2(@RequestBody @Valid UploadBankCardInfo request) {
+    LoanApiViewerContext viewerContext = getViewerContextFromRequest();
+    submissionPreCheck(viewerContext);
+    BaseViewerDeviceContext viewerDeviceContext = getBaseViewerDeviceContextFromRequest();
+    //TODO(shihaoqu, T00000) 后续等前端上了根据pwd加卡的接口时，这块儿需要限制只能在未鉴权完成前才能调用
+    try {
+      BindCardResultVO bindCardResultVO = loanBankAccountService.addBankAccount(viewerContext.userId,
+          viewerContext.sdkType,
+          BankType.valueOf(request.bankCode),
+          request.cardNumber,
+          request.name,
+          request.bankAccountType,
+          viewerContext.build,
+          TongDunNodeTriggerParam.from(viewerContext)
+      );
+
+      addOldPageEventTrackLog(
+          bindCardResultVO.loanBankAccountVO.bankAccountAvailableStatus,
+          bindCardResultVO.validationCardStatus,
+          bindCardResultVO.canModifyName,
+          bindCardResultVO.loanBankAccountVO.bankAccountId,
+          bindCardResultVO.loanBankAccountVO.userId,
+          bindCardResultVO.loanBankAccountVO.bankType,
+          BindBankAccountResultLogApi.OLD_PAGE_ADD_BANK_ACCOUNT,
+          null,
+          RequestParser.getRemoteIp(ecRequest()),
+          RequestParser.getDeviceToken(ecRequest()),
+          RequestParser.getPlatformType(ecRequest()),
+          viewerContext.build,
+          viewerContext.sdkType,
+          viewerDeviceContext.userAgent,
+          Objects.nonNull(viewerDeviceContext.environmentInfo) ? viewerDeviceContext.environmentInfo.deviceUniqueId : null,
+          viewerContext.loanAccountId
+      );
+
+      EcException e = bindCardResultVO.errRemind == null ? null : EcException.warn(EcExceptionType.LOAN_BANK_ACCOUNT_UNAVAILABLE, bindCardResultVO.errRemind);
+      authExceptionMonitor.logAuthException(viewerContext.loanAccountId, viewerContext.sdkType, viewerContext.build, "REAL_BIND_BANK_CARD", e);
+      return EcResponseUtil.generate(BankCardCredentialResponse.from(bindCardResultVO, true, viewerContext.build));
+    } catch (EcException e) {
+      authExceptionMonitor.logAuthException(viewerContext.loanAccountId, viewerContext.sdkType, viewerContext.build, "REAL_BIND_BANK_CARD", e);
+      addOldPageEventTrackLog(
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          BindBankAccountResultLogApi.OLD_PAGE_ADD_BANK_ACCOUNT,
+          e.detailTT.toString(),
+          RequestParser.getRemoteIp(ecRequest()),
+          RequestParser.getDeviceToken(ecRequest()),
+          RequestParser.getPlatformType(ecRequest()),
+          viewerContext.build,
+          viewerContext.sdkType,
+          viewerDeviceContext.userAgent,
+          Objects.nonNull(viewerDeviceContext.environmentInfo) ? viewerDeviceContext.environmentInfo.deviceUniqueId : null,
+          viewerContext.loanAccountId
+      );
+      throw e;
+    }
+  }
+
+  @PostMapping(path = "/api/idn/cashloan/addBankAccount")
+  @ResponseBody
+  @ECSecuredApi(invalidForFrozenUser = true)
+  @AuthEcExceptionPointDW("binding")
+  public Result addIdnBankAccountV2(@RequestBody @Valid UploadBankCardInfo request) {
+    LoanApiViewerContext viewerContext = getViewerContextFromRequest();
+    BaseViewerDeviceContext viewerDeviceContext = getBaseViewerDeviceContextFromRequest();
+    //TODO(shihaoqu, T00000) 后续等前端上了根据pwd加卡的接口时，这块儿需要限制只能在未鉴权完成前才能调用
+    try {
+      BindCardResultVO bindCardResultVO = loanBankAccountService.addIdnBankAccountV2(viewerContext.userId,
+          viewerContext.sdkType,
+          BankType.valueOf(request.bankCode),
+          request.cardNumber,
+          request.name,
+          viewerContext.build,
+          TongDunNodeTriggerParam.from(viewerContext)
+      );
+
+      addNewPageEventTrackLog(
+          bindCardResultVO.loanBankAccountVO.bankAccountAvailableStatus,
+          bindCardResultVO.finalValidationBankAccountStatus,
+          bindCardResultVO.canModifyName,
+          bindCardResultVO.loanBankAccountVO.bankAccountId,
+          bindCardResultVO.loanBankAccountVO.userId,
+          bindCardResultVO.loanBankAccountVO.bankType,
+          BindBankAccountResultLogApi.NEW_PAGE_ADD_BANK_ACCOUNT,
+          null,
+          RequestParser.getRemoteIp(ecRequest()),
+          RequestParser.getDeviceToken(ecRequest()),
+          RequestParser.getPlatformType(ecRequest()),
+          viewerContext.build,
+          viewerContext.sdkType,
+          viewerDeviceContext.userAgent,
+          Objects.nonNull(viewerDeviceContext.environmentInfo) ? viewerDeviceContext.environmentInfo.deviceUniqueId : null,
+          viewerContext.loanAccountId
+      );
+      return EcResponseUtil.generate(BankCardCredentialResponse.fromIdnV2(bindCardResultVO));
+    } catch (EcException e) {
+      addNewPageEventTrackLog(
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          BindBankAccountResultLogApi.NEW_PAGE_ADD_BANK_ACCOUNT,
+          e.detailTT.toString(),
+          RequestParser.getRemoteIp(ecRequest()),
+          RequestParser.getDeviceToken(ecRequest()),
+          RequestParser.getPlatformType(ecRequest()),
+          viewerContext.build,
+          viewerContext.sdkType,
+          viewerDeviceContext.userAgent,
+          Objects.nonNull(viewerDeviceContext.environmentInfo) ? viewerDeviceContext.environmentInfo.deviceUniqueId : null,
+          viewerContext.loanAccountId
+      );
+      throw e;
+    }
+
+  }
+
+  @GetMapping(path = "/api/idn/cashloan/queryBankAccount")
+  @ResponseBody
+  @ECSecuredApi(invalidForFrozenUser = true)
+  @AuthEcExceptionPointDW("binding")
+  public Result queryIdnBankAccountV2(@RequestParam(value = "loanBankAccountId", required = false) String accountId) {
+    LoanApiViewerContext viewerContext = getViewerContextFromRequest();
+    BaseViewerDeviceContext viewerDeviceContext = getBaseViewerDeviceContextFromRequest();
+    LoanBankAccountVO accountVO = StringUtils.isBlank(accountId) ?
+        getLoanAccountVOByUser(viewerContext.userId, viewerContext.sdkType, viewerContext.build, false, viewerDeviceContext.sourceType) : loanBankAccountService.findVOById(YqgHashids.decode(accountId));
+    if (accountVO == null) {
+      return EcResponseUtil.generate(new BankCardCredentialResponse());
+    }
+    BindCardResultVO bindCardResultVO = loanBankAccountService.queryIdnValidationResultV2(accountVO, viewerContext.sdkType);
+
+    addNewPageEventTrackLog(
+        bindCardResultVO.loanBankAccountVO.bankAccountAvailableStatus,
+        bindCardResultVO.finalValidationBankAccountStatus,
+        bindCardResultVO.canModifyName,
+        bindCardResultVO.loanBankAccountVO.bankAccountId,
+        bindCardResultVO.loanBankAccountVO.userId,
+        bindCardResultVO.loanBankAccountVO.bankType,
+        BindBankAccountResultLogApi.NEW_PAGE_QUERY_BANK_ACCOUNT,
+        null,
+        RequestParser.getRemoteIp(ecRequest()),
+        RequestParser.getDeviceToken(ecRequest()),
+        RequestParser.getPlatformType(ecRequest()),
+        viewerContext.build,
+        viewerContext.sdkType,
+        viewerDeviceContext.userAgent,
+        Objects.nonNull(viewerDeviceContext.environmentInfo) ? viewerDeviceContext.environmentInfo.deviceUniqueId : null,
+        viewerContext.loanAccountId
+    );
+
+    return EcResponseUtil.generate(BankCardCredentialResponse.fromIdnV2(bindCardResultVO));
+  }
+
+  private LoanBankAccountVO addBankCardOrWarning(LoanApiViewerContext viewerContext, UploadBankCardInfo request) {
+    return loanBankAccountService.addBankAccountOrWarningV2(viewerContext.userId,
+        viewerContext.sdkType,
+        BankType.valueOf(request.bankCode),
+        request.cardNumber,
+        request.name,
+        request.bankAccountType,
+        viewerContext.build
+    );
+  }
+
+  @PostMapping(path = "/api/v3/cashloan/addBankAccountWithIdNumber")
+  @ResponseBody
+  @ECSecuredApi(invalidForFrozenUser = true)
+  public Result addBankAccountWithIdNumberV3(@RequestBody @Valid UploadBankCardWithIdInfo request) {
+    LoanApiViewerContext viewerContext = getViewerContextFromRequest();
+    checkForBindCard(request, viewerContext);
+
+    BindCardResultVO bindCardResultVO = loanBankAccountService.addBankAccount(viewerContext.userId,
+        viewerContext.sdkType,
+        BankType.valueOf(request.bankCode),
+        request.cardNumber,
+        request.name,
+        request.bankAccountType,
+        viewerContext.build,
+        TongDunNodeTriggerParam.from(viewerContext));
+
+    return EcResponseUtil.generate(BankCardCredentialResponse.from(bindCardResultVO, true, viewerContext.build));
+  }
+
+  private void checkForBindCard(UploadBankCardWithIdInfo request, LoanApiViewerContext viewerContext) {
+    userSecureService.skipFaceComparisonIfUnavailable(userContextFactory.createUserContextForLogin(ecRequest(), MODIFY_BANK_CARD_INFO, LIVING_INFO));
+    verificationService.checkMobileVerificationCode(viewerContext.normalizedMobileNumber, request.verifyCode, VerificationPurposeType.BANK, viewerContext.sdkType);
+
+    SecureCheckUserContext userContext = userContextFactory.createUserContextForLogin(ecRequest(), MODIFY_BANK_CARD_INFO, SMS_CODE);
+    userSecureService.finishAspect(userContext);
+    userSecureService.isSecureCheckFinishedForOldVersion(userContext, Collections.singletonList(SecureCheckAspect.SMS_CODE));
+
+    userService.checkIdentityNumberByNormalizedMobileNumber(viewerContext.normalizedMobileNumber,
+        request.identityNumber,
+        request.documentType,
+        viewerContext.sdkType);
+  }
+
+  @GetMapping(path = "/api/v2/cashloan/addBankAccountNotMatchStrategy")
+  @ResponseBody
+  @ECSecuredApi
+  public Result getAddBankAccountNotMatchStrategy() {
+    AddBankAccountNotMatchStrategy strategy = loanBankAccountService.getAddBankAccountNotMatchStrategy();
+    return EcResponseUtil.generate(AddBankAccountNotMatchStrategyResponse.from(strategy));
+  }
+
+  @GetMapping(path = "/api/cashloan/getSupportedBankV2")
+  @ResponseBody
+  @ECSecuredApi
+  public Result getSupportedBankListWithLogo() {
+    LoanApiViewerContext viewerContext = getViewerContextFromRequest();
+    if (viewerContext.sdkType == null) {
+      throw EcException.error("sdk is null");
+    }
+    List<BankConfigVO> bankList = loanBankAccountService.getSupportedBankVOListALL(viewerContext.sdkType);
+    bankList = loanBankAccountService.filterBankTypeByABTest(bankList, viewerContext.userId);
+
+    Map<BankType, BankAttributeVO> bankTypeToBankAttributeVOMap = bankConfig.getBankAttributeVOMap();
+    SupportedBankListResponse response = SupportedBankListResponse.from(
+        viewerContext.sdkType,
+        cashLoanConfig.getCommonBanksNumbers(viewerContext.sdkType),
+        bankList,
+        bankTypeToBankAttributeVOMap,
+        true);
+    return EcResponseUtil.generate(response);
+  }
+
+  @GetMapping(path = "/api/idn/cashloan/getSupportedBank")
+  @ResponseBody
+  @ECSecuredApi
+  public Result getIdnSupportedBankListWithLogo() {
+    LoanApiViewerContext viewerContext = getViewerContextFromRequest();
+    if (viewerContext.sdkType == null) {
+      throw EcException.error("sdk is null");
+    }
+    List<BankConfigVO> bankList = loanBankAccountService.getSupportedBankVOList(viewerContext.sdkType);
+    Map<BankType, BankAttributeVO> bankTypeToBankAttributeVOMap = bankConfig.getBankAttributeVOMap();
+    bankList = loanBankAccountService.keepOnlySuperBankIfInExperiment(bankList,viewerContext.userId,viewerContext.build,viewerContext.deviceToken);
+    bankTypeToBankAttributeVOMap = loanBankAccountService.clearPopWindowTextIfInExperiment(bankTypeToBankAttributeVOMap, viewerContext.userId, viewerContext.build, viewerContext.sourceType, viewerContext.loanAccountId);
+    SupportedBankListResponse response = SupportedBankListResponse.from(
+        viewerContext.sdkType,
+        cashLoanConfig.getCommonBanksNumbers(viewerContext.sdkType),
+        bankList,
+        bankTypeToBankAttributeVOMap,
+        true);
+    return EcResponseUtil.generate(response);
+  }
+
+  @GetMapping(path = "/api/idn/cashloan/getSupportedEwallet")
+  @ResponseBody
+  @ECSecuredApi
+  public Result getIdnSupportedEwalletListWithLogo() {
+    LoanApiViewerContext viewerContext = getViewerContextFromRequest();
+    if (viewerContext.sdkType == null) {
+      throw EcException.error("sdk is null");
+    }
+    List<BankConfigVO> bankList = loanBankAccountService.getSupportedBankVOListEWallet(viewerContext.sdkType);
+    if (viewerContext.sdkType.isIdnSDKType()) {
+      bankList = loanBankAccountService.filterEWalletTypeByABTest(bankList, viewerContext.userId);
+    }
+    Map<BankType, BankAttributeVO> bankTypeToBankAttributeVOMap = bankConfig.getBankAttributeVOMap();
+    SupportedBankListResponse response = SupportedBankListResponse.from(
+        viewerContext.sdkType,
+        cashLoanConfig.getCommonBanksNumbers(viewerContext.sdkType),
+        bankList,
+        bankTypeToBankAttributeVOMap,
+        false);
+    return EcResponseUtil.generate(response);
+  }
+
+  @GetMapping(path = "/api/idn/cashloan/getInitCopyWriting")
+  @ResponseBody
+  public Result getIdnInitCopyWriting() {
+    LoanApiViewerContext context = getViewerContextFromRequest();
+    BindBankInitWritingInfo bindBankInitText = bankConfig.getBindBankInitText();
+    boolean bankAccountDelay = false;
+    BindBankInitWritingResponse result = BankAccountApiMessageConvertUtil.convertBindBankText(bindBankInitText, bankAccountDelay);
+    return EcResponseUtil.generate(result);
+  }
+
+  @GetMapping(path = "/api/cashloan/queryBankAccount")
+  @ResponseBody
+  @ECSecuredApi
+  public Result queryLoanBankAccountVO(@RequestParam("loanBankAccountId") String accountId) {
+    LoanBankAccountVO accountVO = loanBankAccountService.findVOById(YqgHashids.decode(accountId));
+    BankConfigVO configVO = bankConfigService.getBankVo(accountVO.bankType);
+    return EcResponseUtil.generate(BankCardCredentialResponse.from(accountVO, configVO, true));
+  }
+
+  @ECSecuredApi
+  @GetMapping("/api/cashloan/queryBankAccountByUser")
+  @ResponseBody
+  public Result queryBankAccountByUser() {
+    LoanApiViewerContext viewerContext = getViewerContextFromRequest();
+    LoanBankAccountVO accountVO = getLoanAccountVOByUser(viewerContext.userId, viewerContext.sdkType, viewerContext.build, false, viewerContext.sourceType);
+    if (accountVO == null) {
+      return EcResponseUtil.generate(new BankCardCredentialResponse());
+    }
+    return EcResponseUtil.generate(BankCardCredentialResponse.from(accountVO, true));
+  }
+
+  @GetMapping(path = "/api/v2/cashloan/queryBankAccount")
+  @ResponseBody
+  @ECSecuredApi(invalidForFrozenUser = true)
+  @AuthEcExceptionPointDW("binding")
+  public Result queryLoanBankAccountByIdOrUser(@RequestParam(value = "loanBankAccountId", required = false) String accountId) {
+    LoanApiViewerContext viewerContext = getViewerContextFromRequest();
+    BaseViewerDeviceContext viewerDeviceContext = getBaseViewerDeviceContextFromRequest();
+    LoanBankAccountVO accountVO = StringUtils.isBlank(accountId) ?
+        getLoanAccountVOByUser(viewerContext.userId, viewerContext.sdkType, viewerContext.build, true, viewerContext.sourceType) : loanBankAccountService.findVOById(YqgHashids.decode(accountId));
+    if (accountVO == null) {
+      return EcResponseUtil.generate(new BankCardCredentialResponse());
+    }
+    BindCardResultVO bindCardResultVO = loanBankAccountService.queryBankValidationResult(accountVO, viewerContext.sdkType);
+    addOldPageEventTrackLog(
+        bindCardResultVO.loanBankAccountVO.bankAccountAvailableStatus,
+        bindCardResultVO.validationCardStatus,
+        bindCardResultVO.canModifyName,
+        bindCardResultVO.loanBankAccountVO.bankAccountId,
+        bindCardResultVO.loanBankAccountVO.userId,
+        bindCardResultVO.loanBankAccountVO.bankType,
+        BindBankAccountResultLogApi.OLD_PAGE_QUERY_BANK_ACCOUNT,
+        null,
+        RequestParser.getRemoteIp(ecRequest()),
+        viewerDeviceContext.deviceToken,
+        viewerDeviceContext.platform.name(),
+        viewerContext.build,
+        viewerContext.sdkType,
+        viewerDeviceContext.userAgent,
+        Objects.nonNull(viewerDeviceContext.environmentInfo) ? viewerDeviceContext.environmentInfo.deviceUniqueId : null,
+        viewerContext.loanAccountId
+    );
+    return EcResponseUtil.generate(BankCardCredentialResponse.from(bindCardResultVO, true, viewerContext.build));
+  }
+
+  private void addOldPageEventTrackLog(
+      BankAccountAvailableStatus bankAccountAvailableStatus,
+      ValidationCardStatus oldPageStatus,
+      Boolean canModifyName,
+      Long bankAccountId,
+      Long userId,
+      BankType bankType,
+      BindBankAccountResultLogApi api,
+      String exceptionMessage,
+      String ip,
+      String deviceToken,
+      String platformType,
+      Long build,
+      SDKType sdkType,
+      String userAgent,
+      String deviceId,
+      Long loanAccountId) {
+    if (!sdkType.isIdnSDKType()) {
+      return;
+    }
+    DwLogUtil.log(LogBusinessType.BIND_BANK_ACCOUNT_RESULT,
+        BindBankAccountResultLogVO.fromOldPage(
+            bankAccountAvailableStatus,
+            oldPageStatus,
+            canModifyName,
+            bankAccountId,
+            userId,
+            bankType,
+            api,
+            null,
+            ip,
+            deviceToken,
+            platformType,
+            build,
+            sdkType,
+            userAgent,
+            deviceId,
+            loanAccountId
+        ));
+  }
+
+  private void addNewPageEventTrackLog(
+      BankAccountAvailableStatus bankAccountAvailableStatus,
+      FinalValidationBankAccountStatus finalValidationBankAccountStatus,
+      Boolean canModifyName,
+      Long bankAccountId,
+      Long userId,
+      BankType bankType,
+      BindBankAccountResultLogApi api,
+      String exceptionMessage,
+      String ip,
+      String deviceToken,
+      String platformType,
+      Long build,
+      SDKType sdkType,
+      String userAgent,
+      String deviceId,
+      Long loanAccountId) {
+    if (!sdkType.isIdnSDKType()) {
+      return;
+    }
+
+    DwLogUtil.log(LogBusinessType.BIND_BANK_ACCOUNT_RESULT,
+        BindBankAccountResultLogVO.fromNewPage(
+            bankAccountAvailableStatus,
+            finalValidationBankAccountStatus,
+            canModifyName,
+            bankAccountId,
+            userId,
+            bankType,
+            api,
+            null,
+            ip,
+            deviceToken,
+            platformType,
+            build,
+            sdkType,
+            userAgent,
+            deviceId,
+            loanAccountId
+        ));
+  }
+
+  private LoanBankAccountVO getLoanAccountVOByUser(Long userId, SDKType sdkType, Long build, Boolean availableBankAccountRoute, SourceType sourceType) {
+    List<LoanBankAccountVO> loanBankAccountVOS = loanBankAccountService.getBankAccounts(userId, sdkType);
+    List<BankType> illegalEWalletBankTypeList = bankConfig.getIllegalEWalletBankType();
+    //忽略无效的卡
+    loanBankAccountVOS = loanBankAccountVOS.stream()
+        .filter(vo -> !BankAccountAvailableStatus.INACTIVE_STATUS_LIST.contains(vo.bankAccountAvailableStatus))
+        .collect(Collectors.toList());
+    if (loanBankAccountService.routePaymentCredentialStrategy(userId, sdkType, build, sourceType).isStrategyB() && availableBankAccountRoute) {
+      loanBankAccountVOS = loanBankAccountVOS.stream()
+          .filter(vo -> !illegalEWalletBankTypeList.contains(vo.bankType))
+          .collect(Collectors.toList());
+    }
+    return CollectionUtils.isNotEmpty(loanBankAccountVOS) ? loanBankAccountVOS.get(0) : null;
+  }
+
+  @PutMapping(path = "/api/cashloan/verifyBankAccount")
+  @ResponseBody
+  @ECSecuredApi(invalidForFrozenUser = true)
+  public Result verifyBankAccount(@RequestParam(value = "bankAccountId", required = false) String bankAccountId) {
+    if (StringUtils.isBlank(bankAccountId)) {
+      throw EcException.error("bankAccountId不能为空");
+    }
+    LoanBankAccountVO accountVO = loanBankAccountService.verifyBankAccount(YqgHashids.decode(bankAccountId));
+    return EcResponseUtil.generate(accountVO);
+  }
+
+  @PostMapping(path = "/api/cashloan/verifyBankAccountInfo")
+  @ResponseBody
+  @ECSecuredApi
+  public Result verifyBankAccountInfo(@RequestBody @Valid VerifyBankAccountInfoRequest request) {
+    LoanBankAccountVO accountVO = loanBankAccountService.verifyBankAccount(YqgHashids.decode(request.bankAccountId));
+    return EcResponseUtil.generate(BankCardCredentialResponse.from(accountVO));
+  }
+}
+
+
+### READ /Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/abtest/ExpFacade.java
+package com.yqg.core.service.abtest;
+
+import com.yqg.core.model.sql.abtest.enums.ABTestSceneType;
+import com.yqg.core.model.sql.abtest.enums.DiversionKeyType;
+import com.yqg.core.service.abtest.enums.ExperimentNameSpace;
+import com.yqg.core.service.abtest.vo.ABTestBaseRequestVO;
+import com.yqg.core.service.abtest.vo.ABTestUserIdRequestVO;
+import com.yqg.core.service.abtest.vo.ExperimentPlatformClientParam;
+import com.yqg.core.service.abtest.vo.ExperimentPlatformResultVO;
+import com.yqg.core.util.scope.ImpliedContextUtils;
+import com.yqg.ec.common.enums.loan.SourceType;
+import java.util.Map;
+import java.util.Objects;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+/**
+ * @Description：仅用于适配老分流
+ * @Author: lihancock
+ * @Email: wenyaoli@fintopia.tech
+ * @Date: 2025/12/4 19:44
+ */
+@Slf4j
+@Service
+public class ExpFacade {
+
+  @Autowired
+  private ExpDiversionClient expDiversionClient;
+  @Autowired
+  private ExpPreDiversionClient expPreDiversionClient;
+  @Autowired
+  private ExpLastResultClient expLastResultClient;
+  @Autowired
+  private ExpLastResultWithPreDiversionClient expLastResultWithPreDiversionClient;
+
+  public String fetchResultFallBackWithDefaultScene(String expKey, ClientType clientType, ABTestBaseRequestVO abTestBaseRequestVO,
+      Long build, ExperimentNameSpace... parentNameSpaces) {
+    String res = dryRun(expKey, clientType, abTestBaseRequestVO, build, ImpliedContextUtils.sourceType());
+    if (ExperimentPlatformResultVO.hitBlankGroup(res)) {
+      return abTestBaseRequestVO.experimentNameSpace.defaultScene;
+    }
+    return res;
+  }
+
+  public String fetchResultFallBackWithDefaultScene(String expKey, ClientType clientType, ABTestBaseRequestVO abTestBaseRequestVO) {
+    String res = dryRun(expKey, clientType, abTestBaseRequestVO, ImpliedContextUtils.build(), ImpliedContextUtils.sourceType());
+    if (ExperimentPlatformResultVO.hitBlankGroup(res)) {
+      return abTestBaseRequestVO.experimentNameSpace.defaultScene;
+    }
+    return res;
+  }
+
+  public String fetchResultFallBackWithDefaultSceneWithBuildAndSourceType(String expKey, ClientType clientType,
+      ABTestBaseRequestVO abTestBaseRequestVO, Long build, SourceType sourceType) {
+    String res = dryRun(expKey, clientType, abTestBaseRequestVO, build, sourceType);
+    if (ExperimentPlatformResultVO.hitBlankGroup(res)) {
+      return abTestBaseRequestVO.experimentNameSpace.defaultScene;
+    }
+    return res;
+  }
+
+  public ExperimentPlatformResultVO fetchResultWithGetType(String expKey, ClientType clientType, ABTestBaseRequestVO abTestBaseRequestVO) {
+    String res = dryRun(expKey, clientType, abTestBaseRequestVO, ImpliedContextUtils.build(), ImpliedContextUtils.sourceType());
+    return ExperimentPlatformResultVO.fromSimple(res);
+  }
+
+  public ExperimentPlatformResultVO fetchResult(String expKey, ClientType clientType, ExperimentPlatformClientParam param,
+      ABTestSceneType lane) {
+    String result = dryRun(expKey, clientType, param);
+    return ExperimentPlatformResultVO.fromSimple(result);
+  }
+
+  public String fetchExistOrDefaultResult(String expKey, ABTestSceneType sceneType, Map<DiversionKeyType, String> diversionKeyMap) {
+    ABTestUserIdRequestVO requestVO = ABTestUserIdRequestVO.from(ABTestUtil.getExperimentNameSpaceFromAbtestSceneType(sceneType),
+        Long.parseLong(diversionKeyMap.get(DiversionKeyType.USER_ID)), null);
+    String result = dryRun(expKey, ClientType.LAST_RESULT, requestVO, ImpliedContextUtils.build(), ImpliedContextUtils.sourceType());
+    if (ExperimentPlatformResultVO.hitBlankGroup(result)) {
+      return sceneType.defaultScene;
+    }
+    return result;
+  }
+
+  public String fetchResult(String expKey, ClientType clientType, ABTestSceneType sceneType,
+      Map<DiversionKeyType, String> diversionKeyMap) {
+    ABTestUserIdRequestVO requestVO = ABTestUserIdRequestVO.from(ABTestUtil.getExperimentNameSpaceFromAbtestSceneType(sceneType),
+        Long.parseLong(diversionKeyMap.get(DiversionKeyType.USER_ID)), null);
+    String result = dryRun(expKey, clientType, requestVO, ImpliedContextUtils.build(), ImpliedContextUtils.sourceType());
+    if (ExperimentPlatformResultVO.hitBlankGroup(result)) {
+      return sceneType.defaultScene;
+    }
+    return result;
+  }
+
+  public String fetchResultWithBuildAndSourceType(String expKey, ClientType clientType, ABTestSceneType sceneType,
+      Map<DiversionKeyType, String> diversionKeyMap, Long build, SourceType sourceType) {
+    ABTestUserIdRequestVO requestVO = ABTestUserIdRequestVO.from(ABTestUtil.getExperimentNameSpaceFromAbtestSceneType(sceneType),
+        Long.parseLong(diversionKeyMap.get(DiversionKeyType.USER_ID)), null);
+    String result = dryRun(expKey, clientType, requestVO, build, sourceType);
+    if (ExperimentPlatformResultVO.hitBlankGroup(result)) {
+      return sceneType.defaultScene;
+    }
+    return result;
+  }
+
+  public String fetchResult(ABTestSceneType sceneType, Map<DiversionKeyType, String> diversionKeyMap, String effectiveValue) {
+    return effectiveValue;
+  }
+
+  public String fetchResultOrDefaultOrNullByUserIdAndABTestSceneType(ABTestSceneType sceneType, Long userId, String effectiveValue) {
+    return effectiveValue;
+  }
+
+  public String fetchExistOrDefaultResult(ABTestSceneType sceneType, Map<DiversionKeyType, String> diversionKeyMap, String effectiveValue) {
+    return effectiveValue;
+  }
+
+  private String dryRun(String expKey, ClientType clientType, ABTestBaseRequestVO abTestBaseRequestVO, Long build, SourceType sourceType) {
+    try {
+      AbstractExpClient client = getClient(clientType);
+      ExpUser expUser = ExpUser.builder().userId(abTestBaseRequestVO.userId).deviceToken(abTestBaseRequestVO.deviceToken)
+          .nik(abTestBaseRequestVO.nik).versionBuild(build).sourceType(sourceType).build();
+      return client.getResult(expKey, expUser);
+    } catch (Exception e) {
+      log.warn("dry-run-error expKey: {} error!", expKey, e);
+      return abTestBaseRequestVO.experimentNameSpace.defaultScene;
+    }
+  }
+
+  private String dryRun(String expKey, ClientType clientType, ExperimentPlatformClientParam param) {
+    try {
+      AbstractExpClient client = getClient(clientType);
+      ExpUser expUser = ExpUser.builder().userId(param.getUserId()).deviceToken(param.getDeviceToken()).nik(param.getNik())
+          .versionBuild(ImpliedContextUtils.build()).sourceType(ImpliedContextUtils.sourceType()).build();
+      return client.getResult(expKey, expUser);
+    } catch (Exception e) {
+      log.warn("dry-run-error expKey: {} error!", expKey, e);
+      return "BLANK_GROUP";
+    }
+  }
+
+  private AbstractExpClient getClient(ClientType clientType) {
+    if (Objects.isNull(clientType)) {
+      throw new IllegalArgumentException("clientType is null");
+    }
+    switch (clientType) {
+      case DIVERSION:
+        return expDiversionClient;
+      case PRE_DIVERSION:
+        return expPreDiversionClient;
+      case LAST_RESULT:
+        return expLastResultClient;
+      case LAST_RESULT_WITH_PRE_DIVERSION:
+        return expLastResultWithPreDiversionClient;
+      default:
+        throw new IllegalArgumentException("clientType is invalid:" + clientType);
+    }
+  }
+
+  public enum ClientType {
+    DIVERSION,
+    PRE_DIVERSION,
+    LAST_RESULT,
+    LAST_RESULT_WITH_PRE_DIVERSION,
+    ;
+  }
+
+}
+

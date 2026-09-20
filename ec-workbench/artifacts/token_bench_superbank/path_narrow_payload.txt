@@ -1,0 +1,342 @@
+### grep
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:986:  public List<BankConfigVO> keepOnlySuperBankIfInExperiment(List<BankConfigVO> banks, Long userId, Long build, String deviceId) {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:998:    if (!isInSuperBankBindCardExperiment(userId, build)) {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:1033:  private boolean isInSuperBankBindCardExperiment(Long userId, Long build) {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:1035:        ExperimentNameSpace.SUPERBANK_CHANNEL_USER_BINDING_CARD, userId);
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:1036:    String abTestResult = expFacade.fetchResultFallBackWithDefaultScene("technology-auth-abroad-loan-superbank_rename_0908", ExpFacade.ClientType.DIVERSION, request, build);
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/abtest/enums/ExperimentNameSpace.java:1366:  SUPERBANK_CHANNEL_USER_BINDING_CARD("Superbank渠道用户绑卡",
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/abtest/ABTestConfig.java:285:      .put("technology-auth-abroad-loan-superbank_rename_0908", Range.closed(36900L, 99999L))
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/LoanBankAccountController.java:359:    bankList = loanBankAccountService.keepOnlySuperBankIfInExperiment(bankList,viewerContext.userId,viewerContext.build,viewerContext.deviceToken);
+
+
+### WINDOW /Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:946-1026
+
+  public List<BankConfigVO> sortBankAndConvers(List<BankType> bankTypeList, SDKType sdkType) {
+    bankTypeList = sortBank(bankTypeList, bankConfig.getDisplayRule(sdkType));
+    if (CollectionUtils.isEmpty(bankTypeList)) {
+      throw EcException.error("can't find bind_card_config for sdk: " + sdkType);
+    }
+    Map<String, BankConfigVO> bankConfigVOMap = bankConfigService.getBankVoMap(Sets.newHashSet(bankTypeList), sdkType);
+
+    List<BankConfigVO> voList = Lists.newArrayList();
+    for (BankType type : bankTypeList) {
+      BankConfigVO vo = bankConfigVOMap.get(type.name());
+      if (vo == null) {
+        log.error("can't find bank config. bank_type:{}", type);
+        continue;
+      }
+      voList.add(vo);
+    }
+    return voList;
+  }
+
+  public List<BankConfigVO> filterBankTypeByABTest(List<BankConfigVO> bankList, Long userId) {
+    if (CollectionUtils.isEmpty(bankList)) {
+      return bankList;
+    }
+    //如果在白名单内，直接返回
+    if (loanBankConfig.getFilterBankTypeWhiteUserId().contains(userId)) {
+      return bankList;
+    }
+    Boolean needFilter = Boolean.valueOf(
+        expFacade.fetchResult(ABTestSceneType.USER_BIND_BANK_CARD_FILTER, ABTestUtil.genDiversionKeyMapByUserId(userId), "TRUE"));
+    if (needFilter) {
+      List<BankType> filterBankType = loanBankConfig.getFilterBankType();
+      bankList = bankList.stream().filter(e -> !filterBankType.contains(e.getBankType())).collect(Collectors.toList());
+    }
+    return bankList;
+  }
+
+  /**
+   * 命中"SuperBank渠道绑卡"实验组（B组）时，仅保留 SuperBank。
+   */
+  public List<BankConfigVO> keepOnlySuperBankIfInExperiment(List<BankConfigVO> banks, Long userId, Long build, String deviceId) {
+    // 基础参数校验
+    if (CollectionUtils.isEmpty(banks) || Objects.isNull(userId) || Objects.isNull(build) || Objects.isNull(deviceId)) {
+      return banks;
+    }
+
+    // 获取广告来源并校验
+    String mediaSource = getMediaSourceByDeviceId(deviceId);
+    if (Objects.isNull(mediaSource) || !isValidMediaSource(mediaSource)) {
+      return banks;
+    }
+
+    if (!isInSuperBankBindCardExperiment(userId, build)) {
+      return banks;
+    }
+
+    List<BankConfigVO> list = banks.stream()
+        .filter(Objects::nonNull)
+        .filter(b -> b.getBankType() == BankType.FAMA)
+        .collect(Collectors.toList());
+
+    if (CollectionUtils.isEmpty(list)) {
+      return banks;
+    }
+
+    return list;
+  }
+
+  private String getMediaSourceByDeviceId(String deviceId) {
+    try {
+      AdsResponse<AppsflyerResultVO> adsResponse = adsAppsflyerService.getAppsflyerMediaSourceByDeviceId(deviceId);
+      if (adsResponse == null || adsResponse.body == null) {
+        log.warn("Failed to get media source from Appsflyer, deviceId: {}", deviceId);
+        return null;
+      }
+      return adsResponse.body.getMediaSource();
+    } catch (Exception e) {
+      log.error("Error getting media source from Appsflyer", e);
+      return null;
+    }
+  }
+
+### WINDOW /Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/abtest/enums/ExperimentNameSpace.java:1326-1406
+      () -> ImmutableSet.of(BooleanType.TRUE.name(), BooleanType.FALSE.name()),
+      BooleanType.FALSE.name(),
+      DiversionKeyType.USER_ID, 37113L, Long.MAX_VALUE),
+  ORDER_PAGE_POPUP_PRIORITY(
+      "下单页扑脸弹窗优先级调整实验",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID, 36899L, Long.MAX_VALUE),
+  ORDER_PAGE_POPUP_MATERIAL_OPTIMIZATION(
+      "下单页扑脸弹窗样式优化实验",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID, 36900L, Long.MAX_VALUE),
+  @Deprecated
+  REPAYMENT_DIRECT_DEBIT_STRATEGY(
+      "代扣规则实验",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID, 0L, Long.MAX_VALUE),
+  GOLDEN_CARD_CAN_BORROW_STYLE(
+      "中收金卡可借用户弹窗素材实验",
+      () -> ImmutableSet.of(
+          CommonABTestResultGroup.A.name(),
+          CommonABTestResultGroup.B.name(),
+          CommonABTestResultGroup.C.name()
+      ),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID, 36899L, Long.MAX_VALUE),
+  LOAN_180_DAYS_REAPPLY(
+      "首贷180+被拒重审",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID, 0L, Long.MAX_VALUE),
+
+  SUPERBANK_CHANNEL_USER_BINDING_CARD("Superbank渠道用户绑卡",
+      () -> ImmutableSet.of(BooleanType.TRUE.name(), BooleanType.FALSE.name()),
+      BooleanType.FALSE.name(),
+      DiversionKeyType.USER_ID,
+      36900L,
+      Long.MAX_VALUE),
+  EC_PLUS_BUTTON("中收会员button",
+      () -> ImmutableSet.of("A", "B"),
+      "A",
+      DiversionKeyType.USER_ID,
+      36900L,
+      Long.MAX_VALUE),
+  REGISTER_LOGIN_RESOURCE_V3_FOR_REGISTER(
+      "注册登录页-营销利益点v3-注册",
+      () -> ImmutableSet.of("A2", "C1", "C2"),
+      "A2",
+      DiversionKeyType.DEVICE_TOKEN, 37900L, Long.MAX_VALUE),
+  REGISTER_LOGIN_RESOURCE_V3_FOR_LOGIN(
+      "注册登录页-营销利益点v3-登录",
+      () -> ImmutableSet.of("A2", "C1", "C2"),
+      "A2",
+      DiversionKeyType.DEVICE_TOKEN, 37900L, Long.MAX_VALUE),
+  BIND_CARD_DELAY("绑卡后置实验",
+      () -> Arrays.stream(BindCardDelayGroup.values()).map(Enum::name).collect(Collectors.toSet()),
+      BindCardDelayGroup.CONTROL_GROUP.name(),
+      DiversionKeyType.USER_ID,
+      37900L,
+      Long.MAX_VALUE),
+  REGISTER_LOGIN_RETAIN_DIALOG_V2("注册登录挽留弹窗实验v2",
+      () -> ImmutableSet.of("D", "E", "F"),
+      "D",
+      DiversionKeyType.DEVICE_TOKEN,
+      37400L,
+      Long.MAX_VALUE),
+  CASH_REWARD_EDITION_ADDS_BORROW_OTHER_AMOUNT_BUTTON(
+      "一键借款5.0-现金奖励版增加【借其他金额按钮】",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID,
+      36900L,
+      Long.MAX_VALUE
+
+### WINDOW /Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/abtest/ABTestConfig.java:245-325
+      .put(ExperimentKeyConstants.FIRST_LOAN_GENUINE_CREDIT_INCREASE_POPUP, Range.closed(37213L, 99999L))
+      .put(UserFlowExperimentEnum.INTEREST_SPLIT_FIRST_LOAN.getKey(), Range.closed(36900L, 99999L))
+      .put(UserFlowExperimentEnum.INTEREST_SPLIT_RE_LOAN.getKey(), Range.closed(36900L, 99999L))
+      .put(UserFlowExperimentEnum.INTEREST_SPLIT_V2_FIRST_LOAN.getKey(), Range.closed(36900L, 99999L))
+      .put(UserFlowExperimentEnum.INTEREST_SPLIT_V2_RE_LOAN.getKey(), Range.closed(36900L, 99999L))
+      .put(UserFlowExperimentEnum.INTEREST_SPLIT_V4_FIRST_LOAN.getKey(), Range.closed(36900L, 99999L))
+      .put(UserFlowExperimentEnum.INTEREST_SPLIT_V4_RE_LOAN.getKey(), Range.closed(36900L, 99999L))
+      .put(UserFlowExperimentEnum.INTEREST_SPLIT_V5_FIRST_LOAN.getKey(), Range.closed(36900L, 99999L))
+      .put(UserFlowExperimentEnum.INTEREST_SPLIT_V5_RE_LOAN.getKey(), Range.closed(36900L, 99999L))
+      .put("bill_normal_26h1-before_overdue-abroad-loan_all-overdue_long_test", Range.closed(0L, 99999L))
+      .put("bill_overdue_26h1-after_overdue-abroad-loan_all-repaymentchannel_job_overdue_0227", Range.closed(0L, 99999L))
+      .put("bill_overdue_26h1-after_overdue-abroad-loan_all-repaymentchannel_gopay_overdue_0113_JOB", Range.closed(0L, 99999L))
+      .put("bill_normal_26h1-after_overdue-abroad-loan_all-repaymentchannel_job_overdue_V2", Range.closed(0L, 99999L))
+      .put("product_operation_bill_overdue-lending-abroad-loan_all-Auto_redirect_billing_Overdue",Range.closed(38400L, 999999L))
+      .put(ExperimentKeyConstants.KTP_POPUP_STYLE_OPTIMIZATION_V1, Range.closed(36720L, 99999L))
+      .put(ExperimentKeyConstants.T0_POPUP_FREQ_HEAD, Range.closed(37200L, 99999L))
+      .put(ExperimentKeyConstants.T0_POPUP_FREQ_MIDDLE, Range.closed(37200L, 99999L))
+      .put(ExperimentKeyConstants.T0_POPUP_FREQ_TAIL, Range.closed(37200L, 99999L))
+      .put(ExperimentKeyConstants.T0_ORDER_PAGE_POPUP_H5, Range.closed(37713L, 99999L))
+      .put(ExperimentKeyConstants.JIGUANG_IP_REGISTER, Range.closed(38700L, 99999L))
+      .put(UserFlowExperimentEnum.ORDER_PAGE_RATE_DISCOUNT_FIRST_LOAN.getKey(), Range.closed(36900L, 99999L))
+      .put(UserFlowExperimentEnum.ORDER_PAGE_RATE_DISCOUNT_RE_LOAN.getKey(), Range.closed(36900L, 99999L))
+      .put(UserFlowExperimentEnum.SUB_HOME_PAGE_COUPON_PACKAGE_V2.getKey(), Range.closed(37300L, 99999L))
+      .put(UserFlowExperimentEnum.ORDER_PAGE_V5_FOR_RELOAN.getKey(), Range.closed(37300L, 99999L))
+      .put(ExperimentKeyConstants.FIRST_LOAN_HOME_REWARD_EXP_KEY, Range.closed(36900L, 99999L))
+      .put(ExperimentKeyConstants.BANK_CARD_UNIQUE_KEY_WITH_BANK_CODE, Range.closed(0L, 99999L))
+      .put("bill_normal_26h1-before_overdue-abroad-loan_all-repaymentchannel_QRIS", Range.closed(38230L, 99999L))
+      .put(UserFlowExperimentEnum.RELOAN_REPAY_PLAN_GRANT_COUPON_V2.getKey(), Range.closed(37300L, 99999L))
+      .put(UserFlowExperimentEnum.TENURE_UPGRADE_BANNER.getKey(), Range.closed(37300L, 99999L))
+      .put(UserFlowExperimentEnum.RETAIN_POPUP_BOOST.getKey(), Range.closed(37300L, 99999L))
+      .put(UserFlowExperimentEnum.RETAIN_POPUP_BOOST_COUPON_STRATEGY.getKey(), Range.closed(37300L, 99999L))
+      .put("technology-register-abroad-loan_all-loginpage_h5_0820", Range.closed(37700L, 99999L))
+      .put("risk_decision_userid-auth-abroad-loan-init_usertype_source", Range.closed(0L, 99999L))
+      .put("risk_decision_userid-not_withdraw-abroad-risk_decision-credits_limitrules_test", Range.closed(0L, 99999L))
+      .put("product_operation_bill_normal-repayment-abroad-loan_all-REPAY_CHANNEL_SORT_NORMAL", Range.closed(38000L, 99999L))
+      .put("product_operation_bill_overdue-after_overdue-abroad-loan_all-REPAY_CHANNEL_SORT_OVERDUE_copy", Range.closed(38000L, 99999L))
+      .put("product_operation_bill-repayment-abroad-loan_all-repaymentchanneldananormal", Range.closed(35300L, 99999L))
+      .put("product_operation_bill-repayment-abroad-loan_all-repaymentchanneldanaoverdue", Range.closed(35300L, 99999L))
+      .put("technology-repayment-abroad-loan_all-BillpagetoH5_reopen", Range.closed(0L, 99999L))
+      .put("technology-repayment-abroad-loan_all-BillpagetoH5overdue_reopen", Range.closed(0L, 99999L))
+      .put("technology-auth-abroad-loan-superbank_rename_0908", Range.closed(36900L, 99999L))
+      .put("technology-auth-abroad-loan-ktpocr_failure_0901", Range.closed(37113L, 99999L))
+      .put("technology-auth-abroad-loan-MOTHER_LAST_NAME_CHECK_RULE_KTP_CONFIRM_PAGE_PRO", Range.closed(0L, 99999L))
+      .put("technology-not_withdraw-abroad-loan_all-MOTHER_LAST_NAME_CHECK_RULE_ORDER_SUPPLEMENT_PAGE_PRO", Range.closed(0L, 99999L))
+      .put("product_operation_order-not_withdraw-abroad-loan_all-marketing_coupons_0814", Range.closed(36900L, 99999L))
+      .put("product_operation_order-lending-abroad-loan_all-QUICK_ORDER_LOAN_H5_0721", Range.closed(0L, 99999L))
+      .put("product_operation_order-lending-abroad-loan_all-back_Quick_ordering_V3", Range.closed(0L, 99999L))
+      .put("product_operation_order-not_withdraw-abroad-loan-T0_amount_0805", Range.closed(36900L, 99999L))
+      .put("product_operation_order-edit_user-abroad-loan_all-add_wa_popup_0903", Range.closed(0L, 99999L))
+      .put("product_operation_order-edit_user-abroad-loan_all-add_wa_page_0903", Range.closed(0L, 99999L))
+      .put("product_operation_order-lending-abroad-loan_all-CREDIT_USAGE_RATE_EXPERIMENT", Range.closed(0L, 99999L))
+      .put("long_nik-install-abroad-idle_event-Gold_new_test_0616", Range.closed(0L, 99999L))
+      .put("long_nik-install-abroad-idle_event-gold_popup_V2_new", Range.closed(0L, 99999L))
+      .put("pretii-other-abroad-loan_all-GOLDEN_CARD_CAN_BORROW_STYLE", Range.closed(36899L, 99999L))
+      .put("pretii-other-abroad-loan_all-CreditReport_V1", Range.closed(0L, 99999L))
+      .put("pretii-other-abroad-loan_all-CreditReport_PRICE", Range.closed(0L, 99999L))
+      .put("pretii-other-abroad-loan_all-CreditReport_POPUP", Range.closed(0L, 99999L))
+      .put("pretii-other-abroad-loan_all-CreditReport_POPUP_ME", Range.closed(0L, 99999L))
+      .put("pretii-other-abroad-loan_all-bill_jbp_unpaid_guide_h5_1009", Range.closed(37900L, 99999L))
+      .put("pretii-other-abroad-loan_all-bill_jbp_unpaid_guide_APP", Range.closed(37900L, 99999L))
+      .put("product_operation_order-lending-abroad-loan_all-repayment_interest_popup", Range.closed(36900L, 99999L))
+      .put("root_register-register-abroad-loan_all-mkt_authorization_check_box", Range.closed(0L, 99999L))
+      .put("root_register-register-abroad-loan-bank_prom_1022", Range.closed(0L, 99999L))
+      .put("root_register-register-abroad-loan_all-back_retention_v2_0922_copy", Range.closed(37400L, 99999L))
+      .put("technology-auth-abroad-loan-h5_ui_new_auth_1215", Range.closed(35300L, 99999L))
+      .put("product_operation_order-lending-abroad-loan_all-QUICK_ORDER_CASH_ACTIVITY_V2_EXPERIMENT", Range.closed(37300L, 99999L))
+      .put("product_operation_order-lending-abroad-loan_all-COUPON_LONG_TERM_SUB_EXPERIMENT", Range.closed(0L, 99999L))
+      .put("product_operation_order-lending-abroad-loan_all-ORDER_LOAN_PUSH_COUPON", Range.closed(36900L, 99999L))
+      .put("technology-not_withdraw-abroad-loan-first_loan_coupon_parent_pro", Range.closed(0L, 99999L))
+      .put("technology-lending-abroad-settle_reloan-market_coupon_grant_reloan", Range.closed(0L, 99999L))
+      .put("technology-lending-abroad-settle_reloan-total_coupon_credit_limit_reloan", Range.closed(0L, 99999L))
+      .put("product_operation_order-lending-abroad-loan-popup_window_increase_credit_decrease_interest_loan", Range.closed(37300L, 99999L))
+      .put("product_operation_order-lending-abroad-settle_reloan-popup_window_increase_credit_decrease_interest_reloan",
+          Range.closed(37300L, 99999L))
+      .put("product_operation_order-not_withdraw-abroad-loan_all-CREDIT_INCREASED_SENSITIVITY_V2", Range.closed(38200L, 99999L))
+      .put("product_operation_order-lending-abroad-loan_all-back_Quick_ordering_UI_V1_0714", Range.closed(0L, 99999L))
+      .put("product_operation_auth-auth-abroad-loan-KTP_incentive_activities_v3_1_popup", Range.closed(0L, 99999L))
+      .put("product_operation_auth-auth-abroad-loan-ktp_back_popup_v2_reopen", Range.closed(0L, 99999L))
+      .put("product_operation_order-lending-abroad-loan_all-back_Quick_ordering_0627", Range.closed(0L, 99999L))
+      .put("product_operation_auth-register-abroad-loan-login_page_benefits_V3_Register_0924_copy", Range.closed(37900L, 99999L))
+      .put("product_operation_auth-register-abroad-loan-login_page_benefits_V3_login_0924_copy", Range.closed(37900L, 99999L))
+
+### WINDOW /Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/LoanBankAccountController.java:319-399
+
+  @GetMapping(path = "/api/v2/cashloan/addBankAccountNotMatchStrategy")
+  @ResponseBody
+  @ECSecuredApi
+  public Result getAddBankAccountNotMatchStrategy() {
+    AddBankAccountNotMatchStrategy strategy = loanBankAccountService.getAddBankAccountNotMatchStrategy();
+    return EcResponseUtil.generate(AddBankAccountNotMatchStrategyResponse.from(strategy));
+  }
+
+  @GetMapping(path = "/api/cashloan/getSupportedBankV2")
+  @ResponseBody
+  @ECSecuredApi
+  public Result getSupportedBankListWithLogo() {
+    LoanApiViewerContext viewerContext = getViewerContextFromRequest();
+    if (viewerContext.sdkType == null) {
+      throw EcException.error("sdk is null");
+    }
+    List<BankConfigVO> bankList = loanBankAccountService.getSupportedBankVOListALL(viewerContext.sdkType);
+    bankList = loanBankAccountService.filterBankTypeByABTest(bankList, viewerContext.userId);
+
+    Map<BankType, BankAttributeVO> bankTypeToBankAttributeVOMap = bankConfig.getBankAttributeVOMap();
+    SupportedBankListResponse response = SupportedBankListResponse.from(
+        viewerContext.sdkType,
+        cashLoanConfig.getCommonBanksNumbers(viewerContext.sdkType),
+        bankList,
+        bankTypeToBankAttributeVOMap,
+        true);
+    return EcResponseUtil.generate(response);
+  }
+
+  @GetMapping(path = "/api/idn/cashloan/getSupportedBank")
+  @ResponseBody
+  @ECSecuredApi
+  public Result getIdnSupportedBankListWithLogo() {
+    LoanApiViewerContext viewerContext = getViewerContextFromRequest();
+    if (viewerContext.sdkType == null) {
+      throw EcException.error("sdk is null");
+    }
+    List<BankConfigVO> bankList = loanBankAccountService.getSupportedBankVOList(viewerContext.sdkType);
+    Map<BankType, BankAttributeVO> bankTypeToBankAttributeVOMap = bankConfig.getBankAttributeVOMap();
+    bankList = loanBankAccountService.keepOnlySuperBankIfInExperiment(bankList,viewerContext.userId,viewerContext.build,viewerContext.deviceToken);
+    bankTypeToBankAttributeVOMap = loanBankAccountService.clearPopWindowTextIfInExperiment(bankTypeToBankAttributeVOMap, viewerContext.userId, viewerContext.build, viewerContext.sourceType, viewerContext.loanAccountId);
+    SupportedBankListResponse response = SupportedBankListResponse.from(
+        viewerContext.sdkType,
+        cashLoanConfig.getCommonBanksNumbers(viewerContext.sdkType),
+        bankList,
+        bankTypeToBankAttributeVOMap,
+        true);
+    return EcResponseUtil.generate(response);
+  }
+
+  @GetMapping(path = "/api/idn/cashloan/getSupportedEwallet")
+  @ResponseBody
+  @ECSecuredApi
+  public Result getIdnSupportedEwalletListWithLogo() {
+    LoanApiViewerContext viewerContext = getViewerContextFromRequest();
+    if (viewerContext.sdkType == null) {
+      throw EcException.error("sdk is null");
+    }
+    List<BankConfigVO> bankList = loanBankAccountService.getSupportedBankVOListEWallet(viewerContext.sdkType);
+    if (viewerContext.sdkType.isIdnSDKType()) {
+      bankList = loanBankAccountService.filterEWalletTypeByABTest(bankList, viewerContext.userId);
+    }
+    Map<BankType, BankAttributeVO> bankTypeToBankAttributeVOMap = bankConfig.getBankAttributeVOMap();
+    SupportedBankListResponse response = SupportedBankListResponse.from(
+        viewerContext.sdkType,
+        cashLoanConfig.getCommonBanksNumbers(viewerContext.sdkType),
+        bankList,
+        bankTypeToBankAttributeVOMap,
+        false);
+    return EcResponseUtil.generate(response);
+  }
+
+  @GetMapping(path = "/api/idn/cashloan/getInitCopyWriting")
+  @ResponseBody
+  public Result getIdnInitCopyWriting() {
+    LoanApiViewerContext context = getViewerContextFromRequest();
+    BindBankInitWritingInfo bindBankInitText = bankConfig.getBindBankInitText();
+    boolean bankAccountDelay = false;
+    BindBankInitWritingResponse result = BankAccountApiMessageConvertUtil.convertBindBankText(bindBankInitText, bankAccountDelay);
+    return EcResponseUtil.generate(result);

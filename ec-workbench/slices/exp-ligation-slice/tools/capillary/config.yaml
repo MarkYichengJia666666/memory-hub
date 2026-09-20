@@ -1,0 +1,100 @@
+# Memory Hub CodeGraph
+codegraph:
+  base_url: "http://127.0.0.1:8424/v3/code-graph"
+  service_id: "default"
+
+# 实验平台 HTTP（可选；没有就靠 state/experiment_cache.json）
+# 配好后 refresh_experiments.py --http 才能给 cron 用
+experiment:
+  # base_url: "https://your-experiment-api.example"
+  # 实际 path / header 按公司环境改；默认走缓存
+  cache_path: "state/experiment_cache.json"
+
+ec_repo: "/Users/lipeng/IdeaProjects/ec"
+
+# 五业务已合成一张图
+combined_graph_id: &graph cg-zp42c34n
+
+mouths:
+  - id: homepage
+    name: 首页
+    graph_id: *graph
+    notes: "枚举分发；callers 空不当死代码"
+    enum_dispatch: true
+    vessels:
+      - id: hp-817-first
+        platform_key: "first_loan_product_26h1-lending-abroad-loan-Rayakan_Kemerdekaan"
+        java_symbols:
+          - "isAtmosphereGroup"
+          - "NationalDay817HomeBannerFilterRuleProcessor"
+          - "NATIONAL_DAY_817_FIRST_LOAN"
+        safe_auto: false
+        reason_hint: "首页氛围 banner；经 Aviator/枚举，自动删关掉"
+
+      - id: hp-817-reloan
+        platform_key: "reloan_order_26h1-lending-abroad-loan_all-Rayakan_Kemerdekaan"
+        java_symbols:
+          - "isAtmosphereGroup"
+          - "NATIONAL_DAY_817_RELOAN"
+        safe_auto: false
+        reason_hint: "复贷氛围；同上"
+
+  - id: order
+    name: 下单
+    graph_id: *graph
+    notes: "MVP：先占位，补 key 后生效"
+    enum_dispatch: false
+    vessels: []
+
+  - id: coupon_kafka
+    name: 开屏灌券 Kafka
+    graph_id: *graph
+    notes: "真正发券在消费端 Processor"
+    enum_dispatch: false
+    vessels:
+      - id: coupon-v1
+        platform_key: "reloan_order_26h1-lending-abroad-renew-top_willing_coupon_v1"
+        java_symbols:
+          - "RELOAN_TOP_LOW_WILL_COUPON"
+          - "grantCutInterestCouponForOpenApp"
+        safe_auto: false
+        reason_hint: "v1 已 Deprecated，发放走 v2；删常量前要对 ABTestConfig"
+
+      # 生产平台最新重开（MCP 实测 ZERO_PERCENTAGE）；Java 仍绑原 v1 常量名
+      - id: coupon-v1-reopen-v3
+        platform_key: "reloan_order_26h1-lending-abroad-renew-top_willing_coupon_v1_reopen_v3"
+        java_symbols:
+          - "RELOAN_TOP_LOW_WILL_COUPON"
+          - "reloan_order_26h1-lending-abroad-renew-top_willing_coupon_v1"
+        safe_auto: false
+        reason_hint: "生产 reopen_v3 已关量；代码搜不到 reopen 名，只剩 v1 常量/版本表"
+
+      - id: coupon-v2
+        platform_key: "reloan_order_26h1-lending-abroad-renew-top_willing_coupon_v2"
+        java_symbols:
+          - "RELOAN_TOP_WILLING_COUPON_V2"
+          - "AppStartUpGrantCouponProcessor"
+          - "grantCutInterestCouponForOpenApp"
+        safe_auto: false
+        # 当前生产发放主路径：实验关了也不自动进可埋
+        never_bury: true
+        reason_hint: "Kafka 灌券主路径；never_bury，只观察"
+
+  - id: bindcard
+    name: 绑卡
+    graph_id: *graph
+    notes: "ExperimentNameSpace 老分流；枚举 callers 常空，看方法链"
+    enum_dispatch: true
+    vessels:
+      - id: superbank-bind
+        platform_key: "technology-auth-abroad-loan-superbank_rename_0908"
+        java_symbols:
+          - "SUPERBANK_CHANNEL_USER_BINDING_CARD"
+          - "isInSuperBankBindCardExperiment"
+          - "keepOnlySuperBankIfInExperiment"
+        safe_auto: false
+        reason_hint: "Superbank 渠道绑卡改名&排位；代码经 ExpFacade + ExperimentNameSpace"
+        solidify_keep_hint: >
+          有效 mediaSource 下只保留 SuperBank(BankType.FAMA)；
+          去掉 isInSuperBankBindCardExperiment / ExpFacade 门闸后，
+          对该渠道直接执行 keepOnlySuperBank 过滤（原实验组 TRUE 行为）

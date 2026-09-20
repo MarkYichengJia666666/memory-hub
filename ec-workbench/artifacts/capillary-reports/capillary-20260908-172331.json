@@ -1,0 +1,188 @@
+{
+  "generated_at": "20260908-172331",
+  "findings": [
+    {
+      "vessel_id": "hp-817-first",
+      "mouth_id": "homepage",
+      "mouth_name": "首页",
+      "platform_key": "first_loan_product_26h1-lending-abroad-loan-Rayakan_Kemerdekaan",
+      "java_symbols": [
+        "isAtmosphereGroup",
+        "NationalDay817HomeBannerFilterRuleProcessor",
+        "NATIONAL_DAY_817_FIRST_LOAN"
+      ],
+      "grade": "candidate_bury",
+      "why": [
+        "平台状态=ZERO_PERCENTAGE",
+        "流量：对照 0.0% / 实验 0.0% / 空白 100.0%",
+        "剩余约 68.0 天",
+        "描述：国庆端内氛围-首贷",
+        "关量/结束且对用户不生效，图上能定位到符号 → 可进删除候选（需人确认）",
+        "首页氛围 banner；经 Aviator/枚举，自动删关掉"
+      ],
+      "graph_id": "cg-pl6vfmyi",
+      "safe_auto": false,
+      "enum_dispatch_mouth": true,
+      "reason_hint": "首页氛围 banner；经 Aviator/枚举，自动删关掉",
+      "experiment": {
+        "name": "first_loan_product_26h1-lending-abroad-loan-Rayakan_Kemerdekaan",
+        "id": 13987,
+        "status": "ZERO_PERCENTAGE",
+        "remain_days": 68.0,
+        "control_pct": 0.0,
+        "experiment_pct": 0.0,
+        "blank_pct": 100.0,
+        "desc": "国庆端内氛围-首贷",
+        "user_effective": false
+      },
+      "graph_hits": {
+        "search:isAtmosphereGroup": "**Search Results (1 found)**\n\n**isAtmosphereGroup** (method)\nec-core/src/main/java/com/yqg/core/service/experiment/NationalDay817ExpService.java:60\n`boolean (Long userId)`\n",
+        "callers:isAtmosphereGroup": "**Callers of isAtmosphereGroup (2 found)**\n\n- assembleNationalDay817Expe (method) - ec-api/src/main/java/com/miyou/controllers/cashloan/productdetail/builder/impl/ExpInfoDisplayDataBuilder.java:153\n- hitRule (method) - ec-core/src/main/java/com/yqg/core/service/general/pageconfig/filterstrategy/processor/NationalDay817HomeBannerFilterRuleProcessor.java:39",
+        "search:NationalDay817HomeBannerFilterRuleProcessor": "**Search Results (5 found)**\n\n**NationalDay817HomeBannerFilterRuleProcessor** (class)\nec-core/src/main/java/com/yqg/core/service/general/pageconfig/filterstrategy/processor/NationalDay817HomeBannerFilterRuleProcessor.java:19\n\n**NationalDay817HomeBannerFilterRuleProcessor.java** (file)\nec-core/src/main/java/com/yqg/core/service/general/pageconfig/filterstrategy/processor/NationalDay817HomeBannerFilterRuleProcessor.java:1\n\n**getRuleType** (method)\nec-core/src/main/java/com/yqg/core/service/general/pageconfig/filterstrategy/processor/NationalDay817HomeBannerFilterRuleProcessor.java:29\n`GeneralPageConfigFilterRuleType ()`\n\n**checkPayload** (method)\nec-core/src/main/java/com/yqg/core/service/general/pageconfig/filterstrategy/processor/NationalDay817HomeBannerFilterRuleProcessor.java:34\n`void (EmptyFilterRulePayload payload)`\n\n**hitRule** (method)\nec-core/src/main/java/com/yqg/core/service/general/pageconfig/filterstrategy/processor/NationalDay817HomeBannerFilterRuleProcessor.java:39\n`boolean (EmptyFilterRulePayload payload, GeneralPageConfigParam param)`\n",
+        "callers:NationalDay817HomeBannerFilterRuleProcessor": "**Callers of NationalDay817HomeBannerFilterRuleProcessor — 2 distinct definitions (narrow with `file`)**\n\n**com.yqg.core.service.general.pageconfig.filterstrategy.processor::NationalDay817HomeBannerFilterRuleProcessor** (class) — ec-core/src/main/java/com/yqg/core/service/general/pageconfig/filterstrategy/processor/NationalDay817HomeBannerFilterRuleProcessor.java:19\n- (no callers)\n\n**ec-core/src/main/java/com/yqg/core/service/general/pageconfig/filterstrategy/processor/NationalDay817HomeBannerFilterRuleProcessor.java** (file) — ec-core/src/main/java/com/yqg/core/service/general/pageconfig/filterstrategy/processor/NationalDay817HomeBannerFilterRuleProcessor.java:1\n- (no callers)",
+        "search:NATIONAL_DAY_817_FIRST_LOAN": "**Search Results (2 found)**\n\n**NATIONAL_DAY_817_FIRST_LOAN** (enum_member)\nec-core/src/main/java/com/yqg/core/common/enums/UserFlowExperimentEnum.java:33\n\n**NationalDay817ExpService** (class)\nec-core/src/main/java/com/yqg/core/service/experiment/NationalDay817ExpService.java:26\n",
+        "callers:NATIONAL_DAY_817_FIRST_LOAN": "No callers found for \"NATIONAL_DAY_817_FIRST_LOAN\""
+      }
+    },
+    {
+      "vessel_id": "hp-817-reloan",
+      "mouth_id": "homepage",
+      "mouth_name": "首页",
+      "platform_key": "reloan_order_26h1-lending-abroad-loan_all-Rayakan_Kemerdekaan",
+      "java_symbols": [
+        "isAtmosphereGroup",
+        "NATIONAL_DAY_817_RELOAN"
+      ],
+      "grade": "candidate_bury",
+      "why": [
+        "平台状态=ZERO_PERCENTAGE",
+        "流量：对照 0.0% / 实验 0.0% / 空白 100.0%",
+        "剩余约 68.0 天",
+        "描述：国庆端内氛围-复贷",
+        "关量/结束且对用户不生效，图上能定位到符号 → 可进删除候选（需人确认）",
+        "复贷氛围；同上"
+      ],
+      "graph_id": "cg-pl6vfmyi",
+      "safe_auto": false,
+      "enum_dispatch_mouth": true,
+      "reason_hint": "复贷氛围；同上",
+      "experiment": {
+        "name": "reloan_order_26h1-lending-abroad-loan_all-Rayakan_Kemerdekaan",
+        "id": 13988,
+        "status": "ZERO_PERCENTAGE",
+        "remain_days": 68.0,
+        "control_pct": 0.0,
+        "experiment_pct": 0.0,
+        "blank_pct": 100.0,
+        "desc": "国庆端内氛围-复贷",
+        "user_effective": false
+      },
+      "graph_hits": {
+        "search:isAtmosphereGroup": "**Search Results (1 found)**\n\n**isAtmosphereGroup** (method)\nec-core/src/main/java/com/yqg/core/service/experiment/NationalDay817ExpService.java:60\n`boolean (Long userId)`\n",
+        "callers:isAtmosphereGroup": "**Callers of isAtmosphereGroup (2 found)**\n\n- assembleNationalDay817Expe (method) - ec-api/src/main/java/com/miyou/controllers/cashloan/productdetail/builder/impl/ExpInfoDisplayDataBuilder.java:153\n- hitRule (method) - ec-core/src/main/java/com/yqg/core/service/general/pageconfig/filterstrategy/processor/NationalDay817HomeBannerFilterRuleProcessor.java:39",
+        "search:NATIONAL_DAY_817_RELOAN": "**Search Results (2 found)**\n\n**NATIONAL_DAY_817_RELOAN** (enum_member)\nec-core/src/main/java/com/yqg/core/common/enums/UserFlowExperimentEnum.java:34\n\n**NationalDay817ExpService** (class)\nec-core/src/main/java/com/yqg/core/service/experiment/NationalDay817ExpService.java:26\n",
+        "callers:NATIONAL_DAY_817_RELOAN": "No callers found for \"NATIONAL_DAY_817_RELOAN\""
+      }
+    },
+    {
+      "vessel_id": "order-empty",
+      "mouth_id": "order",
+      "mouth_name": "下单",
+      "platform_key": "",
+      "java_symbols": [],
+      "grade": "unknown",
+      "why": [
+        "这张嘴还没登记实验 key，先在 config.yaml 里补 vessels"
+      ],
+      "graph_id": "cg-b0xmzi3v",
+      "safe_auto": false,
+      "enum_dispatch_mouth": false,
+      "reason_hint": "",
+      "experiment": null,
+      "graph_hits": {}
+    },
+    {
+      "vessel_id": "coupon-v1",
+      "mouth_id": "coupon_kafka",
+      "mouth_name": "开屏灌券 Kafka",
+      "platform_key": "reloan_order_26h1-lending-abroad-renew-top_willing_coupon_v1",
+      "java_symbols": [
+        "RELOAN_TOP_LOW_WILL_COUPON",
+        "grantCutInterestCouponForOpenApp"
+      ],
+      "grade": "candidate_bury",
+      "why": [
+        "平台状态=LIGHT",
+        "流量：对照 0.0% / 实验 0.0% / 空白 100.0%",
+        "剩余约 0.0 天",
+        "描述：复贷头部灌券-意愿模型",
+        "关量/结束且对用户不生效，图上能定位到符号 → 可进删除候选（需人确认）",
+        "v1 已 Deprecated，发放走 v2；删常量前要对 ABTestConfig"
+      ],
+      "graph_id": "cg-pl6vfmyi",
+      "safe_auto": false,
+      "enum_dispatch_mouth": false,
+      "reason_hint": "v1 已 Deprecated，发放走 v2；删常量前要对 ABTestConfig",
+      "experiment": {
+        "name": "reloan_order_26h1-lending-abroad-renew-top_willing_coupon_v1",
+        "id": 13153,
+        "status": "LIGHT",
+        "remain_days": 0.0,
+        "control_pct": 0.0,
+        "experiment_pct": 0.0,
+        "blank_pct": 100.0,
+        "desc": "复贷头部灌券-意愿模型",
+        "user_effective": false
+      },
+      "graph_hits": {
+        "search:RELOAN_TOP_LOW_WILL_COUPON": "**Search Results (1 found)**\n\n**RELOAN_TOP_LOW_WILL_COUPON** (constant)\nec-common/src/main/java/com/yqg/ec/common/constant/ExperimentKeyConstants.java:55\n`String RELOAN_TOP_LOW_WILL_COUPON`\n",
+        "callers:RELOAN_TOP_LOW_WILL_COUPON": "No callers found for \"RELOAN_TOP_LOW_WILL_COUPON\"",
+        "search:grantCutInterestCouponForOpenApp": "**Search Results (1 found)**\n\n**grantCutInterestCouponForOpenApp** (method)\nec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java:538\n`void (AppStartupAtLeastOnceVO event, Boolean isReloan)`\n",
+        "callers:grantCutInterestCouponForOpenApp": "**Callers of grantCutInterestCouponForOpenApp (1 found)**\n\n- processRecord (method) - ec-core/src/main/java/com/yqg/core/service/kafka/consumer/processor/AppStartUpGrantCouponProcessor.java:53"
+      }
+    },
+    {
+      "vessel_id": "coupon-v2",
+      "mouth_id": "coupon_kafka",
+      "mouth_name": "开屏灌券 Kafka",
+      "platform_key": "reloan_order_26h1-lending-abroad-renew-top_willing_coupon_v2",
+      "java_symbols": [
+        "RELOAN_TOP_WILLING_COUPON_V2",
+        "AppStartUpGrantCouponProcessor",
+        "grantCutInterestCouponForOpenApp"
+      ],
+      "grade": "candidate_bury",
+      "why": [
+        "平台状态=LIGHT",
+        "流量：对照 0.0% / 实验 0.0% / 空白 100.0%",
+        "剩余约 0.0 天",
+        "描述：复贷头部低意愿灌券_久期V2",
+        "关量/结束且对用户不生效，图上能定位到符号 → 可进删除候选（需人确认）",
+        "Kafka 灌券主路径；关量才可进候选，反射拉起标手工"
+      ],
+      "graph_id": "cg-pl6vfmyi",
+      "safe_auto": false,
+      "enum_dispatch_mouth": false,
+      "reason_hint": "Kafka 灌券主路径；关量才可进候选，反射拉起标手工",
+      "experiment": {
+        "name": "reloan_order_26h1-lending-abroad-renew-top_willing_coupon_v2",
+        "id": 13358,
+        "status": "LIGHT",
+        "remain_days": 0.0,
+        "control_pct": 0.0,
+        "experiment_pct": 0.0,
+        "blank_pct": 100.0,
+        "desc": "复贷头部低意愿灌券_久期V2",
+        "user_effective": false
+      },
+      "graph_hits": {
+        "search:RELOAN_TOP_WILLING_COUPON_V2": "**Search Results (2 found)**\n\n**RELOAN_TOP_WILLING_COUPON_V2** (enum_member)\nec-core/src/main/java/com/yqg/core/common/enums/UserFlowExperimentEnum.java:69\n\n**resolveReloanHeadCutInterestCouponIds** (method)\nec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java:401\n`List<Long> (AppStartupAtLeastOnceVO event, GrantCouponUserInfo userInfo)`\n",
+        "callers:RELOAN_TOP_WILLING_COUPON_V2": "No callers found for \"RELOAN_TOP_WILLING_COUPON_V2\"",
+        "search:AppStartUpGrantCouponProcessor": "**Search Results (5 found)**\n\n**AppStartUpGrantCouponProcessor** (class)\nec-core/src/main/java/com/yqg/core/service/kafka/consumer/processor/AppStartUpGrantCouponProcessor.java:29\n\n**AppStartUpGrantCouponProcessor.java** (file)\nec-core/src/main/java/com/yqg/core/service/kafka/consumer/processor/AppStartUpGrantCouponProcessor.java:1\n\n**com.yqg.core.service.kafka.consumer.processor.AppStartUpGrantCouponProcessor** (import)\nec-core/src/main/java/com/yqg/core/service/kafka/consumer/context/AppStartUpGrantCouponConsumerGroupContext.java:6\n`import com.yqg.core.service.kafka.consumer.processor.AppStartUpGrantCouponProcessor;`\n\n**logCacheStats** (method)\nec-core/src/main/java/com/yqg/core/service/kafka/consumer/processor/AppStartUpGrantCouponProcessor.java:129\n`void ()`\n\n**processRecord** (method)\nec-core/src/main/java/com/yqg/core/service/kafka/consumer/processor/AppStartUpGrantCouponProcessor.java:53\n`void (ConsumerRecord<String, String> record)`\n",
+        "callers:AppStartUpGrantCouponProcessor": "**Callers of AppStartUpGrantCouponProcessor — 2 distinct definitions (narrow with `file`)**\n\n**com.yqg.core.service.kafka.consumer.processor::AppStartUpGrantCouponProcessor** (class) — ec-core/src/main/java/com/yqg/core/service/kafka/consumer/processor/AppStartUpGrantCouponProcessor.java:29\n- com.yqg.core.service.kafka.consumer.context (namespace) - ec-core/src/main/java/com/yqg/core/service/kafka/consumer/context/AppStartUpGrantCouponConsumerGroupContext.java:1 — via import\n\n**ec-core/src/main/java/com/yqg/core/service/kafka/consumer/processor/AppStartUpGrantCouponProcessor.java** (file) — ec-core/src/main/java/com/yqg/core/service/kafka/consumer/processor/AppStartUpGrantCouponProcessor.java:1\n- (no callers)",
+        "search:grantCutInterestCouponForOpenApp": "**Search Results (1 found)**\n\n**grantCutInterestCouponForOpenApp** (method)\nec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java:538\n`void (AppStartupAtLeastOnceVO event, Boolean isReloan)`\n",
+        "callers:grantCutInterestCouponForOpenApp": "**Callers of grantCutInterestCouponForOpenApp (1 found)**\n\n- processRecord (method) - ec-core/src/main/java/com/yqg/core/service/kafka/consumer/processor/AppStartUpGrantCouponProcessor.java:53"
+      }
+    }
+  ]
+}

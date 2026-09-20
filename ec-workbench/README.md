@@ -14,10 +14,10 @@
 
 ## 注意
 
-- **不含** TLS 私钥（`.certs/*.pem` 已省略）。
-- **不含** 实验平台带白名单用户 ID 的 live 缓存；需要时本地用 MCP 重拉。
-- 图索引 `.codegraph/` 可再生成，未纳入。
-- 切片含公司业务代码片段：若仓库为 **Public**，请尽快改为 **Private** 或移除 `slices/`。
+- **已纳入** TLS 自签证书（`slices/exp-ligation-slice/.certs/*.pem`）——仅供本机 git HTTPS 复现，勿用于生产。
+- **已纳入** 实验缓存（`tools/capillary/state/experiment_*.json` 与 `artifacts/experiment-cache/`），可能含白名单用户 ID。
+- **已纳入** 合并图索引 `cg-zp42c34n` 的 `.codegraph/`（约 70MB；`artifacts/codegraph-indexes/` 与合并切片下各一份）。
+- 切片含公司业务代码片段：仓库若为 **Public**，请尽快改为 **Private**。
 
 ## 本机复现要点
 

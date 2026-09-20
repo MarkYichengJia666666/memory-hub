@@ -1,0 +1,25 @@
+{
+  "technology-auth-abroad-loan-superbank_rename_0908": {
+    "id": 11760,
+    "name": "technology-auth-abroad-loan-superbank_rename_0908",
+    "experimentStatus": "FULL_PERCENTAGE",
+    "remainDuration": 0,
+    "experimentDesc": "【鉴权】superbank改名&排位",
+    "bypassFlow": [
+      {
+        "groupType": "CONTROL_GROUP",
+        "percentage": 0,
+        "data": "FALSE"
+      },
+      {
+        "groupType": "EXPERIMENTAL_GROUP",
+        "percentage": 100,
+        "data": "TRUE"
+      },
+      {
+        "groupType": "BLANK_GROUP",
+        "percentage": 0
+      }
+    ]
+  }
+}

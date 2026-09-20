@@ -1,0 +1,285 @@
+{
+  "experiments": {
+    "first_loan_product_26h1-lending-abroad-loan-Rayakan_Kemerdekaan": {
+      "name": "first_loan_product_26h1-lending-abroad-loan-Rayakan_Kemerdekaan",
+      "experiment_id": 13987,
+      "status": "ZERO_PERCENTAGE",
+      "remain_days": 68.0,
+      "control_pct": 0.0,
+      "experiment_pct": 0.0,
+      "blank_pct": 100.0,
+      "desc": "国庆端内氛围-首贷",
+      "raw": {
+        "name": "first_loan_product_26h1-lending-abroad-loan-Rayakan_Kemerdekaan",
+        "id": 13987,
+        "experimentStatus": "ZERO_PERCENTAGE",
+        "remainDuration": 68,
+        "experimentDesc": "国庆端内氛围-首贷",
+        "bypassFlow": [
+          {
+            "groupType": "CONTROL_GROUP",
+            "percentage": 0
+          },
+          {
+            "groupType": "EXPERIMENTAL_GROUP",
+            "percentage": 0
+          },
+          {
+            "groupType": "BLANK_GROUP",
+            "percentage": 100
+          }
+        ]
+      }
+    },
+    "reloan_order_26h1-lending-abroad-loan_all-Rayakan_Kemerdekaan": {
+      "name": "reloan_order_26h1-lending-abroad-loan_all-Rayakan_Kemerdekaan",
+      "experiment_id": 13988,
+      "status": "ZERO_PERCENTAGE",
+      "remain_days": 68.0,
+      "control_pct": 0.0,
+      "experiment_pct": 0.0,
+      "blank_pct": 100.0,
+      "desc": "国庆端内氛围-复贷",
+      "raw": {
+        "name": "reloan_order_26h1-lending-abroad-loan_all-Rayakan_Kemerdekaan",
+        "id": 13988,
+        "experimentStatus": "ZERO_PERCENTAGE",
+        "remainDuration": 68,
+        "experimentDesc": "国庆端内氛围-复贷",
+        "bypassFlow": [
+          {
+            "groupType": "CONTROL_GROUP",
+            "percentage": 0
+          },
+          {
+            "groupType": "EXPERIMENTAL_GROUP",
+            "percentage": 0
+          },
+          {
+            "groupType": "BLANK_GROUP",
+            "percentage": 100
+          }
+        ]
+      }
+    },
+    "reloan_order_26h1-lending-abroad-renew-top_willing_coupon_v1": {
+      "name": "reloan_order_26h1-lending-abroad-renew-top_willing_coupon_v1",
+      "experiment_id": 13153,
+      "status": "LIGHT",
+      "remain_days": 0.0,
+      "control_pct": 0.0,
+      "experiment_pct": 0.0,
+      "blank_pct": 100.0,
+      "desc": "复贷头部灌券-意愿模型",
+      "raw": {
+        "name": "reloan_order_26h1-lending-abroad-renew-top_willing_coupon_v1",
+        "id": 13153,
+        "experimentStatus": "LIGHT",
+        "remainDuration": 0,
+        "experimentDesc": "复贷头部灌券-意愿模型",
+        "bypassFlow": [
+          {
+            "groupType": "CONTROL_GROUP",
+            "percentage": 0
+          },
+          {
+            "groupType": "EXPERIMENTAL_GROUP",
+            "percentage": 0
+          },
+          {
+            "groupType": "BLANK_GROUP",
+            "percentage": 100
+          }
+        ]
+      }
+    },
+    "reloan_order_26h1-lending-abroad-renew-top_willing_coupon_v2": {
+      "name": "reloan_order_26h1-lending-abroad-renew-top_willing_coupon_v2",
+      "experiment_id": 13358,
+      "status": "LIGHT",
+      "remain_days": 0.0,
+      "control_pct": 0.0,
+      "experiment_pct": 0.0,
+      "blank_pct": 100.0,
+      "desc": "复贷头部低意愿灌券_久期V2",
+      "raw": {
+        "name": "reloan_order_26h1-lending-abroad-renew-top_willing_coupon_v2",
+        "id": 13358,
+        "experimentStatus": "LIGHT",
+        "remainDuration": 0,
+        "experimentDesc": "复贷头部低意愿灌券_久期V2",
+        "bypassFlow": [
+          {
+            "id": 11853,
+            "priority": 0,
+            "desc": "对照组",
+            "percentage": 0,
+            "bucketStage": 0,
+            "data": "CONTROL_GROUP",
+            "experimentGroupCode": "expt_group_24091",
+            "startTime": null,
+            "endTime": null,
+            "groupType": "CONTROL_GROUP",
+            "param": "",
+            "whiteListList": [
+              {
+                "whiteListType": "USER_ID",
+                "groupData": "CONTROL_GROUP",
+                "values": "51045541",
+                "valueList": [
+                  "51045541"
+                ]
+              }
+            ],
+            "versionId": 15296,
+            "timeCreated": 1775703471290,
+            "timeUpdated": 1776679171663,
+            "groupPercentageData": "对照组(CONTROL_GROUP)流量0%",
+            "groupDescInfo": "对照组(CONTROL_GROUP)",
+            "groupDataAndPriority": "CONTROL_GROUP_0",
+            "groupAndPriority": "CONTROL_GROUP-0"
+          },
+          {
+            "id": 11854,
+            "priority": 1,
+            "desc": "实验组1-上限100w",
+            "percentage": 0,
+            "bucketStage": 0,
+            "data": "EXPERIMENT_GROUP_ONE",
+            "experimentGroupCode": "expt_group_24092",
+            "startTime": null,
+            "endTime": null,
+            "groupType": "EXPERIMENTAL_GROUP",
+            "param": "",
+            "whiteListList": null,
+            "versionId": 15297,
+            "timeCreated": 1775703471290,
+            "timeUpdated": 1776679171663,
+            "groupPercentageData": "实验组1-上限100w(EXPERIMENT_GROUP_ONE)流量0%",
+            "groupDescInfo": "实验组1-上限100w(EXPERIMENT_GROUP_ONE)",
+            "groupDataAndPriority": "EXPERIMENT_GROUP_ONE_1",
+            "groupAndPriority": "EXPERIMENT_GROUP_ONE-1"
+          },
+          {
+            "id": 11855,
+            "priority": 2,
+            "desc": "实验组2-分层gap",
+            "percentage": 0,
+            "bucketStage": 0,
+            "data": "EXPERIMENT_GROUP_TWO",
+            "experimentGroupCode": "expt_group_24093",
+            "startTime": null,
+            "endTime": null,
+            "groupType": "EXPERIMENTAL_GROUP",
+            "param": "",
+            "whiteListList": null,
+            "versionId": 15298,
+            "timeCreated": 1775703471290,
+            "timeUpdated": 1776679171663,
+            "groupPercentageData": "实验组2-分层gap(EXPERIMENT_GROUP_TWO)流量0%",
+            "groupDescInfo": "实验组2-分层gap(EXPERIMENT_GROUP_TWO)",
+            "groupDataAndPriority": "EXPERIMENT_GROUP_TWO_2",
+            "groupAndPriority": "EXPERIMENT_GROUP_TWO-2"
+          },
+          {
+            "id": 11856,
+            "priority": 10000,
+            "desc": "",
+            "percentage": 100,
+            "bucketStage": 0,
+            "data": "BLANK_GROUP",
+            "experimentGroupCode": "expt_group_24094",
+            "startTime": null,
+            "endTime": null,
+            "groupType": "BLANK_GROUP",
+            "param": "",
+            "whiteListList": null,
+            "versionId": 15299,
+            "timeCreated": 1775703471290,
+            "timeUpdated": 1776679171663,
+            "groupPercentageData": "空白(BLANK_GROUP)流量100%",
+            "groupDescInfo": "(BLANK_GROUP)",
+            "groupDataAndPriority": "BLANK_GROUP_10000",
+            "groupAndPriority": "BLANK_GROUP-10000"
+          }
+        ]
+      }
+    },
+    "reloan_order_26h1-lending-abroad-renew-top_willing_coupon_v1_reopen_v3": {
+      "name": "reloan_order_26h1-lending-abroad-renew-top_willing_coupon_v1_reopen_v3",
+      "experiment_id": 13303,
+      "status": "ZERO_PERCENTAGE",
+      "remain_days": 0.0,
+      "control_pct": 0.0,
+      "experiment_pct": 0.0,
+      "blank_pct": 100.0,
+      "desc": "复贷头部灌券-意愿模型_重开_v3",
+      "raw": {
+        "id": 13303,
+        "name": "reloan_order_26h1-lending-abroad-renew-top_willing_coupon_v1_reopen_v3",
+        "experimentStatus": "ZERO_PERCENTAGE",
+        "remainDuration": 0,
+        "experimentDesc": "复贷头部灌券-意愿模型_重开_v3",
+        "bypassFlow": [
+          {
+            "groupType": "CONTROL_GROUP",
+            "percentage": 0
+          },
+          {
+            "groupType": "EXPERIMENTAL_GROUP",
+            "percentage": 0
+          },
+          {
+            "groupType": "EXPERIMENTAL_GROUP",
+            "percentage": 0
+          },
+          {
+            "groupType": "EXPERIMENTAL_GROUP",
+            "percentage": 0
+          },
+          {
+            "groupType": "CONTROL_GROUP",
+            "percentage": 0
+          },
+          {
+            "groupType": "BLANK_GROUP",
+            "percentage": 100
+          }
+        ]
+      }
+    },
+    "technology-auth-abroad-loan-superbank_rename_0908": {
+      "name": "technology-auth-abroad-loan-superbank_rename_0908",
+      "experiment_id": 11760,
+      "status": "FULL_PERCENTAGE",
+      "remain_days": 0.0,
+      "control_pct": 0.0,
+      "experiment_pct": 100.0,
+      "blank_pct": 0.0,
+      "desc": "【鉴权】superbank改名&排位",
+      "raw": {
+        "id": 11760,
+        "name": "technology-auth-abroad-loan-superbank_rename_0908",
+        "experimentStatus": "FULL_PERCENTAGE",
+        "remainDuration": 0,
+        "experimentDesc": "【鉴权】superbank改名&排位",
+        "bypassFlow": [
+          {
+            "groupType": "CONTROL_GROUP",
+            "percentage": 0,
+            "data": "FALSE"
+          },
+          {
+            "groupType": "EXPERIMENTAL_GROUP",
+            "percentage": 100,
+            "data": "TRUE"
+          },
+          {
+            "groupType": "BLANK_GROUP",
+            "percentage": 0
+          }
+        ]
+      }
+    }
+  }
+}

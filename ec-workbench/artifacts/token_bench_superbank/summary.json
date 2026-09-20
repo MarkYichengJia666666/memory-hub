@@ -1,0 +1,26 @@
+[
+  {
+    "name": "graph_api_payload",
+    "chars": 1352,
+    "utf8_bytes": 1352,
+    "tokens": 354,
+    "wall_s": 0.04635049999999907,
+    "tok_method": "tiktoken cl100k_base (实测编码)"
+  },
+  {
+    "name": "naive_grep_plus_full_reads",
+    "chars": 164810,
+    "utf8_bytes": 171322,
+    "tokens": 41108,
+    "wall_s": 2.510459291,
+    "tok_method": "tiktoken cl100k_base (实测编码)"
+  },
+  {
+    "name": "narrow_grep_plus_windows",
+    "chars": 20702,
+    "utf8_bytes": 21050,
+    "tokens": 5746,
+    "wall_s": null,
+    "tok_method": "tiktoken cl100k_base (实测编码)"
+  }
+]

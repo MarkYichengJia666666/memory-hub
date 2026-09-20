@@ -1,0 +1,42 @@
+{
+  "arm": "naive",
+  "knife": "explore",
+  "wall_seconds": 67,
+  "agent": "f87e22fa-15c3-4758-b0a9-9f5ac172a40c",
+  "reads": [
+    {"path": "ec-api/src/main/java/com/miyou/controllers/realtimeevent/RealTimeEventController.java", "start": 1, "end": 295},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/app/AppStartupService.java", "start": 1, "end": 109},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/kafka/consumer/processor/AppStartUpGrantCouponProcessor.java", "start": 1, "end": 133},
+    {"path": "wiki/coupon/festival-anti-settlement-boost-flow.md", "start": 1, "end": 65},
+    {"path": "wiki/app-perspective/homepage/splash-screen-delivery-flow.md", "start": 1, "end": 77},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java", "start": 330, "end": 579},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java", "start": 550, "end": 799},
+    {"path": "ec-api/src/main/java/com/miyou/controllers/app/AppController.java", "start": 1, "end": 50},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java", "start": 930, "end": 1009},
+    {"path": "ec-api/src/main/java/com/miyou/controllers/splashscreen/SplashScreenController.java", "start": 1, "end": 97},
+    {"path": "ec-api/src/main/java/com/miyou/controllers/cashloan/utilities/LoanHomePageLogService.java", "start": 1, "end": 80},
+    {"path": "wiki/coupon/t0-risk-accept-delay-grant-flow.md", "start": 1, "end": 92},
+    {"path": "wiki/coupon/INDEX.md", "start": 1, "end": 26},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/kafka/consumer/context/AppStartUpGrantCouponConsumerGroupContext.java", "start": 1, "end": 32},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/kafka/KafkaTopic.java", "start": 78, "end": 127},
+    {"path": "wiki/coupon/first-loan-erank-offline-grant-flow.md", "start": 1, "end": 40},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/loan/coupon/LoanUserCouponService.java", "start": 1545, "end": 1574},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/kafka/consumer/processor/AppStartupAtLeastOnceEventProcessor.java", "start": 1, "end": 160},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/coupongrantrule/CouponGrantService.java", "start": 1, "end": 40},
+    {"path": "ec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java", "start": 170, "end": 249}
+  ],
+  "mouths": [
+    {"id": "http-splash", "text": "GET /api/splashScreen（SplashScreenController）只拉开屏页，不发降息券", "tag": "grep"},
+    {"id": "http-openApp", "text": "POST /api/realTimeEvent/openApp（RealTimeEventController）开 App 主入口，投递 Kafka，不在此发券", "tag": "grep"},
+    {"id": "http-startup", "text": "POST /api/app/startup（AppController）登录用户冷热启动，同样 processAppStartupEvent", "tag": "grep"},
+    {"id": "http-home-indirect", "text": "首页 /api/v5/cashloan/home 经 LoanHomePageLogService 间接触发 processAppStartupEvent", "tag": "grep"},
+    {"id": "kafka-produce", "text": "AppStartupService.sendAppStartupEvent 写 topic app_startup_at_least_once_event", "tag": "grep"},
+    {"id": "kafka-processor", "text": "AppStartUpGrantCouponProcessor 消费后调 grantCutInterestCouponForOpenApp 才发降息券", "tag": "grep"},
+    {"id": "kafka-other-consumer", "text": "AppStartupAtLeastOnceEventProcessor 同 topic，不发降息券", "tag": "grep"},
+    {"id": "grant-orchestrator", "text": "OpenAppGrantCouponService.grantCutInterestCouponForOpenApp 编排首贷/复贷发券", "tag": "grep"},
+    {"id": "grant-persist", "text": "复贷 CouponGrantService.grantCouponByRuleId；首贷 LoanUserCouponService.grantCouponOrGetExist", "tag": "grep"},
+    {"id": "internal-api-none", "text": "ec-internal-api 无 openApp / OpenAppGrantCoupon / splashScreen 入口", "tag": "grep"},
+    {"id": "job-t0-not-open-app", "text": "T0RiskAcceptDelayGrantCouponJob 是风控过件 T0 延迟发券，非开屏入口", "tag": "grep"}
+  ],
+  "notes": "开屏发降息券指开 App 回端灌券，不是 GET /api/splashScreen。HTTP 入口是 /api/realTimeEvent/openApp、/api/app/startup 及首页间接，统一经 AppStartupService 写 Kafka。真正发券只在 AppStartUpGrantCouponProcessor → grantCutInterestCouponForOpenApp。ec-internal-api 无入口；无开屏专用 Job。reads 按 transcript 实际 Read 记，不是交上来的精简行号。"
+}

@@ -1,0 +1,42 @@
+{
+  "ran_at": "2026-09-09",
+  "prompt": "帮我看看 ExperimentNameSpace#SUPERBANK_CHANNEL_USER_BINDING_CARD 还有没有用，没用给删了",
+  "agents": {
+    "nograph": "749de450-3261-4108-b9ae-e66f62d6ddab",
+    "withgraph": "0290c3d0-ca96-451f-9cdc-3ae4098a70f2"
+  },
+  "graph_id": "cg-zp42c34n",
+  "conclusion_both": "FULL_PERCENTAGE，不能直接删；应固化后删门闸",
+  "method": "tiktoken cl100k_base；按本次 Agent 材料清单复现工具回包；MCP 两边同开销另计；不含系统提示与模型输出",
+  "rows": [
+    {
+      "name": "无图·工具回包(代码探索)",
+      "tokens": 11528,
+      "chars": 43047
+    },
+    {
+      "name": "有图·工具回包(图+窄读)",
+      "tokens": 3038,
+      "chars": 11241
+    },
+    {
+      "name": "实验 MCP（两边共享，另计）",
+      "tokens": 109,
+      "chars": 370
+    },
+    {
+      "name": "无图+MCP",
+      "tokens": 11637,
+      "chars": 43417
+    },
+    {
+      "name": "有图+MCP",
+      "tokens": 3147,
+      "chars": 11611
+    }
+  ],
+  "delta_withgraph_vs_nograph_code_only": {
+    "saved_tokens": 8490,
+    "saved_pct": 73.6
+  }
+}

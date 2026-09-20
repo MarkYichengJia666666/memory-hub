@@ -1,0 +1,15 @@
+{
+  "arm": "graph",
+  "knife": "tasks",
+  "wall_seconds": 37,
+  "agent": "e763e9e0-4140-47da-bf6f-9e2093aad51e",
+  "reads": [],
+  "mouths": [
+    {"id": "http-openApp", "text": "RealTimeEventController.openApp（POST /api/realTimeEvent/openApp）：两张 C 端嘴之一，只投 Kafka，改发放链必须点名", "tag": "explore"},
+    {"id": "http-startup", "text": "AppController.startup（POST /api/app/startup）：另一张 C 端嘴，同样只投 Kafka，必须与 openApp 并列点名", "tag": "explore"},
+    {"id": "kafka-consumer-pool", "text": "ec-kafka-consumer ConsumerPoolService.run：消费进程入口，后续才到本链 Processor", "tag": "explore"},
+    {"id": "kafka-wiring", "text": "kafka.topic_config：run → getProcessorClass → 反射 new Processor，图上无边，不点名会静默不消费", "tag": "explore"},
+    {"id": "kafka-processor", "text": "AppStartUpGrantCouponProcessor.processRecord：真正发券入口，唯一接到 grantCutInterestCouponForOpenApp", "tag": "explore"}
+  ],
+  "notes": "开屏降息只有上述两张 C 端嘴，都只投 Kafka；真正发券在 processRecord。消费拉起靠 topic_config + 反射，必须点名。不要把 openApp/{platform}、buildOpenAppGrantCouponParam、couponGrantRule/grantCoupon*、checkStrategy、CouponTaskGrantJob 写成入口。"
+}

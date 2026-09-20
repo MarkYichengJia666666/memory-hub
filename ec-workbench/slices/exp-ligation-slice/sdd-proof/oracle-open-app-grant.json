@@ -1,0 +1,41 @@
+{
+  "ticket": "开屏发券",
+  "question": "开屏要发降息券时，请求从哪进来、真正发券在哪、还有没有 Job / internal-api / Kafka？",
+  "must_find": [
+    {
+      "id": "http-openApp",
+      "label": "C 端 POST /api/realTimeEvent/openApp",
+      "needles": ["RealTimeEventController", "/api/realTimeEvent/openApp"]
+    },
+    {
+      "id": "http-startup",
+      "label": "C 端 POST /api/app/startup（发启动事件，不是在这里发券）",
+      "needles": ["AppController", "/api/app/startup"]
+    },
+    {
+      "id": "kafka-processor",
+      "label": "Kafka AppStartUpGrantCouponProcessor.processRecord 才发券",
+      "needles": ["AppStartUpGrantCouponProcessor", "grantCutInterestCouponForOpenApp"]
+    }
+  ],
+  "must_tag_stitch": [
+    {
+      "id": "kafka-wiring",
+      "label": "ConsumerPoolService 靠 topic_config + 反射拉起 Processor",
+      "if_needles": ["ConsumerPoolService", "topic_config", "getProcessorClass"],
+      "required_tag": "手工"
+    }
+  ],
+  "must_not_claim": [
+    {
+      "id": "not-job",
+      "label": "开屏发券没有 *Job",
+      "forbidden_needles": ["CouponTaskGrantJob"]
+    }
+  ],
+  "notes": [
+    "buildOpenAppGrantCouponParam 只组参。",
+    "publishSystemEvent 去 MC，不是这根 Kafka。",
+    "图上没有 cron / topic_config 边。"
+  ]
+}

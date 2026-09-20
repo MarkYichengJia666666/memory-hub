@@ -1,0 +1,11 @@
+# 云机 / 内网机示例：每天 10:00 体检（只出报告，不提 diff）
+# 先保证能访问 Memory Hub CodeGraph，以及 experiment_cache 已由流水线刷新
+
+SHELL=/bin/bash
+PATH=/usr/local/bin:/usr/bin:/bin
+CAP=/Users/lipeng/IdeaProjects/exp-ligation-slice/tools/capillary
+
+# 0 10 * * * cd $CAP && /usr/bin/python3 run_scan.py >> logs/cron.log 2>&1
+
+# 刷新实验：若公司有 HTTP，在此加 refresh；否则用 CI/人工写入 state/experiment_cache.json
+# 0 9 * * * cd $CAP && /usr/bin/python3 refresh_experiments.py --from-json state/experiment_live.json

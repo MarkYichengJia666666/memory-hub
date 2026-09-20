@@ -1,0 +1,35 @@
+### search:SUPERBANK_CHANNEL_USER_BINDING_CARD
+**Search Results (1 found)**
+
+**SUPERBANK_CHANNEL_USER_BINDING_CARD** (enum_member)
+ec-core/src/main/java/com/yqg/core/service/abtest/enums/ExperimentNameSpace.java:1366
+
+
+### callers:SUPERBANK_CHANNEL_USER_BINDING_CARD
+No callers found for "SUPERBANK_CHANNEL_USER_BINDING_CARD"
+
+### search:isInSuperBankBindCardExperiment
+**Search Results (1 found)**
+
+**isInSuperBankBindCardExperiment** (method)
+ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:1033
+`boolean (Long userId, Long build)`
+
+
+### callers:isInSuperBankBindCardExperiment
+**Callers of isInSuperBankBindCardExperiment (1 found)**
+
+- keepOnlySuperBankIfInExperiment (method) - ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:986
+
+### search:keepOnlySuperBankIfInExperiment
+**Search Results (1 found)**
+
+**keepOnlySuperBankIfInExperiment** (method)
+ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:986
+`List<BankConfigVO> (List<BankConfigVO> banks, Long userId, Long build, String deviceId)`
+
+
+### callers:keepOnlySuperBankIfInExperiment
+**Callers of keepOnlySuperBankIfInExperiment (1 found)**
+
+- getIdnSupportedBankListWithLogo (method) - ec-api/src/main/java/com/miyou/controllers/cashloan/LoanBankAccountController.java:349

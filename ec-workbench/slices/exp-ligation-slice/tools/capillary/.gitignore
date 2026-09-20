@@ -1,0 +1,7 @@
+reports/
+state/experiment_cache.json
+state/experiment_live.json
+logs/
+__pycache__/
+capillary/__pycache__/
+*.pyc

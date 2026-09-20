@@ -1,0 +1,451 @@
+### GREP SUPERBANK_CHANNEL_USER_BINDING_CARD
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:1035:        ExperimentNameSpace.SUPERBANK_CHANNEL_USER_BINDING_CARD, userId);
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/abtest/enums/ExperimentNameSpace.java:1366:  SUPERBANK_CHANNEL_USER_BINDING_CARD("Superbank渠道用户绑卡",
+
+
+### GREP isInSuperBankBindCardExperiment|superbank_rename_0908
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:998:    if (!isInSuperBankBindCardExperiment(userId, build)) {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:1033:  private boolean isInSuperBankBindCardExperiment(Long userId, Long build) {
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:1036:    String abTestResult = expFacade.fetchResultFallBackWithDefaultScene("technology-auth-abroad-loan-superbank_rename_0908", ExpFacade.ClientType.DIVERSION, request, build);
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/abtest/ABTestConfig.java:285:      .put("technology-auth-abroad-loan-superbank_rename_0908", Range.closed(36900L, 99999L))
+
+
+### GREP keepOnlySuperBankIfInExperiment
+/Users/lipeng/IdeaProjects/ec/ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:986:  public List<BankConfigVO> keepOnlySuperBankIfInExperiment(List<BankConfigVO> banks, Long userId, Long build, String deviceId) {
+/Users/lipeng/IdeaProjects/ec/ec-api/src/main/java/com/miyou/controllers/cashloan/LoanBankAccountController.java:359:    bankList = loanBankAccountService.keepOnlySuperBankIfInExperiment(bankList,viewerContext.userId,viewerContext.build,viewerContext.deviceToken);
+
+
+### READ ec-core/src/main/java/com/yqg/core/service/abtest/enums/ExperimentNameSpace.java:1360-1399
+  LOAN_180_DAYS_REAPPLY(
+      "首贷180+被拒重审",
+      () -> ImmutableSet.of(CommonABTestResultGroup.A.name(), CommonABTestResultGroup.B.name()),
+      CommonABTestResultGroup.A.name(),
+      DiversionKeyType.USER_ID, 0L, Long.MAX_VALUE),
+
+  SUPERBANK_CHANNEL_USER_BINDING_CARD("Superbank渠道用户绑卡",
+      () -> ImmutableSet.of(BooleanType.TRUE.name(), BooleanType.FALSE.name()),
+      BooleanType.FALSE.name(),
+      DiversionKeyType.USER_ID,
+      36900L,
+      Long.MAX_VALUE),
+  EC_PLUS_BUTTON("中收会员button",
+      () -> ImmutableSet.of("A", "B"),
+      "A",
+      DiversionKeyType.USER_ID,
+      36900L,
+      Long.MAX_VALUE),
+  REGISTER_LOGIN_RESOURCE_V3_FOR_REGISTER(
+      "注册登录页-营销利益点v3-注册",
+      () -> ImmutableSet.of("A2", "C1", "C2"),
+      "A2",
+      DiversionKeyType.DEVICE_TOKEN, 37900L, Long.MAX_VALUE),
+  REGISTER_LOGIN_RESOURCE_V3_FOR_LOGIN(
+      "注册登录页-营销利益点v3-登录",
+      () -> ImmutableSet.of("A2", "C1", "C2"),
+      "A2",
+      DiversionKeyType.DEVICE_TOKEN, 37900L, Long.MAX_VALUE),
+  BIND_CARD_DELAY("绑卡后置实验",
+      () -> Arrays.stream(BindCardDelayGroup.values()).map(Enum::name).collect(Collectors.toSet()),
+      BindCardDelayGroup.CONTROL_GROUP.name(),
+      DiversionKeyType.USER_ID,
+      37900L,
+      Long.MAX_VALUE),
+  REGISTER_LOGIN_RETAIN_DIALOG_V2("注册登录挽留弹窗实验v2",
+      () -> ImmutableSet.of("D", "E", "F"),
+      "D",
+      DiversionKeyType.DEVICE_TOKEN,
+      37400L,
+      Long.MAX_VALUE),
+
+### READ ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java:940-1041
+   * @return
+   */
+  public List<BankConfigVO> getSupportedBankVOListEWallet(SDKType sdkType) {
+    List<BankType> bankTypeList = getSupportedChannelList(sdkType, true);
+    return this.sortBankAndConvers(bankTypeList, sdkType);
+  }
+
+  public List<BankConfigVO> sortBankAndConvers(List<BankType> bankTypeList, SDKType sdkType) {
+    bankTypeList = sortBank(bankTypeList, bankConfig.getDisplayRule(sdkType));
+    if (CollectionUtils.isEmpty(bankTypeList)) {
+      throw EcException.error("can't find bind_card_config for sdk: " + sdkType);
+    }
+    Map<String, BankConfigVO> bankConfigVOMap = bankConfigService.getBankVoMap(Sets.newHashSet(bankTypeList), sdkType);
+
+    List<BankConfigVO> voList = Lists.newArrayList();
+    for (BankType type : bankTypeList) {
+      BankConfigVO vo = bankConfigVOMap.get(type.name());
+      if (vo == null) {
+        log.error("can't find bank config. bank_type:{}", type);
+        continue;
+      }
+      voList.add(vo);
+    }
+    return voList;
+  }
+
+  public List<BankConfigVO> filterBankTypeByABTest(List<BankConfigVO> bankList, Long userId) {
+    if (CollectionUtils.isEmpty(bankList)) {
+      return bankList;
+    }
+    //如果在白名单内，直接返回
+    if (loanBankConfig.getFilterBankTypeWhiteUserId().contains(userId)) {
+      return bankList;
+    }
+    Boolean needFilter = Boolean.valueOf(
+        expFacade.fetchResult(ABTestSceneType.USER_BIND_BANK_CARD_FILTER, ABTestUtil.genDiversionKeyMapByUserId(userId), "TRUE"));
+    if (needFilter) {
+      List<BankType> filterBankType = loanBankConfig.getFilterBankType();
+      bankList = bankList.stream().filter(e -> !filterBankType.contains(e.getBankType())).collect(Collectors.toList());
+    }
+    return bankList;
+  }
+
+  /**
+   * 命中"SuperBank渠道绑卡"实验组（B组）时，仅保留 SuperBank。
+   */
+  public List<BankConfigVO> keepOnlySuperBankIfInExperiment(List<BankConfigVO> banks, Long userId, Long build, String deviceId) {
+    // 基础参数校验
+    if (CollectionUtils.isEmpty(banks) || Objects.isNull(userId) || Objects.isNull(build) || Objects.isNull(deviceId)) {
+      return banks;
+    }
+
+    // 获取广告来源并校验
+    String mediaSource = getMediaSourceByDeviceId(deviceId);
+    if (Objects.isNull(mediaSource) || !isValidMediaSource(mediaSource)) {
+      return banks;
+    }
+
+    if (!isInSuperBankBindCardExperiment(userId, build)) {
+      return banks;
+    }
+
+    List<BankConfigVO> list = banks.stream()
+        .filter(Objects::nonNull)
+        .filter(b -> b.getBankType() == BankType.FAMA)
+        .collect(Collectors.toList());
+
+    if (CollectionUtils.isEmpty(list)) {
+      return banks;
+    }
+
+    return list;
+  }
+
+  private String getMediaSourceByDeviceId(String deviceId) {
+    try {
+      AdsResponse<AppsflyerResultVO> adsResponse = adsAppsflyerService.getAppsflyerMediaSourceByDeviceId(deviceId);
+      if (adsResponse == null || adsResponse.body == null) {
+        log.warn("Failed to get media source from Appsflyer, deviceId: {}", deviceId);
+        return null;
+      }
+      return adsResponse.body.getMediaSource();
+    } catch (Exception e) {
+      log.error("Error getting media source from Appsflyer", e);
+      return null;
+    }
+  }
+
+  private boolean isValidMediaSource(String mediaSource) {
+    List<String> filterMediaSourceList = loanBankConfig.getFilterBankTypeMediaSourceAllowList();
+    return !CollectionUtils.isEmpty(filterMediaSourceList) && filterMediaSourceList.contains(mediaSource);
+  }
+
+  private boolean isInSuperBankBindCardExperiment(Long userId, Long build) {
+    ABTestUserIdRequestVO request = ABTestUserIdRequestVO.from(
+        ExperimentNameSpace.SUPERBANK_CHANNEL_USER_BINDING_CARD, userId);
+    String abTestResult = expFacade.fetchResultFallBackWithDefaultScene("technology-auth-abroad-loan-superbank_rename_0908", ExpFacade.ClientType.DIVERSION, request, build);
+    if (StringUtils.isEmpty(abTestResult)) {
+      return false;
+    }
+    return Boolean.parseBoolean(abTestResult);
+  }
+
+### READ ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankConfig.java:1-55
+package com.yqg.core.service.loan.bankaccount;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.yqg.core.model.sql.bankaccount.enums.BankType;
+import com.yqg.core.service.bankconfig.vo.BankAttributeVO;
+import com.yqg.core.service.config.TestWhiteListConfig;
+import com.yqg.core.service.loan.bankaccount.enums.VerifyEWalletAccountMethod;
+import com.yqg.core.service.loan.infos.BindBankInitWritingInfo;
+import com.yqg.ec.common.configuration.Conf;
+import com.yqg.ec.common.configuration.ISiteVars;
+import com.yqg.ec.common.enums.SDKType;
+import com.yqg.ec.common.serialization.JsonUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import java.util.*;
+import java.util.stream.Collectors;
+
+/**
+ * @author yuchenghuang
+ * @date 2021/12/20
+ */
+@Component
+public class LoanBankConfig {
+  @Autowired
+  private ISiteVars ecSiteVars;
+
+  @Autowired
+  private TestWhiteListConfig testWhiteListConfig;
+
+  private static final String UNSUPPORTED_VALIDATION_SDK_TYPE = "LOAN_BANK.UNSUPPORTED_VALIDATION_SDK_TYPE";
+  private static final String LOAN_BANK_DISPLAY_RULE_FOR_NEW_AUTH = "LOAN_BANK.DISPLAY_RULE_FOR_NEW_AUTH";
+  private static final String FINANCING_BANK_DISPLAY_RULE = "LOAN_BANK.FINANCING.DISPLAY_RULE";
+  private static final String LOAN_BANK_NEED_CHECK_NAME_MATCH = "LOAN_BANK.NEED_CHECK_NAME_MATCH";
+  private static final String VERIFY_GO_PAY_ACCOUNT_METHOD = "LOAN_BANK.VERIFY_GO_PAY_ACCOUNT_METHOD";
+  private static final String NAME_MATCH_SIMILAR_MIN_SCORE = "LOAN_BANK.NAME_MATCH_SIMILAR_MIN_SCORE";
+  private static final String LOAN_BANK_UNSUPPORTED_BANK = "LOAN_BANK.UNSUPPORTED_BANK";
+  private static final String LOAN_BANK_ILLEGAL_EWALLET_BANK_TYPE = "LOAN_BANK.ILLEGAL_EWALLET_BANK_TYPE";
+  private static final String LOAN_BANK_LEGAL_EWALLET_BANK_TYPE = "LOAN_BANK.LEGAL_EWALLET_BANK_TYPE";
+  private static final String ADD_BANK_ACCOUNT_MAX_NOT_MATCH_TIMES = "LOAN_BANK.ADD_BANK_ACCOUNT_MAX_NOT_MATCH_TIMES";
+  private static final String ADD_BANK_ACCOUNT_PERIOD_SECONDS = "LOAN_BANK.ADD_BANK_ACCOUNT_PERIOD_SECONDS";
+  private static final String SUPPORT_MULTIPLE_CHECK_FOR_NON_PROD = "LOAN_BANK.SUPPORT_MULTIPLE_CHECK_FOR_NON_PROD";
+  private static final String SUPPORT_MAX_ACCOUNT_NUMBER_LENGTH = "LOAN_BANK.SUPPORT_MAX_ACCOUNT_NUMBER_LENGTH";
+  private static final String LOAN_ATTRIBUTE_BANK = "LOAN_BANK.ATTRIBUTE_BANK";
+  private static final String LOAN_FILTER_BANK_TYPE = "LOAN_BANK.FILTER_BANK_TYPE";
+  private static final String LOAN_FILTER_BANK_TYPE_WHITE_USERID = "LOAN_BANK.FILTER_BANK_TYPE_WHITE_USERID";
+  private static final String LOAN_EWALLET_FILTER_BANK_TYPE = "LOAN_BANK.EWALLET_FILTER_BANK_TYPE";
+  private static final String BIND_BANK_INIT_TEXT = "LOAN_BANK.BIND_BANK_INIT_TEXT";
+  private static final String BANK_APP_PACKAGE_LIST = "LOAN_BANK.BANK_APP_PACKAGE_LIST";
+  private static final String USE_OLD_BANK_ACCOUNT_PAGE = "LOAN_BANK.USE_OLD_BANK_ACCOUNT_PAGE";
+  private static final String BANK_DISPLAY_SWITCH = "LOAN_BANK.BANK_DISPLAY_SWITCH";
+  private static final String UNSUPPORTED_VALIDATION_USER_ID = "LOAN_BANK.UNSUPPORTED_VALIDATION_USER_ID";
+  private static final String LOAN_FILTER_BANK_TYPE_MEDIA_SOURCE_ALLOWLIST = "LOAN_BANK.FILTER_BANK_TYPE_MEDIA_SOURCE_ALLOWLIST";
+
+### READ ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankConfig.java:180-209
+
+  public Integer getSupportMaxAccountNumberLength(BankType bankType) {
+    return ecSiteVars.getConfVal(SUPPORT_MAX_ACCOUNT_NUMBER_LENGTH, bankType.name(), 50);
+  }
+
+  public List<BankType> getFilterBankType() {
+    String filterBankType = ecSiteVars.getString(LOAN_FILTER_BANK_TYPE, "");
+    if (StringUtils.isBlank(filterBankType)) {
+      return new ArrayList<>();
+    }
+    return Arrays.stream(filterBankType.split(",")).map(BankType::valueOf).collect(Collectors.toList());
+  }
+
+  public List<BankType> getFilterEWalletType() {
+    String filterEWalletType = ecSiteVars.getString(LOAN_EWALLET_FILTER_BANK_TYPE, "");
+    if (StringUtils.isBlank(filterEWalletType)) {
+      return new ArrayList<>();
+    }
+    return Arrays.stream(filterEWalletType.split(",")).map(BankType::valueOf).collect(Collectors.toList());
+  }
+
+  public List<Long> getFilterBankTypeWhiteUserId() {
+    String filterBankType = ecSiteVars.getString(LOAN_FILTER_BANK_TYPE_WHITE_USERID, "");
+    return Arrays.stream(filterBankType.split(",")).filter(StringUtils::isNotBlank).map(Long::valueOf).collect(Collectors.toList());
+  }
+
+  public List<String> getFilterBankTypeMediaSourceAllowList() {
+    String filterMediaSource = ecSiteVars.getString(LOAN_FILTER_BANK_TYPE_MEDIA_SOURCE_ALLOWLIST, "");
+    return Arrays.stream(filterMediaSource.split(",")).filter(StringUtils::isNotBlank).collect(Collectors.toList());
+  }
+
+### READ ec-core/src/main/java/com/yqg/core/service/abtest/ABTestConfig.java:270-299
+      .put(ExperimentKeyConstants.BANK_CARD_UNIQUE_KEY_WITH_BANK_CODE, Range.closed(0L, 99999L))
+      .put("bill_normal_26h1-before_overdue-abroad-loan_all-repaymentchannel_QRIS", Range.closed(38230L, 99999L))
+      .put(UserFlowExperimentEnum.RELOAN_REPAY_PLAN_GRANT_COUPON_V2.getKey(), Range.closed(37300L, 99999L))
+      .put(UserFlowExperimentEnum.TENURE_UPGRADE_BANNER.getKey(), Range.closed(37300L, 99999L))
+      .put(UserFlowExperimentEnum.RETAIN_POPUP_BOOST.getKey(), Range.closed(37300L, 99999L))
+      .put(UserFlowExperimentEnum.RETAIN_POPUP_BOOST_COUPON_STRATEGY.getKey(), Range.closed(37300L, 99999L))
+      .put("technology-register-abroad-loan_all-loginpage_h5_0820", Range.closed(37700L, 99999L))
+      .put("risk_decision_userid-auth-abroad-loan-init_usertype_source", Range.closed(0L, 99999L))
+      .put("risk_decision_userid-not_withdraw-abroad-risk_decision-credits_limitrules_test", Range.closed(0L, 99999L))
+      .put("product_operation_bill_normal-repayment-abroad-loan_all-REPAY_CHANNEL_SORT_NORMAL", Range.closed(38000L, 99999L))
+      .put("product_operation_bill_overdue-after_overdue-abroad-loan_all-REPAY_CHANNEL_SORT_OVERDUE_copy", Range.closed(38000L, 99999L))
+      .put("product_operation_bill-repayment-abroad-loan_all-repaymentchanneldananormal", Range.closed(35300L, 99999L))
+      .put("product_operation_bill-repayment-abroad-loan_all-repaymentchanneldanaoverdue", Range.closed(35300L, 99999L))
+      .put("technology-repayment-abroad-loan_all-BillpagetoH5_reopen", Range.closed(0L, 99999L))
+      .put("technology-repayment-abroad-loan_all-BillpagetoH5overdue_reopen", Range.closed(0L, 99999L))
+      .put("technology-auth-abroad-loan-superbank_rename_0908", Range.closed(36900L, 99999L))
+      .put("technology-auth-abroad-loan-ktpocr_failure_0901", Range.closed(37113L, 99999L))
+      .put("technology-auth-abroad-loan-MOTHER_LAST_NAME_CHECK_RULE_KTP_CONFIRM_PAGE_PRO", Range.closed(0L, 99999L))
+      .put("technology-not_withdraw-abroad-loan_all-MOTHER_LAST_NAME_CHECK_RULE_ORDER_SUPPLEMENT_PAGE_PRO", Range.closed(0L, 99999L))
+      .put("product_operation_order-not_withdraw-abroad-loan_all-marketing_coupons_0814", Range.closed(36900L, 99999L))
+      .put("product_operation_order-lending-abroad-loan_all-QUICK_ORDER_LOAN_H5_0721", Range.closed(0L, 99999L))
+      .put("product_operation_order-lending-abroad-loan_all-back_Quick_ordering_V3", Range.closed(0L, 99999L))
+      .put("product_operation_order-not_withdraw-abroad-loan-T0_amount_0805", Range.closed(36900L, 99999L))
+      .put("product_operation_order-edit_user-abroad-loan_all-add_wa_popup_0903", Range.closed(0L, 99999L))
+      .put("product_operation_order-edit_user-abroad-loan_all-add_wa_page_0903", Range.closed(0L, 99999L))
+      .put("product_operation_order-lending-abroad-loan_all-CREDIT_USAGE_RATE_EXPERIMENT", Range.closed(0L, 99999L))
+      .put("long_nik-install-abroad-idle_event-Gold_new_test_0616", Range.closed(0L, 99999L))
+      .put("long_nik-install-abroad-idle_event-gold_popup_V2_new", Range.closed(0L, 99999L))
+      .put("pretii-other-abroad-loan_all-GOLDEN_CARD_CAN_BORROW_STYLE", Range.closed(36899L, 99999L))
+      .put("pretii-other-abroad-loan_all-CreditReport_V1", Range.closed(0L, 99999L))
+
+### READ ec-api/src/main/java/com/miyou/controllers/cashloan/LoanBankAccountController.java:300-388
+        viewerContext.build,
+        TongDunNodeTriggerParam.from(viewerContext));
+
+    return EcResponseUtil.generate(BankCardCredentialResponse.from(bindCardResultVO, true, viewerContext.build));
+  }
+
+  private void checkForBindCard(UploadBankCardWithIdInfo request, LoanApiViewerContext viewerContext) {
+    userSecureService.skipFaceComparisonIfUnavailable(userContextFactory.createUserContextForLogin(ecRequest(), MODIFY_BANK_CARD_INFO, LIVING_INFO));
+    verificationService.checkMobileVerificationCode(viewerContext.normalizedMobileNumber, request.verifyCode, VerificationPurposeType.BANK, viewerContext.sdkType);
+
+    SecureCheckUserContext userContext = userContextFactory.createUserContextForLogin(ecRequest(), MODIFY_BANK_CARD_INFO, SMS_CODE);
+    userSecureService.finishAspect(userContext);
+    userSecureService.isSecureCheckFinishedForOldVersion(userContext, Collections.singletonList(SecureCheckAspect.SMS_CODE));
+
+    userService.checkIdentityNumberByNormalizedMobileNumber(viewerContext.normalizedMobileNumber,
+        request.identityNumber,
+        request.documentType,
+        viewerContext.sdkType);
+  }
+
+  @GetMapping(path = "/api/v2/cashloan/addBankAccountNotMatchStrategy")
+  @ResponseBody
+  @ECSecuredApi
+  public Result getAddBankAccountNotMatchStrategy() {
+    AddBankAccountNotMatchStrategy strategy = loanBankAccountService.getAddBankAccountNotMatchStrategy();
+    return EcResponseUtil.generate(AddBankAccountNotMatchStrategyResponse.from(strategy));
+  }
+
+  @GetMapping(path = "/api/cashloan/getSupportedBankV2")
+  @ResponseBody
+  @ECSecuredApi
+  public Result getSupportedBankListWithLogo() {
+    LoanApiViewerContext viewerContext = getViewerContextFromRequest();
+    if (viewerContext.sdkType == null) {
+      throw EcException.error("sdk is null");
+    }
+    List<BankConfigVO> bankList = loanBankAccountService.getSupportedBankVOListALL(viewerContext.sdkType);
+    bankList = loanBankAccountService.filterBankTypeByABTest(bankList, viewerContext.userId);
+
+    Map<BankType, BankAttributeVO> bankTypeToBankAttributeVOMap = bankConfig.getBankAttributeVOMap();
+    SupportedBankListResponse response = SupportedBankListResponse.from(
+        viewerContext.sdkType,
+        cashLoanConfig.getCommonBanksNumbers(viewerContext.sdkType),
+        bankList,
+        bankTypeToBankAttributeVOMap,
+        true);
+    return EcResponseUtil.generate(response);
+  }
+
+  @GetMapping(path = "/api/idn/cashloan/getSupportedBank")
+  @ResponseBody
+  @ECSecuredApi
+  public Result getIdnSupportedBankListWithLogo() {
+    LoanApiViewerContext viewerContext = getViewerContextFromRequest();
+    if (viewerContext.sdkType == null) {
+      throw EcException.error("sdk is null");
+    }
+    List<BankConfigVO> bankList = loanBankAccountService.getSupportedBankVOList(viewerContext.sdkType);
+    Map<BankType, BankAttributeVO> bankTypeToBankAttributeVOMap = bankConfig.getBankAttributeVOMap();
+    bankList = loanBankAccountService.keepOnlySuperBankIfInExperiment(bankList,viewerContext.userId,viewerContext.build,viewerContext.deviceToken);
+    bankTypeToBankAttributeVOMap = loanBankAccountService.clearPopWindowTextIfInExperiment(bankTypeToBankAttributeVOMap, viewerContext.userId, viewerContext.build, viewerContext.sourceType, viewerContext.loanAccountId);
+    SupportedBankListResponse response = SupportedBankListResponse.from(
+        viewerContext.sdkType,
+        cashLoanConfig.getCommonBanksNumbers(viewerContext.sdkType),
+        bankList,
+        bankTypeToBankAttributeVOMap,
+        true);
+    return EcResponseUtil.generate(response);
+  }
+
+  @GetMapping(path = "/api/idn/cashloan/getSupportedEwallet")
+  @ResponseBody
+  @ECSecuredApi
+  public Result getIdnSupportedEwalletListWithLogo() {
+    LoanApiViewerContext viewerContext = getViewerContextFromRequest();
+    if (viewerContext.sdkType == null) {
+      throw EcException.error("sdk is null");
+    }
+    List<BankConfigVO> bankList = loanBankAccountService.getSupportedBankVOListEWallet(viewerContext.sdkType);
+    if (viewerContext.sdkType.isIdnSDKType()) {
+      bankList = loanBankAccountService.filterEWalletTypeByABTest(bankList, viewerContext.userId);
+    }
+    Map<BankType, BankAttributeVO> bankTypeToBankAttributeVOMap = bankConfig.getBankAttributeVOMap();
+    SupportedBankListResponse response = SupportedBankListResponse.from(
+        viewerContext.sdkType,
+        cashLoanConfig.getCommonBanksNumbers(viewerContext.sdkType),
+        bankList,
+        bankTypeToBankAttributeVOMap,
+        false);
+
+### READ ec-core/src/main/java/com/yqg/core/model/sql/bankaccount/enums/BankType.java:170-184
+  BPD_L("BPD Lampung"),
+  ARTOS("Bank Jago"),
+  ARTHA("Bank Artha Graha International"),
+  /**
+   * 20250827改名为SuperBank，保留原有枚举，只改前端显示文案
+   */
+  FAMA("Super Bank Indonesia"),
+  MAYORA("Bank Mayora"),
+  MIZUHO("Bank Mizuho Indonesia"),
+  BOAM("Bank of America Merill-Lynch"),
+  TOKYO("Bank of Tokyo Mitsubishi UFJ"),
+  RESONA("Bank Resona Perdania"),
+  ROYAL("Bank Digital BCA"),
+  WINDU("Bank Windu Kentjana Int"),
+  MITSUI("Bank Sumitomo Mitsui Indonesia"),
+
+### READ ec-core/src/main/java/com/yqg/core/service/general/pageconfig/filterstrategy/enums/BooleanType.java:1-30
+package com.yqg.core.service.general.pageconfig.filterstrategy.enums;
+
+import com.yqg.common.spring.util.enums.DescriptionBaseEnum;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
+public enum BooleanType implements DescriptionBaseEnum {
+
+  TRUE("true", Boolean.TRUE),
+  FALSE("false", Boolean.FALSE),;
+
+  public final String desc;
+  private final Boolean value;
+
+  @Override
+  public String getDescription() {
+    return this.desc;
+  }
+
+}
+
+### READ ec-core/src/main/java/com/yqg/core/service/abtest/ExpFacade.java:37-70
+  public String fetchResultFallBackWithDefaultScene(String expKey, ClientType clientType, ABTestBaseRequestVO abTestBaseRequestVO,
+      Long build, ExperimentNameSpace... parentNameSpaces) {
+    String res = dryRun(expKey, clientType, abTestBaseRequestVO, build, ImpliedContextUtils.sourceType());
+    if (ExperimentPlatformResultVO.hitBlankGroup(res)) {
+      return abTestBaseRequestVO.experimentNameSpace.defaultScene;
+    }
+    return res;
+  }
+
+  public String fetchResultFallBackWithDefaultScene(String expKey, ClientType clientType, ABTestBaseRequestVO abTestBaseRequestVO) {
+    String res = dryRun(expKey, clientType, abTestBaseRequestVO, ImpliedContextUtils.build(), ImpliedContextUtils.sourceType());
+    if (ExperimentPlatformResultVO.hitBlankGroup(res)) {
+      return abTestBaseRequestVO.experimentNameSpace.defaultScene;
+    }
+    return res;
+  }
+
+  public String fetchResultFallBackWithDefaultSceneWithBuildAndSourceType(String expKey, ClientType clientType,
+      ABTestBaseRequestVO abTestBaseRequestVO, Long build, SourceType sourceType) {
+    String res = dryRun(expKey, clientType, abTestBaseRequestVO, build, sourceType);
+    if (ExperimentPlatformResultVO.hitBlankGroup(res)) {
+      return abTestBaseRequestVO.experimentNameSpace.defaultScene;
+    }
+    return res;
+  }
+
+  public ExperimentPlatformResultVO fetchResultWithGetType(String expKey, ClientType clientType, ABTestBaseRequestVO abTestBaseRequestVO) {
+    String res = dryRun(expKey, clientType, abTestBaseRequestVO, ImpliedContextUtils.build(), ImpliedContextUtils.sourceType());
+    return ExperimentPlatformResultVO.fromSimple(res);
+  }
+
+  public ExperimentPlatformResultVO fetchResult(String expKey, ClientType clientType, ExperimentPlatformClientParam param,
+      ABTestSceneType lane) {
+    String result = dryRun(expKey, clientType, param);

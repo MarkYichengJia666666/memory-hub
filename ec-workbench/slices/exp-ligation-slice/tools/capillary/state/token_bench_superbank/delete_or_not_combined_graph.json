@@ -1,0 +1,13 @@
+{
+  "prompt": "帮我看看 ExperimentNameSpace#SUPERBANK_CHANNEL_USER_BINDING_CARD 还有没有用，没用给删了",
+  "graph_id": "cg-zp42c34n",
+  "method": "tiktoken cl100k_base；复现工具回包；不含系统提示与模型输出；实验 MCP 另计",
+  "conclusion": "FULL_PERCENTAGE，应固化赢家行为，不能整枚举删",
+  "nograph_tool_tokens": 3331,
+  "withgraph_tool_tokens": 1563,
+  "saved_tokens": 1768,
+  "saved_pct": 53.1,
+  "mcp_tokens_both": 61,
+  "with_mcp_nograph": 3392,
+  "with_mcp_withgraph": 1624
+}

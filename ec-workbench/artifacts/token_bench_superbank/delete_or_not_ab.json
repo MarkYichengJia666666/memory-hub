@@ -1,0 +1,59 @@
+{
+  "prompt": "帮我看看 ExperimentNameSpace#SUPERBANK_CHANNEL_USER_BINDING_CARD 还有没有用，没用给删了",
+  "agents": {
+    "nograph": "aa9c2715-374d-4c33-b7b4-6f98d6deffe1",
+    "withgraph": "4e84430a-50cc-4949-bc21-98fdbe2464a0"
+  },
+  "conclusion_both": "已全量应固化而非整枚举删（不能直接删）",
+  "method": "tiktoken cl100k_base；按 Agent 自报 Read/图查询复现工具回包；不含系统提示与模型输出",
+  "rows": [
+    {
+      "name": "无图 Agent 工具回包(代码)",
+      "tokens": 3331,
+      "chars": 13095
+    },
+    {
+      "name": "有图 Agent 工具回包(图+代码)",
+      "tokens": 2525,
+      "chars": 9697
+    },
+    {
+      "name": "有图·仅图 API",
+      "tokens": 649,
+      "chars": 2504
+    },
+    {
+      "name": "有图·仅窄读+grep",
+      "tokens": 1876,
+      "chars": 7191
+    },
+    {
+      "name": "Capillary finding JSON",
+      "tokens": 964,
+      "chars": 2789
+    },
+    {
+      "name": "Capillary finding+固化计划",
+      "tokens": 2014,
+      "chars": 5297
+    },
+    {
+      "name": "Capillary+计划+核读业务段",
+      "tokens": 2590,
+      "chars": 7598
+    },
+    {
+      "name": "实验 MCP 回包(两边都有，同开销)",
+      "tokens": 173,
+      "chars": 574
+    }
+  ],
+  "delta_withgraph_vs_nograph": {
+    "saved_tokens": 806,
+    "saved_pct": 24.2
+  },
+  "delta_capillary_vs_nograph": {
+    "saved_tokens": 1317,
+    "saved_pct": 39.5
+  }
+}

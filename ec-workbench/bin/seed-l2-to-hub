@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+# Human-gated: import one local seed md into Hub L2 (docker drop + scenario/write + optional L0).
+# Usage:
+#   ./bin/seed-l2-to-hub ec-workbench/artifacts/memory-l2/seed/ops/session-closeout-writeback.md
+#   HUB_PATH=ec/ops/session-closeout-writeback.md ./bin/seed-l2-to-hub path/to/file.md
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+IDENT="$ROOT/ec-workbench/.p0-memory-identity.json"
+SEED="${1:-}"
+if [[ -z "$SEED" || ! -f "$SEED" ]]; then
+  echo "usage: $0 <seed.md>" >&2
+  exit 2
+fi
+SEED="$(cd "$(dirname "$SEED")" && pwd)/$(basename "$SEED")"
+python3 - "$SEED" "$IDENT" <<'PY'
+import json, os, re, subprocess, sys, time, urllib.request
+from datetime import datetime, timezone
+from pathlib import Path
+from urllib.parse import quote
+
+seed = Path(sys.argv[1])
+ident = json.loads(Path(sys.argv[2]).read_text())
+team, agent, user = ident["team_id"], ident["agent_id"], ident["user_id"]
+key = ident["user_key"]
+service = ident.get("service_id", "default")
+body = seed.read_text()
+# Hub path: ec/<biz>/<slug>.md from seed relative to .../seed/ if possible
+hub_path = os.environ.get("HUB_PATH")
+if not hub_path:
+    parts = seed.parts
+    if "seed" in parts:
+        i = parts.index("seed")
+        rel = Path(*parts[i + 1 :])
+        hub_path = f"ec/{rel.as_posix()}"
+    else:
+        hub_path = f"ec/{seed.name}"
+summary = ""
+m = re.search(r"^#\s+(.+)$", body, re.M)
+if m:
+    summary = m.group(1).strip()[:120]
+if not summary:
+    summary = hub_path
+
+scope = f"team:{team}|agent:{agent}"
+scope_enc = quote(scope, safe="")
+container = "tdai-memory-core"
+dest_dir = f"/data/tdai-memory/profiles/{scope_enc}/scene_blocks/{Path(hub_path).parent.as_posix()}"
+dest = f"/data/tdai-memory/profiles/{scope_enc}/scene_blocks/{hub_path}"
+
+# drop file into container
+subprocess.run(["docker", "exec", container, "mkdir", "-p", dest_dir], check=True)
+# write via docker exec + tee
+proc = subprocess.run(
+    ["docker", "exec", "-i", container, "tee", dest],
+    input=body.encode(),
+    check=True,
+    capture_output=True,
+)
+
+headers = {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer local",
+    "x-tdai-service-id": service,
+    "x-tdai-user-key": key,
+}
+iso = {"team_id": team, "agent_id": agent, "user_id": user}
+
+def post(url, payload):
+    req = urllib.request.Request(
+        url, data=json.dumps(payload).encode(), headers=headers, method="POST"
+    )
+    with urllib.request.urlopen(req, timeout=60) as resp:
+        return json.load(resp)
+
+now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
+write = post(
+    "http://127.0.0.1:8420/v3/scenario/write",
+    {**iso, "path": hub_path, "content": body, "summary": summary, "updated_at": now},
+)
+read = post(
+    "http://127.0.0.1:8420/v3/scenario/read",
+    {**iso, "path": hub_path},
+)
+# L0 import (Panel) — needs x-tdai-service-id as instance id
+l0 = {
+    "team_id": team,
+    "agent_id": agent,
+    "session_id": f"seed-import-{Path(hub_path).stem}-{int(time.time())}",
+    "messages": [
+        {"role": "user", "content": f"请记住判决：{summary}"},
+        {"role": "assistant", "content": body[:2000]},
+    ],
+}
+imp_req = urllib.request.Request(
+    "http://127.0.0.1:8125/api/v1/chat-memory/import",
+    data=json.dumps(l0).encode(),
+    headers={
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {key}",
+        "x-tdai-user-key": key,
+        "x-tdai-service-id": service,
+    },
+    method="POST",
+)
+try:
+    with urllib.request.urlopen(imp_req, timeout=60) as resp:
+        import_status = resp.status
+        import_body = resp.read()[:300].decode()
+except Exception as e:
+    import_status = "err"
+    import_body = str(e)
+
+print(json.dumps({
+    "hub_path": hub_path,
+    "write_ok": bool(write),
+    "read_has_content": bool((read or {}).get("content") or (read or {}).get("data")),
+    "import_status": import_status,
+    "import_snippet": import_body[:200],
+}, ensure_ascii=False, indent=2))
+PY

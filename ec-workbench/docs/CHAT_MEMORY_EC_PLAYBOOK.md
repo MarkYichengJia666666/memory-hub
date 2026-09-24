@@ -1,8 +1,9 @@
 # Chat Memory × EC 旁路 · Playbook
 
-> 状态：2026-09-24 主线收口（存 / 核 / 用）；有用性冒烟 4/4 过线  
+> 状态：2026-09-24 主线收口（存 / 核 / 用）+ 半自动回写 / 保鲜抽检  
 > Skill：[`../skills/chat-memory-ec/SKILL.md`](../skills/chat-memory-ec/SKILL.md)  
 > 有用性：[`../artifacts/memory-l2/usefulness-batch-20260924.md`](../artifacts/memory-l2/usefulness-batch-20260924.md)  
+> 回写+保鲜：[`../artifacts/memory-l2/writeback-freshness-20260924.md`](../artifacts/memory-l2/writeback-freshness-20260924.md)  
 > 同事从对话挖判决：[`CHAT_MEMORY_EC_COLLEAGUE_TRAIN.md`](./CHAT_MEMORY_EC_COLLEAGUE_TRAIN.md)
 
 ## 目标
@@ -18,18 +19,25 @@
 | L2 判决可写可读；Panel 可见 | Cursor 自定义模型带头（能力弱） |
 | L0 导入可蒸馏 L1，可 search | 把 Memory 验收绑成 Capillary 删码 |
 | Proxy 注入后模型答对「发券在 Kafka」 | 用 Wiki 替代短判决 |
+| 半自动回写（seed → 人闸 → `seed-l2-to-hub`） | Proxy **全自动**静默写入 |
+| 保鲜抽检 + superseded / 负例清单 | 实时对码引擎 |
 
 ## 最小闭环
 
 ```text
 1. 起 Core :8420 + Hub :8125
 2. 建/用 team + agent + user_key
-3. 写 L2：ec/<business>/<slug>.md
-4. Panel Chat_Memory 确认 L2
-5. （可选）PROXY_FULL_STACK=1 起 Proxy :8096
-6. 带 session + team/agent/task 头问一句 → 看是否命中判决
+3. 写 L2：ec/<business>/<slug>.md（本地 seed 或收尾草稿）
+4. 人确认后：./ec-workbench/bin/seed-l2-to-hub <seed.md>
+5. Panel Chat_Memory 确认 L2
+6. （可选）PROXY_FULL_STACK=1 起 Proxy :8096
+7. 带 session + team/agent/task 头问一句 → 看是否命中判决
+8. 会话收尾：新结论再走 3–4；打脸旧条则 superseded
 ```
 
+## 会话收尾 / 保鲜 / 负例
+
+详见 Skill 同名三节。导入脚本：[`../bin/seed-l2-to-hub`](../bin/seed-l2-to-hub)。
 ## 路径与正文
 
 - 路径 = 索引：`ec/coupon/open-app-grant.md`

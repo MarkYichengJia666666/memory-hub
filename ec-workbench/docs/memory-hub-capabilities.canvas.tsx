@@ -318,7 +318,7 @@ export default function MemoryHubCapabilities() {
             id: "3.5",
             what: "经 Proxy 自动写入、下一轮自动带上",
             status: "partial",
-            note: "注入+读场景已验；自动写入未做（仍人工回写）",
+            note: "注入已验；半自动回写 seed-l2-to-hub+人闸已通；全自动写入未做",
           },
           {
             id: "3.6",
@@ -525,13 +525,13 @@ export default function MemoryHubCapabilities() {
       <H3>下一步</H3>
       <Row gap={8}>
         <Pill tone="success" active>
-          Chat Memory P0 收口（存/核/用）
+          半自动回写 + 保鲜抽检
         </Pill>
         <Pill tone="warning" active>
-          同事按 COLLEAGUE_TRAIN 贡献 seed
+          负例 N1–N3 空目录再跑
         </Pill>
+        <Pill tone="neutral">同事按 COLLEAGUE_TRAIN 贡献 seed</Pill>
         <Pill tone="neutral">Capillary bury（独立 Loop）</Pill>
-        <Pill tone="neutral">合并仓刷新 + sync</Pill>
       </Row>
       <Text size="small" tone="tertiary">
         结构：§1–9 = Hub 能力大表 → §3/4/5/6/7 含 Memory

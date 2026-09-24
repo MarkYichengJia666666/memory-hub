@@ -56,23 +56,23 @@ export default function MemoryHubCapabilities() {
           Agent**（不是 Hub 新产品件）。
         </Text>
         <Text size="small" tone="tertiary">
-          进度更新 Sep 9, 2026 11:17 · Hub :8125 / KS :8424 · 隔离：只改切片/Hub，EC
-          与 ~/.cursor 不动
+          进度更新 Sep 24, 2026 · Hub :8125 / Core :8420 / Proxy :8096 ·
+          隔离：只改切片/Hub，EC 与 ~/.cursor 不动
         </Text>
       </Stack>
 
       <Grid columns={4} gap={12}>
         <Stat value="1" label="合并图 ready" tone="success" />
         <Stat value="712" label="files · cg-zp42c34n" tone="success" />
-        <Stat value="实现层" label="Capillary Agent MVP" tone="success" />
-        <Stat value="Proxy 关" label=":8096 未开" tone="warning" />
+        <Stat value="~55" label="L2 active（旁路）" tone="success" />
+        <Stat value="4/4" label="Memory 有用性冒烟" tone="success" />
       </Grid>
 
       <Callout tone="info" title="怎么读这张表">
-        **§1–9**：Memory Hub 能力清单（你们主线在 CodeGraph，其它多为未碰）。
-        **§1.x 进度**：切片建图 → 合成一图 → 查询/sync 已验证。
-        **§10**：在 CodeGraph 上探索「实验死代码怎么清」之后，落地的实现层——Capillary
-        Agent（图 + 实验 MCP + 人闸计划）。
+        **§1–9**：Memory Hub 能力清单。主线曾在 CodeGraph；**§3 Chat Memory
+        旁路 P0 已收口**（存/核/用）。
+        **§1.x**：切片建图 → 合成一图 → 查询/sync 已验证。
+        **§10**：Capillary Agent（图 + 实验 MCP + 人闸；独立于 Memory 验收）。
       </Callout>
 
       <H2>在线图（当前）</H2>
@@ -282,9 +282,10 @@ export default function MemoryHubCapabilities() {
         ])}
       />
 
-      <H2>3. Chat Memory</H2>
+      <H2>3. Chat Memory（旁路 P0 · 2026-09-24 收口）</H2>
       <Text tone="secondary" size="small">
-        L0 对话 → L1 Atom → L2 Scenario → L3 Persona；BM25 / 向量 / RRF 召回
+        L0→L1→L2→L3；路径约定 ec/&lt;biz&gt;/&lt;slug&gt;.md。不改 EC
+        主仓。详见 Playbook / Skill / usefulness-batch-20260924。
       </Text>
       <Table
         headers={["编号", "能力", "进度", "你们备注"]}
@@ -292,32 +293,32 @@ export default function MemoryHubCapabilities() {
           {
             id: "3.1",
             what: "记下偏好、决策、坑",
-            status: "todo",
-            note: "面板可写；未当主线",
+            status: "done",
+            note: "L2 seed≈55 active + Hub 写入；现码核过 durable",
           },
           {
             id: "3.2",
             what: "导入历史对话",
-            status: "todo",
-            note: "",
+            status: "done",
+            note: "ec/ec-1 transcript 提炼；L0 import 蒸馏 L1",
           },
           {
             id: "3.3",
             what: "按原文/事实/场景/画像召回",
-            status: "todo",
-            note: "",
+            status: "partial",
+            note: "scenario/read + L1 search 已验；L3 未深用",
           },
           {
             id: "3.4",
             what: "私有或分享给团队",
-            status: "todo",
-            note: "",
+            status: "partial",
+            note: "seed 已推 memory-hub；同事按 COLLEAGUE_TRAIN 贡献",
           },
           {
             id: "3.5",
             what: "经 Proxy 自动写入、下一轮自动带上",
-            status: "todo",
-            note: "要开 Proxy；Cursor 官方未验证",
+            status: "partial",
+            note: "注入+读场景已验；自动写入未做（仍人工回写）",
           },
           {
             id: "3.6",
@@ -335,8 +336,8 @@ export default function MemoryHubCapabilities() {
           {
             id: "4.1",
             what: "跑通过程收成带版本 Skill",
-            status: "todo",
-            note: "PLAYBOOK 在切片，未进 Hub Skill",
+            status: "done",
+            note: "ec-workbench/skills/chat-memory-ec + Playbook",
           },
           {
             id: "4.2",
@@ -348,7 +349,7 @@ export default function MemoryHubCapabilities() {
             id: "4.3",
             what: "审核后分给其他 Agent",
             status: "todo",
-            note: "要先有 Skill + 身份登记",
+            note: "旁路 Skill 在 Git；未挂 Hub Skill 资产分发",
           },
           {
             id: "4.4",
@@ -372,14 +373,14 @@ export default function MemoryHubCapabilities() {
           {
             id: "5.1",
             what: "建 Team、登记 Agent 身份",
-            status: "todo",
-            note: "Claude Code 路径再做",
+            status: "done",
+            note: "ec-memory-p0 / ec-chat-memory（key 本机 gitignore）",
           },
           {
             id: "5.2",
             what: "图 / Wiki / 记忆挂给多个身份",
-            status: "todo",
-            note: "合并图已建；未正式配装",
+            status: "partial",
+            note: "chat_memory 已挂该 Agent；图未与同身份统一配装",
           },
           {
             id: "5.3",
@@ -403,14 +404,14 @@ export default function MemoryHubCapabilities() {
           {
             id: "6.1",
             what: "开 Proxy",
-            status: "todo",
-            note: ":8096 未开",
+            status: "done",
+            note: "FULL_STACK :8096 healthy",
           },
           {
             id: "6.2",
             what: "Claude Code 指过去读档",
-            status: "todo",
-            note: "开 Proxy 后",
+            status: "done",
+            note: "bin/claude-via-memory 隔离配置；空目录冒烟 4/4",
           },
           {
             id: "6.3",
@@ -422,7 +423,7 @@ export default function MemoryHubCapabilities() {
             id: "6.4",
             what: "Cursor 官方接入",
             status: "skip",
-            note: "不在名单，未验证",
+            note: "自定义模型带头弱；用 CC 旁路验收",
           },
           {
             id: "6.5",
@@ -452,8 +453,8 @@ export default function MemoryHubCapabilities() {
           {
             id: "7.3",
             what: "旧对话 → 记忆和 Skill",
-            status: "todo",
-            note: "",
+            status: "done",
+            note: "transcript→seed→L2；同事贡献指南已发",
           },
           {
             id: "7.4",
@@ -523,16 +524,18 @@ export default function MemoryHubCapabilities() {
       <Divider />
       <H3>下一步</H3>
       <Row gap={8}>
-        <Pill tone="warning" active>
-          Capillary：Superbank 人审固化 diff
+        <Pill tone="success" active>
+          Chat Memory P0 收口（存/核/用）
         </Pill>
-        <Pill tone="neutral">合并仓随 EC 刷新 + sync</Pill>
-        <Pill tone="neutral">10.7 定时刷新实验</Pill>
-        <Pill tone="neutral">1.7 / 4.2 暂缓</Pill>
+        <Pill tone="warning" active>
+          同事按 COLLEAGUE_TRAIN 贡献 seed
+        </Pill>
+        <Pill tone="neutral">Capillary bury（独立 Loop）</Pill>
+        <Pill tone="neutral">合并仓刷新 + sync</Pill>
       </Row>
       <Text size="small" tone="tertiary">
-        结构：§1–9 = Hub 能力大表（CodeGraph 标进度）→ §10 = 基于 CodeGraph
-        探索做出的实现层 Agent。
+        结构：§1–9 = Hub 能力大表 → §3/4/5/6/7 含 Memory
+        旁路进度 → §10 = Capillary 实现层 Agent（勿与 Memory 验收绑死）。
       </Text>
     </Stack>
   );

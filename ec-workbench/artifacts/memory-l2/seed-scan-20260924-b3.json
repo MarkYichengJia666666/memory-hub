@@ -1,0 +1,557 @@
+[
+  {
+    "src": "ec",
+    "tid": "371a25ea-bbe2-451d-b12c-9e5f3615aeb2",
+    "score": 10,
+    "syms": [
+      "MarketUserCheck",
+      "MarketUserController",
+      "MarketUserCheckService",
+      "UserCheckRequest/Response",
+      "ec-api",
+      "whatopia-api"
+    ],
+    "snippet": "结论先说：**可以下掉，当前证据显示这段 `MarketUserCheck` 代码基本是“僵尸能力”**，但建议按“可回滚”方式下线（先加观测再彻底删）更稳。 - **代码证据**：分支里删除的是完整一套 `market user check` 能力（`MarketUserController` + `MarketUserCheckService` + VO/配置/测试），仓内已无 `MarketUserCheckService`、`UserCheckRequest/Response`、`/api/market/user/check` 引用。 - **日志证据（prod indo）**： - "
+  },
+  {
+    "src": "ec",
+    "tid": "2ee22efb-206d-4862-bacd-2f0cea5f76bb",
+    "score": 10,
+    "syms": [
+      "indo-cashloan-ec-api",
+      "LoanUserEventService.initUserEventTypeMappingCache",
+      "ec-core/src/main/java/com/yqg/core/service/loan/account/LoanUserEventService.java",
+      "ec_dwd.dwd_ec_flow_df_loan_account",
+      "ods_ec.fdm_ec_loan_user_event_type_relation",
+      "ods_ec.fdm_ec_loan_user_event_type"
+    ],
+    "snippet": "已完成按 `trace_id=d803b205071fdd4b6d3fa373562f0b8f` 的日志+数据库联合排查，结论如下： - **命中服务与时间**：`indo-cashloan-ec-api`，`2026-04-25 09:46:22`（UTC+8） - **触发接口**：`POST /api/loanmarket/gopay/h5/pollAuthStatus` - **表面现象**：接口 HTTP 200，但业务失败，响应头有 `yqg-business-error-code: 1001` - **根因异常**： `不存在sdk type + riskType + user "
+  },
+  {
+    "src": "ec",
+    "tid": "0c7d576c-1822-49bb-93cd-5dc59e042d41",
+    "score": 10,
+    "syms": [
+      "CommonApiChannelService",
+      "context.channel",
+      "viewerContext",
+      "ApiChannelCreditController",
+      "sourceType",
+      "channel"
+    ],
+    "snippet": "第二条 `CommonApiChannelService`，结论先说： **这条链里，`context.channel` 基本不可靠，甚至大概率就是空。** 所以这条路更适合： ```java channel = loanAccountDetailsNew.channel 如果为空/查不到： channel = ChannelUtils.getChannel(context.sourceType, context.channel, context.sdkType) ``` 而且这里的 fallback 比第一条更有价值。 ## 链路怎么走 入口一般是内网 API 渠道控制器先组 `viewer"
+  },
+  {
+    "src": "ec",
+    "tid": "8a9e3015-a628-4453-95eb-027a69480838",
+    "score": 10,
+    "syms": [
+      "ec-api",
+      "CONTROL_GROUP",
+      "BLANK_GROUP",
+      "DIVERSION_BLANK_GROUP",
+      "KEEP_GROUP",
+      "abTest"
+    ],
+    "snippet": "结论先说清楚： **1）不是「全站所有人」都进了实验组** 只有真正调到这个实验的人才算。mediaSource 不在白名单、build&lt;36900、参数不全等，**根本不会调实验**，谈不上实验组/对照组。 **2）在「真正调了这个实验」的人里：目前观测到的全部是实验组 `TRUE`** 生产最近一批实锤（`ec-api` 日志，匹配该 expKey）： - 返回 **50 条，50 条全是** `groupResult=TRUE`、`groupType=EXPERIMENT_GROUP`、`experimentStatusDetail=FP`、`fullOrZeroGroupResu"
+  },
+  {
+    "src": "ec",
+    "tid": "0a2722a5-dc1b-46e3-bd14-fa8af22c71f1",
+    "score": 10,
+    "syms": [
+      "EXPERIMENT_NOT_IN",
+      "ec-kafka-consumer",
+      "DIVERSION_BLANK_GROUP",
+      "PARENT_DIVERSION_BLANK_GROUP",
+      "BLANK_GROUP"
+    ],
+    "snippet": "结论先说：**63–65% 不是实验组 33/33/33 没分满，而是泳道空白把约 35% 合格用户挡在门外。** 你的入组率公式本身没问题，但失败原因需要纠正。 --- ### 1. 失败字面量不是 `EXPERIMENT_NOT_IN` 今天（UTC 日）`ec-kafka-consumer` 上 Gate11 拆开后： | expGroup | 条数 | 含义 | |---|---:|---| | `DIVERSION_BLANK_GROUP` | **266** | 命中本泳道空白 | | `PARENT_DIVERSION_BLANK_GROUP` | **139** | 命中父泳道"
+  },
+  {
+    "src": "ec",
+    "tid": "9f6976b2-707b-4e88-9408-0751b2af9a44",
+    "score": 10,
+    "syms": [
+      "deviceToken",
+      "AFTER_SECOND_VALID_STATUSES",
+      "INVALID",
+      "EXPIRED",
+      "UserSecureService.isRiskDevice",
+      "UserSecureService"
+    ],
+    "snippet": "结论先说：**会。** 当前登录的 `deviceToken` 与 LoginStatusCache 里“上一条”记录的 `deviceToken` 不一致时，会被视为风险设备，在满足配置和登录方式的前提下会触发安全校验（例如登录时的 OTP 校验）。 --- ## 1. “上一条”是哪条记录 “上一条”不是简单按时间的前一条，而是： - 方法：`LoginStatusCacheModel.findLastNoSecondValidByUserIdNotInDeviceList(userId, whiteList)` - 含义：该用户**最近一条**状态属于 `AFTER_SECOND_VAL"
+  },
+  {
+    "src": "ec",
+    "tid": "9961c484-f913-4e77-a55d-4f7cbfc2f8f4",
+    "score": 10,
+    "syms": [
+      "EC_PROD",
+      "SELECTED",
+      "MERGED_ACCOUNT",
+      "MERGE_USER_ID",
+      "ANDROID",
+      "EASYCASH_GOOGLEPLAY_ID"
+    ],
+    "snippet": "## 排查结论（prod DB 已验证） 用 prod token 查了 `EC_PROD`，这 **62 人**（文件名写 59，实际 62 条）可以明确归类，不是「合并候选」，而是 **合并已完成的 Flip 新户（被注销方）**。 --- ### 一句话 > **2026-06-16 从 Flip H5 注册 → 数分钟内完成账户合并（`SELECTED`）→ Flip 新户被注销（`MERGED_ACCOUNT`）→ 保留老户手机号 MD5 未刷新，且 encrypt 表 MD5 格式与黑名单 08 格式不一致。** --- ## 归类结果 ### 类型 1：端内老户保留（53 人，8"
+  },
+  {
+    "src": "ec",
+    "tid": "9961c484-f913-4e77-a55d-4f7cbfc2f8f4",
+    "score": 10,
+    "syms": [
+      "changeBindCheckRewrite",
+      "doMergeAccount",
+      "FORCE_MERGE",
+      "CHANNEL_MERGE",
+      "notReachForceMergeBuild",
+      "H5WholeProcessAuthUIJumpProvider"
+    ],
+    "snippet": "**大体是同一套后端，但 H5 全流程在「触发点」和「confirm 走哪条分支」上和 App 有差别。** H5 全流程并没有单独的合并实现，只是 UI/页面编排不同。 --- ## 结论先说 | 维度 | App 端内 | H5 全流程（Flip 这类 `SOURCE_TYPE=WEB`） | |------|---------|----------------------------------------| | 合并核心逻辑 | `changeBindCheckRewrite` → `doMergeAccount` | **相同** | | 检测接口 | `GET /api/user/"
+  },
+  {
+    "src": "ec",
+    "tid": "80274d26-9e58-45bf-913f-43f69317c415",
+    "score": 10,
+    "syms": [
+      "enabled",
+      "whitelistMode",
+      "whitelistUserIdsRaw",
+      "receiveUrl",
+      "DownstreamOrderRepaySyncConfig",
+      "whitelistUserIds"
+    ],
+    "snippet": "结论先说：**按当前实现，配置是在进程里“写死”的，改完配置后必须重启服务才会生效。** 原因很简单： 1. **`@Value` 只注入一次** 这些字段（`enabled`、`whitelistMode`、`whitelistUserIdsRaw`、`receiveUrl` 等）在 `DownstreamOrderRepaySyncConfig` 这个 Bean 创建时从配置文件里读一次，之后不会再从配置中心/文件重新读。 2. **白名单只在启动时解析一次** `@PostConstruct init()` 只在 Bean 创建时跑一次，`whitelistUserIds` 是在那时根据"
+  },
+  {
+    "src": "ec",
+    "tid": "75ad7c10-50ef-42ad-9798-63b980c39051",
+    "score": 10,
+    "syms": [
+      "isHitSubABTestForLoanUser",
+      "CouponCreditLimit",
+      "experiment-service",
+      "trace_id",
+      "x-request-id",
+      "StrategyCheckController"
+    ],
+    "snippet": "## 排查结论 `isHitSubABTestForLoanUser` 被反复调用**不是 bug 或死循环**，而是 **上游重复请求 + 策略内多规则重复计算** 叠加放大。该 trace 下该方法约被调用 **1093 次**（4372 条 `CouponCreditLimit` 日志 ÷ 每次 4 条）。 --- ### 1. 入口请求 | 字段 | 值 | |------|-----| | 时间 | 2026-07-10 00:26:18 ~ 00:26:43（约 60s） | | 接口 | `POST /ecInternalApi/checkStrategy` | | 上游 | `"
+  },
+  {
+    "src": "ec",
+    "tid": "75ad7c10-50ef-42ad-9798-63b980c39051",
+    "score": 10,
+    "syms": [
+      "RealTimeEventController",
+      "IDNHomepageV5Controller",
+      "OpenAppGrantCouponService",
+      "ExecuteAbTestService",
+      "EcStrategyService",
+      "RiskCouponLimitProcessor"
+    ],
+    "snippet": "结论先说：**7/9 突增不是 EC 新增了某个入口，而是老入口 + 实验平台 7/9 凌晨批量 reopen 首贷 26H1 泳道实验，导致每次 AB 分流都会全量扫 strategy 995 人群规则。** --- ## EC 侧真正的「入口」在哪 从 trace 闭环看，C 端流量进入 EC 后，有两条主路径会最终打到 `checkStrategy(995)`： ```mermaid flowchart TD A[C 端 App] --> B1[\"POST /api/realTimeEvent/openApp<br/>RealTimeEventController\"] A --> B2["
+  },
+  {
+    "src": "ec",
+    "tid": "3ff96fd7-bf28-4761-b4a3-44e7ce957278",
+    "score": 10,
+    "syms": [
+      "LoanInvitationConfigService",
+      "ProductConfigService",
+      "ProductInfoServiceImpl",
+      "LoanMarketUserQualifyService",
+      "service"
+    ],
+    "snippet": "上报接口 502，已向你告知。排查结论如下： --- ## 排查结论 — trace `452881f5392e19904c19b995b7d0801e` ### 基本信息 | 字段 | 值 | |------|-----| | 接口 | `GET /api/v5/cashloan/home?triggerSource=INIT` | | 时间 | 2026-06-30 17:15:39 | | 用户 | userId=**54806114**，Android 39013，Telkomsel | | 响应 | **HTTP 200**，耗时 263ms | ### 唯一 ERROR 日志 ``"
+  },
+  {
+    "src": "ec",
+    "tid": "288ff5cb-06e9-44b7-8cee-73d75ee7cb2f",
+    "score": 10,
+    "syms": [
+      "ec-api",
+      "ec-core",
+      "cashloan",
+      "newhomepage",
+      "ApiReturnCredit",
+      "ec-core/.../apireturncredit/"
+    ],
+    "snippet": "**结论先说：** `ec-api` 值得瘦身，但别把目标定成「删代码让编译变快」——收益主要在可维护性和改动面；真正「一需求一堆 Service」更多发生在 `ec-core`，`ec-api` 自己的病是首页状态机类型爆炸 + 超级 Controller。 --- ## 1. ec-api 体量画像 | 指标 | 数量 | |---|---:| | 主代码 Java | ~1,516 | | 测试 Java | ~471 | | 主代码行数 | ~10 万 | | Controller | ~149 | | 本地 `*Service` | 30（无 ServiceImpl 双层） | | "
+  },
+  {
+    "src": "ec",
+    "tid": "f57df63c-b425-4f09-aa87-4b943d362e00",
+    "score": 10,
+    "syms": [
+      "needTranslate",
+      "operator_email",
+      "pandora-consumer",
+      "mc_message_template",
+      "MessageCenterService",
+      "content"
+    ],
+    "snippet": "追完了。**不是运营在 MC 里把错误模板配进去的**，链路如下。 --- ## 结论先说 | 问题 | 答案 | |------|------| | 谁配的 MC 场景？ | **yutongding@fintopia.tech**（场景 5257 / 5258） | | MC 配错了吗？ | **没有**，`needTranslate` 全是 **FALSE** | | 谁写的错误 EC 模板？ | **没人手动配**；`operator_email` 是代码写死的 `system@yangqianguan.com` | | 真正写入错误模板的是谁？ | **`pandora-consum"
+  },
+  {
+    "src": "ec",
+    "tid": "8f62e33a-0d29-49f1-a3e7-99d490e3ba6d",
+    "score": 10,
+    "syms": [
+      "timeCreated",
+      "batchSize",
+      "maxDeletePerExecution",
+      "totalDeleted",
+      "data_length"
+    ],
+    "snippet": "## 结论先说 **业务上**：按 **6 个月前** 删 **jzdl** 数据是安全的，不会删到仍在使用的数据。 **数据库上**：可以长期跑，但**不能无脑 7×24 猛删**；积压期和稳态要分开看。 --- ### 1. 业务有没有风险？——没有（前提是 cutoff 正确） | 读路径 | 窗口 | 会不会读到 6 个月前的数据 | |--------|------|--------------------------| | `canCheck()` | 3~5 天 | 不会 | | `checkCollisionResult()` | 6 个月 | 不会 | Job 还带了 `ap"
+  },
+  {
+    "src": "ec",
+    "tid": "8f62e33a-0d29-49f1-a3e7-99d490e3ba6d",
+    "score": 10,
+    "syms": [
+      "ApiChannelCheckUserResultCleanJob",
+      "sleepMillis",
+      "source_type",
+      "channel_user_type",
+      "time_created",
+      "maxDelete"
+    ],
+    "snippet": "**结论先说：按当前代码写法，单路、小批次删除一般不会让 history length 长期「严重」飙高；但在两路并行 + 大批次 + 短 sleep 时，短时间内把 HLL 顶上去是有可能的，6/15 那种 3 路并行风险最大。** --- ## 代码实际怎么删 ```113:120:ec-scheduler/src/main/java/com/yqg/scheduler/jobs/apichannel/ApiChannelCheckUserResultCleanJob.java private int deleteBatchInRange(long timeEnd, long rangeS"
+  },
+  {
+    "src": "ec",
+    "tid": "b39db070-1026-4ed9-a622-675d76834e9b",
+    "score": 10,
+    "syms": [
+      "bfc8f31391c79dd27e606dc796a5c15f",
+      "GopayController",
+      "ApiChannelRegisterService",
+      "checkUserStatus",
+      "GopayController.checkUserStatus",
+      "findListByMobileMD5AndSourceTypeCheckType"
+    ],
+    "snippet": "## 排查结论 **渠道：GOPAY**（不是 LAZADA_BUYER） **触发接口：** `POST /api/loanmarket/gopay/h5/pollAuthStatus` **时间：** 2026-06-15 16:13:50（印尼时间），用户重试了至少 3 次 **trace_id：** `bfc8f31391c79dd27e606dc796a5c15f` --- ## 调用链路 ```mermaid sequenceDiagram participant H5 as GoPay H5 participant API as ec-api GopayController pa"
+  },
+  {
+    "src": "ec",
+    "tid": "b872ad7a-b23a-4d14-9372-da5e74151d5c",
+    "score": 10,
+    "syms": [
+      "spec.md",
+      "plan.md",
+      "explore.md",
+      "tasks.md",
+      "checklists/requirements.md",
+      "abTest"
+    ],
+    "snippet": "**结论：现在还不能安心开工（implement）。** 业务故事大体能讲清，但按 SDD 准出，仍有**外部待确认项**和**设计缺口**没闭合；硬写代码容易返工。 --- ## SDD 卡在哪一层？ | 阶段 | 现状 | 能不能往下走 | |---|---|---| | specify（要做什么） | 有 `spec.md`，主路径清楚 | **基本可以**，但仍有未决问题 | | plan（怎么改） | 有 `plan.md` / `explore.md` | **半成品**：关键行为未定死 | | tasks | **没有** `tasks.md` | 标准流程下 **还没到可执行任"
+  },
+  {
+    "src": "ec",
+    "tid": "b872ad7a-b23a-4d14-9372-da5e74151d5c",
+    "score": 10,
+    "syms": [
+      "explore.md",
+      "ec-core",
+      "summary.md",
+      "IUserInfoService#isSubNewAccount",
+      "isSubNewUser",
+      "getCutInterestCouponRuleIds"
+    ],
+    "snippet": "评审完成。**结论：11 个维度里 7 个 pass、4 个 warn，没有 fail。**前三轮 reflect 只在产物之间对账，已经把自洽性问题收干净了；本轮我把 `explore.md` 标了「[事实]」的符号和调用链拿到 `ec-core` 现网代码逐条核实，新发现的 3 条都是**产物自己自洽、但和代码或验收现实不符**这一类——最实质的一条，正是你自测时被卡住的那个日级幂等窗口在设计产物里完全没有记录。 以下为 `summary.md` 的「总览」与「改进建议」原文： ## 总览 ### 工作流分布 - 标准流程: 1 个 (100%) - 简化流程: 0 个 (0%) - 跳过"
+  },
+  {
+    "src": "ec",
+    "tid": "fcc24824-2ef1-401c-99d3-610188ceef71",
+    "score": 10,
+    "syms": [
+      "CollisionProcessService#execute",
+      "process-manage",
+      "ProcessManageService#getNextProcessNode",
+      "CollisionProcessEnum",
+      "ApiChannelUserType",
+      "CollisionProcessService"
+    ],
+    "snippet": "结论先说清楚： ## `CollisionProcessService#execute` 不是「老流程」 从类注释和实现看，它是 **撞库「新」流程执行器**：把业务条件交给 **`process-manage`**（`ProcessManageService#getNextProcessNode`）按配置的流程（`CollisionProcessEnum` 的 code/version）跑一遍，再从各节点里汇总出 **`ApiChannelUserType`**。 ```22:61:ec-core/src/main/java/com/yqg/core/service/apichannel/c"
+  },
+  {
+    "src": "ec",
+    "tid": "6adffc43-c1eb-44e3-a517-e851da1c931e",
+    "score": 10,
+    "syms": [
+      "install_limit",
+      "online_status",
+      "loan_market_product_uv_value_daily",
+      "LoanMarketPartnerStatusJob",
+      "LoanMarketPartnerEventObserver",
+      "LIMITED"
+    ],
+    "snippet": "结论先说：**限量配置没有丢，但日内卡点下线基本没生效**，所以 6.17 才会跑到 1529，不是单纯「500 配错了」。 ## 排查结论 ### 1. 配置是生效的，不是配错 线上 Cairin 当前配置： | 字段 | 值 | |------|-----| | `install_limit` | **500** | | `online_status` | **A（已上线）** | | 限量设置时间 | **2026-06-04 10:10 JKT**（操作人 duoma@fintopia.tech） | 变更记录只有两条：2 月创建时 `install_limit = null`（不限量"
+  },
+  {
+    "src": "ec",
+    "tid": "6adffc43-c1eb-44e3-a517-e851da1c931e",
+    "score": 10,
+    "syms": [
+      "show_admin_list",
+      "ec-kafka-consumer",
+      "install_limit",
+      "loan_market_partner_event",
+      "online_status",
+      "AVAILABLE"
+    ],
+    "snippet": "可以发，但**不是只发代码就完事**——发布范围要对，上线前还要核对几项配置和数据。 ## 一、发布范围 | 服务 | 是否必须发 | 说明 | |---|---|---| | **ec-kafka-consumer** | **必须** | 实时限量逻辑在 Kafka 消费链路里，不发这里修复不生效 | | ec-api | 建议后续补发 | 限量本身不依赖 api；本次删了 `show_admin_list` 开关，api 不重发也能跑，但代码版本会不一致 | | ec-scheduler | 不用 | 每日兜底任务没改，照旧跑 | **结论：修复限量，发 `ec-kafka-consum"
+  },
+  {
+    "src": "ec",
+    "tid": "9b5dccdd-2944-4a71-b45b-95d15bb71f15",
+    "score": 10,
+    "syms": [
+      "pollAuthStatus",
+      "gopayAccountId",
+      "saveKycAndPersonDetails",
+      "creditCallback",
+      "personal-details"
+    ],
+    "snippet": "昨天（8/19）`pollAuthStatus` 同类超时共 **263** 次，对到 **145** 个 `gopayAccountId`（其中 saveKyc 路径 130 个）。 ### 结论先说 **不是某批特殊账号**，而是：高峰期 GoPay 下游串行偏慢 + ec→apichannel 约 10s 被切断；用户看到 1001 后重试，同一 `gopayAccountId` 会反复出现。 ### 失败拆分 | 类型 | 次数 | 说明 | |------|------|------| | Feign `saveKycAndPersonDetails` 超时 | **239** | "
+  },
+  {
+    "src": "ec",
+    "tid": "1935f678-d787-42b2-97c5-e880e4124245",
+    "score": 10,
+    "syms": [
+      "LivenessCompare",
+      "LivenessRecognition",
+      "tencentcloud-sdk-java-intl-en",
+      "ApplyWebVerificationBizTokenIntl",
+      "GetWebVerificationResultIntl",
+      "AuthController"
+    ],
+    "snippet": "现在我已经有了完整的排查结果。 --- ## 排查结论 **ec-api 生产环境中并没有直接调用腾讯云 `LivenessCompare`（活体人脸比对）和 `LivenessRecognition`（活体人脸核身）这两个国内版 API。** ### 原因 项目使用的是腾讯云**国际版** SDK（`tencentcloud-sdk-java-intl-en` v3.0.1069），调用的是 faceid 国际版的 **H5 Web Verification** 接口，而非你提到的两个国内版 API。具体对应关系如下： | 你问的 API（国内版） | ec-api 实际使用的 API（国际"
+  },
+  {
+    "src": "ec",
+    "tid": "ba304bcc-5088-4f2a-8237-f60834551194",
+    "score": 10,
+    "syms": [
+      "enrichNikFallback",
+      "indo-cashloan-ec-api",
+      "ec-internal-api",
+      "encryptIdCardNo",
+      "AkulakuUtils#getSign",
+      "api_channel_check_user_result"
+    ],
+    "snippet": "结论先说：**这 24 个热点 NIK 是库里的「脏数据聚合」，不是某个渠道专属；但近 7 天实际打到 `enrichNikFallback` 撞库链路的线上请求，目前只观测到 Akulaku，没有 GOPAY / LAZADA。** --- ## 1. 近 7 天日志归因（24 个 NIK 逐个搜 ec-api REQUEST） 日志平台单次最多查 **7 天**（2025-06-02 ~ 2025-06-09），对 24 个 NIK MD5 在 `indo-cashloan-ec-api` 里搜 `[ REQUEST ]` 撞库路径： | 渠道 | 近 7 天有撞库 REQUEST 的 N"
+  },
+  {
+    "src": "ec",
+    "tid": "6b78a5f5-f209-498f-9f46-975a7566d816",
+    "score": 10,
+    "syms": [
+      "java-ec-api-20260709111706",
+      "NO_ORDER_AFTER_RELOAN_COMPLETED",
+      "CALC_CREDITS",
+      "a5ab5835-...",
+      "h5/index",
+      "REGISTER"
+    ],
+    "snippet": "## 排查结论 四个 ID 均为 **userId**（非 loanAccountId）。今日 prod 已跑新包 `java-ec-api-20260709111706`，撞库标签均为 `NO_ORDER_AFTER_RELOAN_COMPLETED`，**pollAuth 阶段 4 人均正常**；差异在 pollAuth 之后用户是否继续、以及授信状态。 | userId | loanAccountId | 撞库时间 | pollAuth | 授信/风控 | index 二次访问 | 结论 | |--------|---------------|----------|----------|"
+  },
+  {
+    "src": "ec",
+    "tid": "d2401cf2-84bd-448b-b9f3-a55e49a3aef9",
+    "score": 10,
+    "syms": [
+      "saveKycAndPersonDetails",
+      "GopayApiChannelPushService",
+      "fetchGopayAccountInfo",
+      "gopayH5Index",
+      "GopayBiz.saveKycAndPersonDetails",
+      "GopayGatewayImpl.fetchBankInfo"
+    ],
+    "snippet": "我看了代码后，这三个的现状不一样。 结论先说： | 映射 | 现有 mock 能力 | 结论 | |---|---|---| | `authCode -> authToken + gopayAccountId` | 只有 EC 本地 mock / 单测 mock；api_channel 主链路没有运行时 mock | **不具备主 verify 可用 mock** | | `authCode -> KYC + personalDetails` | api_channel `saveKycAndPersonDetails` 支持 `mock=true + mockData` | **已具备可用 "
+  },
+  {
+    "src": "ec",
+    "tid": "16f1a960-9a99-4334-b91e-f82c381886cf",
+    "score": 10,
+    "syms": [
+      "specs/.reflect/TAPD-374329-stock-unordered-boost.json",
+      "acceptanceCompleteness",
+      "specPlan",
+      "tasks.md",
+      "NFR-002",
+      "subagent-prompt.md"
+    ],
+    "snippet": "**结论先说：这两条不是当前仓库里 `/reflect` 落盘出来的。** `specs/.reflect/TAPD-374329-stock-unordered-boost.json`（`evaluatedAt: 2026-09-01`）里： - `acceptanceCompleteness` → **pass** - `specPlan` → **pass** 全仓也搜不到你引用的那句「验证方式与场景实质不匹配 / 失败/拦截监控…」原文。所以更像是某次临时口头评价、`/analyze`、或人工复盘的措辞，被当成了 reflect 结果。 --- ### 若按产物内容“硬抠”，为什么说得"
+  },
+  {
+    "src": "ec",
+    "tid": "e64eec9f-d1f4-443a-8656-67f4a478cdea",
+    "score": 10,
+    "syms": [
+      "onOrderInitial",
+      "ORDER_INITIALIZED",
+      "CASH_LOAN_EVENT_DOWNSTREAM_SYNC",
+      "cash_loan_event",
+      "BaseCashLoanEventProcessor",
+      "ORDER_RESERVED"
+    ],
+    "snippet": "结论先说：**技术上能加，Kafka 分发已经通；真正的风险在业务语义和下游契约，不在 Observer 能不能挂回调。** 你说的 `init` 我按 `onOrderInitial`（对应 `ORDER_INITIALIZED`）来评。 ## 现状 `CASH_LOAN_EVENT_DOWNSTREAM_SYNC` 已消费整条 `cash_loan_event`，`BaseCashLoanEventProcessor` 里这三个事件都会调到 Observer： | Kafka 事件 | Observer 方法 | 当前 | |---|---|---| | `ORDER_RESERVED` "
+  },
+  {
+    "src": "ec",
+    "tid": "9526c673-4240-4f4b-a179-6937c0ff66af",
+    "score": 10,
+    "syms": [
+      "h5_full_process_uid_bind",
+      "EC_PROD",
+      "partnerUid",
+      "channel",
+      "web_Flip",
+      "EASYCASH_GOOGLEPLAY_ID"
+    ],
+    "snippet": "## 排查结论 **`h5_full_process_uid_bind`（prod Indo / `EC_PROD`）里这 3 个 userId 均为 0 行。** 表本身正常：已有约 **1230** 条 Flip 绑定，最早一条 `2026-09-11 11:29:56`，今天仍在持续写入。 **符合当前代码预期**：绑定只在注册/登录成功时写，且依赖请求体 `partnerUid` + header `channel`（白名单）；**授信不会写这张表**。`partnerUid` 为空时静默 return，不落库、也不打 WARN。 --- ### 分用户说明 | userId | us"
+  },
+  {
+    "src": "ec",
+    "tid": "9526c673-4240-4f4b-a179-6937c0ff66af",
+    "score": 10,
+    "syms": [
+      "EASYCASH_GOOGLEPLAY_ID",
+      "partnerUid",
+      "web_Flip",
+      "forceMerge",
+      "SELECTED",
+      "h5_full_process_uid_bind.user_id"
+    ],
+    "snippet": "有的，而且比之前说的更完整。之前说「完全不是 Flip」不准确，补充如下。 --- ### 结论先说 **有 Flip / H5 记录**，但绑在 **另一个被合并掉的账号** 上，所以查 `36294952` 看不到。 --- ### 时间线 | 时间 | 发生了什么 | |------|------------| | 2024-08-04 | `36294952` 注册，渠道 `EASYCASH_GOOGLEPLAY_ID`（App） | | **2026-09-07 23:51** | 有一次 **Flip H5 登录**：`channel=Flip`，`clientType=WEB_A"
+  },
+  {
+    "src": "ec",
+    "tid": "444b74de-d583-47bd-b839-e7e84d843094",
+    "score": 10,
+    "syms": [
+      "ApiChannelCheckMobileResultCleanJob",
+      "idStep",
+      "ARCHITECTURE.md",
+      "specs/",
+      "mobile_result",
+      "AGENTS.md"
+    ],
+    "snippet": "## 文档更新建议 **结论：无需更新项目文档。** ### 判断依据 1. **改动性质**：`ApiChannelCheckMobileResultCleanJob` 的内部实现优化（DELETE 按主键 ID 区间分片、新增 `idStep`、`endId` 改为不含上界、补 UT），属于调度 Job 执行策略调整，不涉及： - 模块/依赖图 - 应用入口 - Flyway / 表结构 - 对外 API / 领域模型 - 跨服务时序 2. **现有文档检索结果**： - `docs/`、`ARCHITECTURE.md`、`specs/`：**无**该 Job、`mobile_resul"
+  },
+  {
+    "src": "ec-1",
+    "tid": "1eed3344-7c07-4b23-9e61-dcc3507d084b",
+    "score": 10,
+    "syms": [
+      "RecoverAccountProtectBlockLogger.safeLog",
+      "safeLog",
+      "BANK_LOCK",
+      "blockAfterLimitCount",
+      "incrementBlockAfterLimitCount"
+    ],
+    "snippet": "**结论：正常找回主流程基本不受影响；防护阈值/错误码/文案没改。DWLog 本身不会把业务打挂。** ### 不会坏主流程的部分 1. **打点失败不影响业务** `RecoverAccountProtectBlockLogger.safeLog` 全包 try/catch，DwLog 挂了最多 warn，不会向外抛。 2. **match 限流语义没变** 还是原来的 `incr` + `times > limit`，还是同一句 `throw RATE_LIMIT`，只是 throw 前多调一次 `safeLog`。 3. **成功路径没动** match 成功、验卡成功、合并等：不打点，"
+  },
+  {
+    "src": "ec-1",
+    "tid": "1eed3344-7c07-4b23-9e61-dcc3507d084b",
+    "score": 10,
+    "syms": [
+      "app_config.account_recovery_config",
+      "AccountRecoveryConfigProvider",
+      "experimentAdapter.abTestByDeviceToken",
+      "ExperimentAdapter",
+      "nik_old_uid",
+      "entrance.url"
+    ],
+    "snippet": "**根因：生产上 Layer1 总开关仍是关的，根本没走到实验。** 你截图里 `entrance.enabled=true` 和这次请求不在同一环境生效路径上。 ### 证据 1. **请求打的是生产** `host=api.easycash.id`，`trace=ad90017c289a44ec3c7b84b8c1d87467`，`GET /api/generalConfig` 含 `app_config.account_recovery_config`。 deviceToken=`and_emp:5fbcafddbc38bed0`（正好是实验白名单设备）。 2. **同 trace 里没"
+  },
+  {
+    "src": "ec-1",
+    "tid": "e326c978-79bd-4daf-9b51-026401ef1caa",
+    "score": 10,
+    "syms": [
+      "account-recovery",
+      "sdk/verify",
+      "FaceV5FaceComparisonProvider.checkConfidenceForFacePPV5",
+      "FaceV5FaceComparisonProvider",
+      "AccountRecoveryService",
+      "user.check_living_purposes_face_pp_v5_thresholds_map.ACCOUNT_RECOVERY"
+    ],
+    "snippet": "结论先说：**不是活体失败，是 Face++ 判分配置缺 key，解析 null 炸成 1001。** ## 链路还原（19:26:07，泳道 `account-recovery`） 1. `verifyFace start`：`newUserId=9820525`，`targetUserId=9805050`，`provider=FACEPP_V5` 2. Face++ `sdk/verify` 约 2s，**成功**：`result_code=1000`，`confidence≈90.47` 3. 落图 OSS 也成功 4. 随后在 `FaceV5FaceComparisonProvide"
+  },
+  {
+    "src": "ec-1",
+    "tid": "976eef76-a835-4502-be30-ba66705e0746",
+    "score": 10,
+    "syms": [
+      "ApiChannelProductService.checkUserCanOrder",
+      "api_channel_user",
+      "AkulakuController",
+      "SYSTEM.00000",
+      "checkRequest",
+      "checkSign"
+    ],
+    "snippet": "## 排查结论 **根因**：`ApiChannelProductService.checkUserCanOrder` 在 `api_channel_user` 查不到用户时未做空判断，直接 `apiChannelUserVO.getUserId()` 触发 **NPE**，被 `AkulakuController` 兜底为 `SYSTEM.00000`（系统未知异常）。 **与签名/请求参数无关**：请求已通过 `checkRequest` / `checkSign`，异常发生在业务逻辑内。 --- ### 证据链 | 项 | 内容 | |----|------| | **trace_id*"
+  },
+  {
+    "src": "ec-1",
+    "tid": "66e7474a-eca3-4eda-81cc-0719b1ebd219",
+    "score": 10,
+    "syms": [
+      "authInfo",
+      "encryptKey",
+      "SHA256withRSA",
+      "Content-Type",
+      "accessKey",
+      "timestamp"
+    ],
+    "snippet": "好，文档已更新完毕。来对比总结一下实际差异： --- **结论：他们的方案和我设想的差距很大，具体如下：** ### 不同点 | 维度 | 我原来写的 | 代码实际实现 | |---|---|---| | **加密方式** | 纯 RSA 加密整个 body | **混合加密**：Body 用 AES/ECB/PKCS5Padding，AES 密钥才用 RSA 加密 | | **加密内容位置** | 放在 JSON body 的 `authInfo` 字段 | Body 直接是 Base64 加密文本（不是 JSON） | | **AES 密钥传递** | 无此概念 | 用平台 RSA 公钥加"
+  },
+  {
+    "src": "ec-1",
+    "tid": "3755a7cd-c638-45e3-b67c-200eecab29ab",
+    "score": 10,
+    "syms": [
+      "eu-cashloan-ec-api",
+      "indo-cashloan-ec-api",
+      "autoSubmitCreditsOnReturnExecutor",
+      "reloan_order_26h1-measurement-abroad-renew-get_limit11",
+      "EXPERIMENT_GROUP",
+      "RiskFacadeService"
+    ],
+    "snippet": "可以查，而且已经查到了。先前空结果是因为 service 名解析错了（落到了空的 `eu-cashloan-ec-api`），正确库是 `indo-cashloan-ec-api`。 **结论：53318 这次 Midscene 回端自动戳额是成功触发的，不是没跑。** UI 仍停在 `Cek Limit`，是因为风控很快拒绝了。 ### 日志证据链（test / indo） | 时间 | 证据 | |------|------| | **20:07:15.585** | `autoSubmitCreditsOnReturnExecutor` 调实验分流：`reloan_order_26h1-"
+  },
+  {
+    "src": "ec-1",
+    "tid": "3755a7cd-c638-45e3-b67c-200eecab29ab",
+    "score": 10,
+    "syms": [
+      "COMPLETE",
+      "CALC_STARTED",
+      "indo-cashloan-ec-api",
+      "SUCCESS",
+      "f7025acca903e9097158833fc86ad4e7",
+      "h5/index"
+    ],
+    "snippet": "结论先说：**不是 UI 点错，也不是这个用户不该进贷款；是后端两个接口状态互相打架，H5 被路由到下单页后拿不到可借产品，于是白屏。** ### 用户实际状态（test-indo） | 项 | 值 | |---|---| | mobile | `08222798144` → `+628222798144` | | userId | `9738955` | | accountId | `410593` | | 授信 | `CREDITS_STATUS=A`（已通过） | | 订单 | 最近 4 笔均为 `COMPLETE`，渠道 `GOPAY` | | 续借状态 | `loan_multi_o"
+  },
+  {
+    "src": "ec-1",
+    "tid": "21731dba-6d06-4cc7-9fa1-a0f60a0d2ac6",
+    "score": 10,
+    "syms": [
+      "tools/call",
+      "LOG_MCP_TOKEN",
+      "user-logservice",
+      "query_by_service",
+      "query_by_logstore",
+      "query_spans"
+    ],
+    "snippet": "**结论：`/troubleshoot` 并不是直接打开 Rhino 网页，而是通过 logservice MCP 查询与 Rhino 相同的底层日志存储（阿里云 SLS）。Rhino 是 UI，troubleshoot 走的是 API 通道。** --- ## 调用链 ```mermaid flowchart LR A[\"/troubleshoot skill\"] --> B[\"logquery.py\"] B --> C[\"logservice MCP<br/>mcp.fintopia.tech/logservice-mcp\"] C --> D[\"logservice 后端\"] D --> "
+  }
+]

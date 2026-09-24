@@ -1,0 +1,683 @@
+{
+  "ec_head": "d103aeefa32 Merge branch 'release/20260922-5'",
+  "counts": {
+    "needs_review": 7,
+    "stale_manual": 2,
+    "likely_active": 31,
+    "likely_stale": 1,
+    "partial_manual": 1,
+    "done_already": 2
+  },
+  "results": [
+    {
+      "path": "ec/abtest/sub-abtest-not-deadloop.md",
+      "status": "active",
+      "verdict": "needs_review",
+      "symbol_hit_ratio": 0.6,
+      "hits": {
+        "CouponCreditLimit": 5,
+        "EcStrategyService": 0,
+        "ExecuteAbTestService": 0,
+        "OpenAppGrantCouponService": 5,
+        "RealTimeEventController": 1
+      },
+      "miss": [
+        "EcStrategyService",
+        "ExecuteAbTestService"
+      ],
+      "decision": "日志里 `isHitSubABTestForLoanUser` / `CouponCreditLimit` 被同一 trace 调用上千次，**通常不是 bug 死循环**，而是 **上游重复请求 + 策略内多规则重复计算** 叠加放大。\n排障先拆：入口请求次数 × 单次策略规则数，再谈是否要缓存/短路。"
+    },
+    {
+      "path": "ec/apichannel/akulaku-npe-missing-channel-user.md",
+      "status": "active",
+      "verdict": "stale_manual",
+      "symbol_hit_ratio": 0.75,
+      "hits": {
+        "AkulakuController": 1,
+        "ApiChannelProductService": 3,
+        "ApiChannelProductService.checkUserCanOrder": 0,
+        "SYSTEM.00000": 2
+      },
+      "miss": [
+        "ApiChannelProductService.checkUserCanOrder"
+      ],
+      "decision": "`ApiChannelProductService.checkUserCanOrder` 在 `api_channel_user` **查不到用户**时若未空判断，直接 `apiChannelUserVO.getUserId()` 会 **NPE**，经 `AkulakuController` 兜底成 `SYSTEM.00000`（系统未知异常）。\n根因是空"
+    },
+    {
+      "path": "ec/apichannel/collision-process-is-new-flow.md",
+      "status": "active",
+      "verdict": "likely_active",
+      "symbol_hit_ratio": 1.0,
+      "hits": {
+        "ApiChannelUserType": 5,
+        "CollisionNodeContext": 5,
+        "CollisionProcessContext": 5,
+        "CollisionProcessEnum": 5,
+        "CollisionProcessService": 4,
+        "ProcessManageService": 2,
+        "REJECT": 5
+      },
+      "miss": [],
+      "decision": "`CollisionProcessService#execute` **不是**「老流程」。它是撞库**新**流程执行器：把条件交给 `process-manage`（`ProcessManageService#getNextProcessNode`），按 `CollisionProcessEnum` 的 code/version 跑节点，再汇总 `ApiC"
+    },
+    {
+      "path": "ec/apichannel/collision-upgrade-fallback.md",
+      "status": "active",
+      "verdict": "likely_stale",
+      "symbol_hit_ratio": 0.33,
+      "hits": {
+        "CollisionOrchestrator": 3,
+        "CollisionOrchestrator.executeUpgradeWithFallback": 0,
+        "ProcessExecException": 0
+      },
+      "miss": [
+        "CollisionOrchestrator.executeUpgradeWithFallback",
+        "ProcessExecException"
+      ],
+      "decision": "撞库升级链路**已经有降级策略**，关键方法 `CollisionOrchestrator.executeUpgradeWithFallback`：升级失败会走 fallback，日志里看到的 fallback 行为即此。\n排查「升级挂了」时先看是否已进入 fallback，不要假设没有兜底。"
+    },
+    {
+      "path": "ec/apichannel/context-channel-unreliable.md",
+      "status": "active",
+      "verdict": "likely_active",
+      "symbol_hit_ratio": 1.0,
+      "hits": {
+        "ApiChannelCreditController": 1,
+        "ChannelUtils": 5,
+        "ChannelUtils.getChannel": 5,
+        "CommonApiChannelService": 5
+      },
+      "miss": [],
+      "decision": "在 `CommonApiChannelService` 一类链路里，`context.channel` **基本不可靠，甚至常为空**。\n更稳妥顺序：先用 `loanAccountDetailsNew.channel`；为空/查不到再用 `ChannelUtils.getChannel(context.sourceType, context.channel,"
+    },
+    {
+      "path": "ec/apichannel/enrich-nik-fallback-fanout.md",
+      "status": "active",
+      "verdict": "likely_active",
+      "symbol_hit_ratio": 1.0,
+      "hits": {
+        "ApiChannelUserCheckerService": 5,
+        "ApiChannelUserMergeFilterService": 5
+      },
+      "miss": [],
+      "decision": "API 渠道撞库手机号 MD5 未命中时，会走 `enrichNikFallback` 按身份证 MD5 回退，可能一次命中**数千**用户，再经 merge 过滤后对 `findLatestRiskAcceptByAccountIds` 打慢查询。\n热点 NIK 常是库内脏数据聚合；近观测量里实际打到该链路的线上请求多见 Akulaku。\n排障 quali"
+    },
+    {
+      "path": "ec/apichannel/jzdl-mobile-result-clean-job.md",
+      "status": "active",
+      "verdict": "likely_active",
+      "symbol_hit_ratio": 1.0,
+      "hits": {
+        "ApiChannelCheckMobileResultCleanJob": 2,
+        "CleanJob": 5
+      },
+      "miss": [],
+      "decision": "`api_channel_check_mobile_result` 里精准营销（`api_channel LIKE 'jzdl_%'`）超保留期数据，**不要手写 SQL 删**；用已合入的 `ApiChannelCheckMobileResultCleanJob` 按批次删最安全。\n业务上按 **6 个月**（`retentionDays=180`）删是安"
+    },
+    {
+      "path": "ec/apichannel/marketing-check-fail-reasons.md",
+      "status": "active",
+      "verdict": "likely_active",
+      "symbol_hit_ratio": 0.75,
+      "hits": {
+        "ApiMarketingBlackListChecker": 3,
+        "ApiMarketingUserCheckResultService": 4,
+        "CheckFailedUserVO.failureReason": 0,
+        "LogBusinessType.CHECK_EXIST_USER_FAILED_LOG": 5
+      },
+      "miss": [
+        "CheckFailedUserVO.failureReason"
+      ],
+      "decision": "精准营销批量撞库（`channelBatchCheckExistUser` / `ApiMarketingUserCheckResultService`）失败 Case **不落库** `api_channel_check_mobile_result`（成功才 insert），统一打数仓日志 `check_exist_user_failed_log`。\n失败"
+    },
+    {
+      "path": "ec/apichannel/no-order-after-reloan-legacy-bean.md",
+      "status": "active",
+      "verdict": "stale_manual",
+      "symbol_hit_ratio": 0.75,
+      "hits": {
+        "CollisionNodeBeanConfig": 1,
+        "NO_ORDER_AFTER_RELOAN_COMPLETED": 5,
+        "NoOrderAfterReloanCompletedChecker": 0,
+        "ReloanBranchDecisions": 2
+      },
+      "miss": [
+        "NoOrderAfterReloanCompletedChecker"
+      ],
+      "decision": "`NoOrderAfterReloanCompletedChecker` 在**业务运行路径上基本没用了**（无业务直接引用；新决策树走 `ReloanBranchDecisions#reloanCreditNoOrder` / 节点 `reloan_credit_no_order`）。\n但 **不能只删这个类**：`CollisionNodeBeanCon"
+    },
+    {
+      "path": "ec/auth/device-token-mismatch-risk.md",
+      "status": "active",
+      "verdict": "needs_review",
+      "symbol_hit_ratio": 0.6,
+      "hits": {
+        "AFTER_SECOND_VALID_STATUSES": 2,
+        "LoginStatusCacheModel": 5,
+        "LoginStatusCacheModel.findLastNoSecondValidByUserIdNotInDeviceList": 0,
+        "UserSecureService": 5,
+        "UserSecureService.isRiskDevice": 0
+      },
+      "miss": [
+        "LoginStatusCacheModel.findLastNoSecondValidByUserIdNotInDeviceList",
+        "UserSecureService.isRiskDevice"
+      ],
+      "decision": "当前登录的 `deviceToken` 与 LoginStatusCache 里「上一条」记录不一致时，**会**被视作风险设备；在配置与登录方式满足时会触发安全校验（如登录 OTP）。\n「上一条」不是简单按时间前一条，而是 `LoginStatusCacheModel.findLastNoSecondValidByUserIdNotInDeviceList"
+    },
+    {
+      "path": "ec/auth/ec-secured-api.md",
+      "status": "active",
+      "verdict": "likely_active",
+      "symbol_hit_ratio": 1.0,
+      "hits": {
+        "generalConfig": 5
+      },
+      "miss": [],
+      "decision": "项目里没有 `@SecureAPI`，实际闸门是 `@ECSecuredApi`。  \n账号找回链路：登录前接口（发码/验码等）**不应乱加**登录注解；部分接口只认 `sessionToken` 不认 `userToken`。"
+    },
+    {
+      "path": "ec/auth/h5-app-cross-login-order.md",
+      "status": "active",
+      "verdict": "likely_active",
+      "symbol_hit_ratio": 1.0,
+      "hits": {
+        "ApiChannelOrderCheckService": 5,
+        "CashLoanService": 5,
+        "INDOSAT_CL2": 5,
+        "UserService": 5
+      },
+      "miss": [],
+      "decision": "跨端行为不能只看代码分支，要同时看**线上开关**和**账号 sourceType**。\n- 登录：`user.h5_user_allow_login_switch=true` 时 APP 注册用户可登 H5；`sourceType` 是账号维度不是请求维度。\n- 下单：渠道侧有未还清单（INIT/READY）→ 端内不能再下；渠道单已还清但渠道在 `api"
+    },
+    {
+      "path": "ec/auth/h5-merge-channel-vs-force.md",
+      "status": "active",
+      "verdict": "likely_active",
+      "symbol_hit_ratio": 1.0,
+      "hits": {
+        "CHANNEL_MERGE": 5,
+        "ChannelMergeCheckProvider": 3,
+        "FORCE_MERGE": 5,
+        "UserController": 5,
+        "generalConfig": 5
+      },
+      "miss": [],
+      "decision": "H5 全流程与 App **共用**合并核心（`changeBindCheckRewrite` → `doMergeAccount`）和同一套 check/confirm 接口，**没有单独合并实现**。\n差别在触发与 confirm 分支：H5 常通过 `generalConfig` 的 `channel_merge_check` 预检；confirm 时"
+    },
+    {
+      "path": "ec/auth/reregister-order-visibility-by-migrate.md",
+      "status": "active",
+      "verdict": "likely_active",
+      "symbol_hit_ratio": 1.0,
+      "hits": {
+        "UserController": 5,
+        "UserDeleteService": 5,
+        "UserDeleteService.doDeleteUser": 1,
+        "UserService": 5
+      },
+      "miss": [],
+      "decision": "同一手机号注销后再注册，**是否还能看到旧订单取决于走哪条注册流程**。订单按 `user_id`/`account_id` 查，不认手机号；注销（`UserDeleteService.doDeleteUser`）不改订单归属。\n- 走 `isDeletedAccountAllowMigrate` → `migrateUser`：**新 userId**，旧"
+    },
+    {
+      "path": "ec/auth/reuse-deleted-user-check.md",
+      "status": "active",
+      "verdict": "likely_active",
+      "symbol_hit_ratio": 0.8,
+      "hits": {
+        "AccountRecoveryController": 2,
+        "AccountRecoveryService": 5,
+        "UserController": 5,
+        "UserService": 5,
+        "UserService.checkIdnDeletedUserRegister": 0
+      },
+      "miss": [
+        "UserService.checkIdnDeletedUserRegister"
+      ],
+      "decision": "账号找回发 OTP 等已接到端内同一套注销校验，**没有抄一份新逻辑**。  \n复用：`UserService.checkIdnDeletedUserRegister`（端内 REGISTER / REGISTER_OR_LOGIN 发 OTP 的 migrateCheck 最终也是它）。"
+    },
+    {
+      "path": "ec/auth/trigger-auth-completed-before-persist.md",
+      "status": "active",
+      "verdict": "likely_active",
+      "symbol_hit_ratio": 0.75,
+      "hits": {
+        "context.channel": 5,
+        "loan_account_details_new.channel": 0,
+        "triggerAuthCompleted": 2,
+        "viewerContext.channel": 5
+      },
+      "miss": [
+        "loan_account_details_new.channel"
+      ],
+      "decision": "端内链路里，`triggerAuthCompleted` **发生在完件落库之前**。\n此时查 `loan_account_details_new.channel` 可能是旧值/空值/非本次请求语义。\n对端内「当前这次请求」更贴近现场的是 `context.channel` / `viewerContext.channel`（从请求来），不要默认读主档 ch"
+    },
+    {
+      "path": "ec/bindcard/saqu-superbank-pattern.md",
+      "status": "active",
+      "verdict": "likely_active",
+      "symbol_hit_ratio": 0.8,
+      "hits": {
+        "BankType.FAMA": 5,
+        "ExperimentNameSpace.SUPERBANK_CHANNEL_USER_BINDING_CARD": 1,
+        "LoanBankAccountController": 2,
+        "LoanBankAccountService": 5,
+        "LoanBankAccountService.keepOnlySuperBankIfInExperiment": 0
+      },
+      "miss": [
+        "LoanBankAccountService.keepOnlySuperBankIfInExperiment"
+      ],
+      "decision": "Saqu「只能绑自家卡 + 可开关」可直接对标已落地的 SuperBank 渠道逻辑，H5（WEB）与同一套接口。"
+    },
+    {
+      "path": "ec/config/downstream-repay-sync-needs-restart.md",
+      "status": "active",
+      "verdict": "likely_active",
+      "symbol_hit_ratio": 1.0,
+      "hits": {
+        "DownstreamOrderRepaySyncConfig": 5
+      },
+      "miss": [],
+      "decision": "`DownstreamOrderRepaySyncConfig` 里 `enabled` / `whitelistMode` / `whitelistUserIdsRaw` / `receiveUrl` 等是 **`@Value` 只注入一次**；白名单也在 `@PostConstruct` 启动时解析。\n按当前实现，**改配置后必须重启服务才会生效**，不"
+    },
+    {
+      "path": "ec/coupon/orthogonal-anti-settle-exp.md",
+      "status": "active",
+      "verdict": "needs_review",
+      "symbol_hit_ratio": 0.67,
+      "hits": {
+        "AntiSettleCicilanPromoExpService": 5,
+        "AntiSettleCicilanPromoExpService.isExperimentGroup": 0,
+        "EXPERIMENT_GROUP": 5
+      },
+      "miss": [
+        "AntiSettleCicilanPromoExpService.isExperimentGroup"
+      ],
+      "decision": "用户下单页仍出「首期样式」等标志时，**不要默认怪当前灌券实验（n1/n2）**。\n已证实案例：正交样式实验仍命中实验组——\n`AntiSettleCicilanPromoExpService.isExperimentGroup` → `hitsReloanNormalExp` → 实验 `...anti_loss_cicilan_promotion_upg"
+    },
+    {
+      "path": "ec/coupon/v1-dead-v2-kafka.md",
+      "status": "active",
+      "verdict": "likely_active",
+      "symbol_hit_ratio": 0.88,
+      "hits": {
+        "ABTestConfig": 5,
+        "AppStartUpGrantCouponProcessor": 5,
+        "CouponTaskGrantJob": 2,
+        "ExpDiversionClient": 5,
+        "ExpDiversionClient.getResult": 0,
+        "IExperimentAdapter": 5,
+        "RELOAN_TOP_LOW_WILL_COUPON": 2,
+        "RELOAN_TOP_WILLING_COUPON_V2": 5
+      },
+      "miss": [
+        "ExpDiversionClient.getResult"
+      ],
+      "decision": "`RELOAN_TOP_*_v1` / 常量 `RELOAN_TOP_LOW_WILL_COUPON`：**发放链路已不在**（常量还能搜到、callers 空，或只剩 ABTestConfig 版本表）。  \n**活着的是 v2** `RELOAN_TOP_WILLING_COUPON_V2`：入口是 Kafka `AppStartUpGrantCoupo"
+    },
+    {
+      "path": "ec/db/kyc-encrypt-is-status-table.md",
+      "status": "active",
+      "verdict": "likely_active",
+      "symbol_hit_ratio": 1.0,
+      "hits": {
+        "ApiChannelAuthService": 5,
+        "AuthIdentityInfoService": 5,
+        "USER_ID": 5
+      },
+      "miss": [],
+      "decision": "`user_kyc_encrypt_info` 有 `UNIQUE KEY (USER_ID)`，是**用户档案/状态表**（一用户一行，会 UPDATE），不是事件流表。\n大表降本时：**事件流可按时间清理；状态表不能删**——原因与「可无限追加的日志表」完全不同。"
+    },
+    {
+      "path": "ec/experiment/blank-group-null-grouptype.md",
+      "status": "active",
+      "verdict": "likely_active",
+      "symbol_hit_ratio": 1.0,
+      "hits": {
+        "ExpClient": 5,
+        "ExperimentAdapterResultVO": 4,
+        "IExperimentAdapter": 5
+      },
+      "miss": [],
+      "decision": "实验扩全到 FULL_PERCENTAGE 后，**不能默认空白组（groupType == null）行为不变**。\n历史契约：`groupType == null` 表示用户未进实验分流语义；扩全后若代码/发券只认实验组布尔、丢掉 null 分支，会导致泳道空白组用户误发券等问题。\nCloudDB / Memory 对此类问题的价值是记「历史契约」，不是"
+    },
+    {
+      "path": "ec/experiment/diversion-blank-blocks-enrollment.md",
+      "status": "active",
+      "verdict": "likely_active",
+      "symbol_hit_ratio": 1.0,
+      "hits": {
+        "BLANK_GROUP": 5,
+        "DIVERSION_BLANK_GROUP": 5,
+        "EXPERIMENT_NOT_IN": 5,
+        "PARENT_DIVERSION_BLANK_GROUP": 5
+      },
+      "miss": [],
+      "decision": "入组率只有六成左右时，**不要先怀疑 33/33/33 没分满**。\n常见根因是合格用户被 **泳道空白**挡住：日志里大量 `DIVERSION_BLANK_GROUP` / `PARENT_DIVERSION_BLANK_GROUP` / `BLANK_GROUP`，字面也不是简单的 `EXPERIMENT_NOT_IN`。\n入组率公式可以没问题，失败归"
+    },
+    {
+      "path": "ec/gopay/api-channel-rejected-map-1001.md",
+      "status": "active",
+      "verdict": "partial_manual",
+      "symbol_hit_ratio": 0.86,
+      "hits": {
+        "API_CHANNEL_USER_REJECTED": 5,
+        "COMMON_SERVER_ERROR": 5,
+        "EcControllerExceptionAdvice": 5,
+        "EcExceptionType.API_CHANNEL_USER_REJECTED": 3,
+        "EcResponse.errStatus": 1,
+        "GopayController": 3,
+        "GopayController.pollAuthStatus": 0
+      },
+      "miss": [
+        "GopayController.pollAuthStatus"
+      ],
+      "decision": "理财用户等场景抛出 `API_CHANNEL_USER_REJECTED`（含无 `in_ID` 翻译的英文 `detailTT`）时，**不要**把原文直接给前端。\n应对前端映射为 `COMMON_SERVER_ERROR(1001)`，走 ERROR 分支只展示通用「网络异常，请稍后再试」；日志仍可保留原文。\n推荐在 `EcControllerExcep"
+    },
+    {
+      "path": "ec/gopay/contact-phone-no-validate-on-finish.md",
+      "status": "active",
+      "verdict": "likely_active",
+      "symbol_hit_ratio": 1.0,
+      "hits": {
+        "LOAN_MARKET_BASE": 5,
+        "LOAN_MARKET_SUPPLEMENT": 5
+      },
+      "miss": [],
+      "decision": "完件信息里出现格式错误/过短的紧急联系人手机号（如 `011****48`），根因通常不是展示层格式化，而是 **GoPay 完件链路把上游回传号码写入完件 Mongo，且未做手机号合法性校验**。\n能被「解析转换」的字符串就可能落到 `allContactInfo.immediateContact.mobilePhoneNo`，完件页再原样展示。"
+    },
+    {
+      "path": "ec/gopay/credit-data-global-table.md",
+      "status": "active",
+      "verdict": "likely_active",
+      "symbol_hit_ratio": 1.0,
+      "hits": {
+        "getCreditData": 5,
+        "loan_user_credits_info": 5,
+        "reloanStatus": 5
+      },
+      "miss": [],
+      "decision": "GoPay / api-channel index 授信查询里的 `getCreditData`，读的是 EC **全局**授信表 `loan_user_credits_info`，**不是** GOPAY 渠道专属表。\n因此「授信 ACCEPTED → 下单页」分支反映的是全局授信状态，写方案时不要假设渠道隔离额度视图。"
+    },
+    {
+      "path": "ec/homepage/display-strategy-enum-crash.md",
+      "status": "active",
+      "verdict": "likely_active",
+      "symbol_hit_ratio": 1.0,
+      "hits": {
+        "EXPERIMENT_GROUP": 5,
+        "HomeDisplayStrategy": 5,
+        "HomePageResponseBuildTool": 5,
+        "HomepageContentTool": 5,
+        "LoanMarketV3EntranceDisplayStrategy": 2,
+        "RejectUserinfoProcessor": 4
+      },
+      "miss": [],
+      "decision": "首页组装若把实验 `groupType`/策略名反序列成 `HomeDisplayStrategy`，而枚举**没有**对应常量（例如 `EXPERIMENT_GROUP`），会抛 `IllegalArgumentException: No enum constant ...HomeDisplayStrategy.EXPERIMENT_GROUP`，常见于复"
+    },
+    {
+      "path": "ec/homepage/interest-free-card-every-visit.md",
+      "status": "active",
+      "verdict": "needs_review",
+      "symbol_hit_ratio": 0.5,
+      "hits": {
+        "HomeInterestFreeCardHomePopupFilterRuleProcessor": 2,
+        "HomeInterestFreeCardHomePopupFilterRuleProcessor.hitRule": 0,
+        "HomeInterestFreeCardService": 5,
+        "HomeInterestFreeCardService.isEligibleUser": 0
+      },
+      "miss": [
+        "HomeInterestFreeCardHomePopupFilterRuleProcessor.hitRule",
+        "HomeInterestFreeCardService.isEligibleUser"
+      ],
+      "decision": "免息卡相关实验/弹层规则：**每次进入首页（请求资源位）都会触发**，不是「只有第一次」。  \n落点：`HomeInterestFreeCardHomePopupFilterRuleProcessor.hitRule`（每次请求首页资源位配置时执行）。"
+    },
+    {
+      "path": "ec/kafka/app-startup-at-least-once-realtime.md",
+      "status": "active",
+      "verdict": "likely_active",
+      "symbol_hit_ratio": 0.83,
+      "hits": {
+        "APP_STARTUP_AT_LEAST_ONCE": 5,
+        "AppStartupAtLeastOnceEventProcessor": 4,
+        "AppStartupService": 5,
+        "AppStartupService.sendAppStartupEvent": 0,
+        "LoanHomePageLogService": 4,
+        "RealTimeEventController": 1
+      },
+      "miss": [
+        "AppStartupService.sendAppStartupEvent"
+      ],
+      "decision": "代码里**不存在**「每天 00:00 cron 批量扫用户」的 Job。\n`APP_STARTUP_AT_LEAST_ONCE` 是 **C 端实时行为 → outbox/Kafka → 异步消费**；午夜看起来像批处理，是因为午夜 C 端流量高峰。\n入口包括 `openApp` / 首页 `asyncLogUserInfo` / `app/startup"
+    },
+    {
+      "path": "ec/kafka/consumer-enum-missing-crash.md",
+      "status": "active",
+      "verdict": "likely_active",
+      "symbol_hit_ratio": 1.0,
+      "hits": {
+        "ConsumerGroup": 5,
+        "ConsumerPoolService": 2,
+        "NEWISH_HEAD_LIMIT_COUPON_GRANT": 2
+      },
+      "miss": [],
+      "decision": "测试/生产 `indo-cashloan-ec-kafka-consumer` 起不来时，先查 ZK/配置 `kafka.topic_config` 是否出现了**镜像代码里没有的 `ConsumerGroup` 枚举值**。\n已证实案例：配置出现 `NEWISH_HEAD_LIMIT_COUPON_GRANT`，但镜像 `ConsumerGroup` 无此"
+    },
+    {
+      "path": "ec/living/tencent-intl-h5-not-domestic-api.md",
+      "status": "active",
+      "verdict": "needs_review",
+      "symbol_hit_ratio": 0.67,
+      "hits": {
+        "ApplyWebVerificationBizTokenIntl": 2,
+        "GetWebVerificationResultIntl": 3,
+        "LivenessCompare": 0,
+        "LivenessRecognition": 0,
+        "TENCENT_H5": 5,
+        "TencentAiService": 5
+      },
+      "miss": [
+        "LivenessCompare",
+        "LivenessRecognition"
+      ],
+      "decision": "ec-api 生产**没有**直接调用腾讯云国内版 `LivenessCompare` / `LivenessRecognition`。\n用的是国际版 SDK（`tencentcloud-sdk-java-intl-en`）的 **H5 Web Verification**：`ApplyWebVerificationBizTokenIntl` + `GetW"
+    },
+    {
+      "path": "ec/living/tongdun-app-enum-missing.md",
+      "status": "active",
+      "verdict": "likely_active",
+      "symbol_hit_ratio": 1.0,
+      "hits": {
+        "BizCheckEventProcessor": 5,
+        "LoanAccountDetailsPojo": 5,
+        "LoanUserLivingSource": 5,
+        "TONGDUN_APP": 5
+      },
+      "miss": [],
+      "decision": "ORDER_CHECK / 完件链路若 Mongo 用户资料 `livingInfo.loanUserLivingSource = \"TONGDUN_APP\"`，而后端枚举 `LoanUserLivingSource` **不包含** `TONGDUN_APP`，Jackson 反序列化 `LoanAccountDetailsPojo` 会失败，流程中断。\n"
+    },
+    {
+      "path": "ec/loanmarket/common-api-channel-zero-traffic.md",
+      "status": "active",
+      "verdict": "done_already",
+      "symbol_hit_ratio": 0.75,
+      "hits": {
+        "AkulakuController": 1,
+        "IndosatH5Controller": 1,
+        "LoanCommonApiChannelController": 0,
+        "SourceType.LAZADA_SELLER": 5
+      },
+      "miss": [
+        "LoanCommonApiChannelController"
+      ],
+      "decision": "生产 `ec-api` 的 loanmarket **真实流量**主要在专属 Controller（如 `AkulakuController`、`IndosatH5Controller`）。\n`LoanCommonApiChannelController` 的通用端点（`/checkUser`、`/creditsInfo`、`/trial` 等）观测为**长"
+    },
+    {
+      "path": "ec/loanmarket/event-type-mapping-missing-1001.md",
+      "status": "active",
+      "verdict": "likely_active",
+      "symbol_hit_ratio": 0.8,
+      "hits": {
+        "IDN_YQD": 5,
+        "LoanUserEventService": 5,
+        "LoanUserEventService.initUserEventTypeMappingCache": 0,
+        "REAPPLY": 5,
+        "RETRIEVAL_CALC_CREDITS_EXPIRE_USER": 5
+      },
+      "miss": [
+        "LoanUserEventService.initUserEventTypeMappingCache"
+      ],
+      "decision": "`POST /api/loanmarket/gopay/h5/pollAuthStatus` 返回 HTTP 200 但 `yqg-business-error-code: 1001` 时，常见根因不是接口本身，而是\n`LoanUserEventService.initUserEventTypeMappingCache` **查不到**\n`(sdkType,"
+    },
+    {
+      "path": "ec/loanmarket/market-user-check-zombie.md",
+      "status": "active",
+      "verdict": "done_already",
+      "symbol_hit_ratio": 0.5,
+      "hits": {
+        "MarketUserCheckService": 0,
+        "MarketUserController": 2
+      },
+      "miss": [
+        "MarketUserCheckService"
+      ],
+      "decision": "`/api/market/user/check`（`MarketUserController` + `MarketUserCheckService`）当前证据显示是**僵尸能力**：生产请求日志只有路由 Mapped 注册、无业务 request/response；`market_user_query_log` 长期 0 行。\n**可以下掉**；更稳做法是先"
+    },
+    {
+      "path": "ec/loanmarket/partner-install-limit-intraday.md",
+      "status": "active",
+      "verdict": "likely_active",
+      "symbol_hit_ratio": 1.0,
+      "hits": {
+        "LoanMarketPartnerEventObserver": 5,
+        "LoanMarketPartnerNotificationService": 5,
+        "LoanMarketPartnerStatusJob": 1
+      },
+      "miss": [],
+      "decision": "合作方 `install_limit` 配置本身可能是对的，但若**安装事件只计数、状态只靠每日 0 点 Job 改**，则日内限量基本拦不住（会出现远超额度的安装量）。\n修复方向：安装事件计数达标后**立即**触发限量下线（Kafka consumer 链路），不能只依赖日切 Job。\n发布时 **ec-kafka-consumer 必须发**，否则实时逻"
+    },
+    {
+      "path": "ec/notif/pandora-forces-needtranslate.md",
+      "status": "active",
+      "verdict": "likely_active",
+      "symbol_hit_ratio": 1.0,
+      "hits": {
+        "MessageCenterService": 5
+      },
+      "miss": [],
+      "decision": "EC `mc_message_template` 出现「日期已展开 + needTranslate=TRUE」的脏模板时，**不要先怪运营在 MC 配错**。\n已证实链路：MC 场景 `needTranslate=FALSE` 经 `mc-kafka-consumer` 正常；真正写脏模板的是 **`pandora-consumer`** 每天定时调用 `P"
+    },
+    {
+      "path": "ec/notif/tt-gen-full-sentence-key.md",
+      "status": "active",
+      "verdict": "likely_active",
+      "symbol_hit_ratio": 1.0,
+      "hits": {
+        "TT.gen": 5
+      },
+      "miss": [],
+      "decision": "部分站内信报「翻译错误」，常见根因不是日期文案本身，而是：**入库时把整句（含具体日期）当成要去翻译平台查的原文**，平台没有这条 key → 用户打开消息列表时 `TT.gen` 查翻译失败 → 接口报错。\n站内信要区分「可翻译模板 key」与「已拼好的最终文案」两条链路。"
+    },
+    {
+      "path": "ec/order/downstream-sync-init-not-ready.md",
+      "status": "active",
+      "verdict": "likely_active",
+      "symbol_hit_ratio": 1.0,
+      "hits": {
+        "BaseCashLoanEventProcessor": 5,
+        "CASH_LOAN_EVENT_DOWNSTREAM_SYNC": 4,
+        "ORDER_INITIALIZED": 5,
+        "ORDER_READY": 5,
+        "ORDER_RESERVED": 5,
+        "REJECT": 5
+      },
+      "miss": [],
+      "decision": "`CASH_LOAN_EVENT_DOWNSTREAM_SYNC` 技术上可在 `onOrderInitial` / `onOrderReserved` 挂回调（Kafka 已通）。真正风险在**业务语义与下游契约**：\n1. 不是每笔单都走齐 RESERVE→INIT→READY；\n2. 早推后若 `REJECT` 不推，下游会留「未放款却存在」脏数据；\n"
+    },
+    {
+      "path": "ec/order/lazada-buyer-via-apichannel.md",
+      "status": "active",
+      "verdict": "likely_active",
+      "symbol_hit_ratio": 0.8,
+      "hits": {
+        "LAZADA_BUYER": 5,
+        "LAZADA_CREATE_ORDER": 5,
+        "LAZADA_PRE_SELECT": 5,
+        "LAZADA_SECOND_PRE_SELECT": 5,
+        "LazadaBuyerCallbackBiz": 0
+      },
+      "miss": [
+        "LazadaBuyerCallbackBiz"
+      ],
+      "decision": "`LAZADA_BUYER` 是 **indo-apichannel 主导的三方 API 链路**，不是 GoPay 那种 H5 入口。\n主序：Lazada → `indo-apichannel /api/loanmarket/lazada/**` → 验签转换 → EC internal-api → 撞库/授信/建单… → callback task 回 "
+    },
+    {
+      "path": "ec/order/lazada-credit-push-only-risk.md",
+      "status": "active",
+      "verdict": "likely_active",
+      "symbol_hit_ratio": 1.0,
+      "hits": {
+        "ApiChannelCallBackService": 5,
+        "ChannelPushService": 4,
+        "LazadaBuyerApiChannelPushProvider": 2,
+        "LoanMarketObserver": 5
+      },
+      "miss": [],
+      "decision": "Lazada「额度变更推送到 API 渠道」**不是都会推**。  \n当前代码里，只有走**风控结果推送链路**才会落到 `LazadaBuyerApiChannelPushProvider#pushCreditModificationResultToApiChannel`。"
+    },
+    {
+      "path": "ec/risk/jooq-null-traceid-bind.md",
+      "status": "active",
+      "verdict": "needs_review",
+      "symbol_hit_ratio": 0.67,
+      "hits": {
+        "CashLoanCreditsService": 5,
+        "CashLoanCreditsService.insertOrUpdateRiskOutputResult": 0,
+        "EMPTY_BIND_VALUE": 5,
+        "LoanUserRiskTraceService": 5,
+        "RiskOutputService": 5,
+        "RiskOutputService.findByTraceIdAndType": 0
+      },
+      "miss": [
+        "CashLoanCreditsService.insertOrUpdateRiskOutputResult",
+        "RiskOutputService.findByTraceIdAndType"
+      ],
+      "decision": "`findByTraceIdAndType(null, …)` 时若仍 `WHERE trace_id = ?` 且 bind null → `EMPTY_BIND_VALUE` 告警。  \n不能只改 `RiskOutputService` 一处：大量代码**直调 Model** 绕过包装。"
+    },
+    {
+      "path": "ec/risk/reloan-fee-will-level-storage.md",
+      "status": "active",
+      "verdict": "needs_review",
+      "symbol_hit_ratio": 0.6,
+      "hits": {
+        "HomeInterestFreeCardService": 5,
+        "HomeInterestFreeCardService.isLowFeeWillLevel": 0,
+        "LoanUserRiskTraceService": 5,
+        "LoanUserRiskTraceService.getFeeWillLevelV4": 0,
+        "RELOAN_FEE_WILL_LEVEL_V4": 5
+      },
+      "miss": [
+        "HomeInterestFreeCardService.isLowFeeWillLevel",
+        "LoanUserRiskTraceService.getFeeWillLevelV4"
+      ],
+      "decision": "意愿分在 EC **有落库**，可 mock。  \n链路：risk 输出 → `risk_output_result`（`type = RELOAN_FEE_WILL_LEVEL_V4`，值在 `new_value`）→ `LoanUserRiskTraceService.getFeeWillLevelV4` → `HomeInterestFreeCardS"
+    },
+    {
+      "path": "ec/risk/web-calc-credits-no-channel.md",
+      "status": "active",
+      "verdict": "likely_active",
+      "symbol_hit_ratio": 0.83,
+      "hits": {
+        "LoanAccountController": 5,
+        "LoanAccountService": 5,
+        "LoanAccountService.submitCalcCreditsApplication": 0,
+        "RiskProcessParam": 5,
+        "RiskProcessParam.fromForCalcCredits": 4,
+        "SubmitCalcCreditsApplicationVO": 5
+      },
+      "miss": [
+        "LoanAccountService.submitCalcCreditsApplication"
+      ],
+      "decision": "WEB 下「戳额 / 额度过期重新测额」的风控 trace **没有 flip/ovo 等细分 channel**，只记到 `source_type = WEB`。\n原因：入口 `LoanAccountService.submitCalcCreditsApplication` → `SubmitCalcCreditsApplicationVO` **无 ch"
+    }
+  ]
+}

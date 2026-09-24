@@ -1,0 +1,60 @@
+{
+  "when": "2026-09-24 14:09:01",
+  "batch": 2,
+  "new": [
+    {
+      "path": "ec/living/tongdun-app-enum-missing.md",
+      "write_ok": true,
+      "import_http": 200
+    },
+    {
+      "path": "ec/auth/trigger-auth-completed-before-persist.md",
+      "write_ok": true,
+      "import_http": 200
+    },
+    {
+      "path": "ec/db/kyc-encrypt-is-status-table.md",
+      "write_ok": true,
+      "import_http": 200
+    },
+    {
+      "path": "ec/homepage/display-strategy-enum-crash.md",
+      "write_ok": true,
+      "import_http": 200
+    },
+    {
+      "path": "ec/gopay/contact-phone-no-validate-on-finish.md",
+      "write_ok": true,
+      "import_http": 200
+    },
+    {
+      "path": "ec/coupon/orthogonal-anti-settle-exp.md",
+      "write_ok": true,
+      "import_http": 200
+    }
+  ],
+  "ec_l2_count": 21,
+  "ec_l2_files": [
+    "ec/apichannel/collision-upgrade-fallback.md",
+    "ec/auth/ec-secured-api.md",
+    "ec/auth/h5-app-cross-login-order.md",
+    "ec/auth/reuse-deleted-user-check.md",
+    "ec/auth/trigger-auth-completed-before-persist.md",
+    "ec/bindcard/saqu-superbank-pattern.md",
+    "ec/coupon/open-app-grant.md",
+    "ec/coupon/orthogonal-anti-settle-exp.md",
+    "ec/coupon/v1-dead-v2-kafka.md",
+    "ec/db/kyc-encrypt-is-status-table.md",
+    "ec/experiment/blank-group-null-grouptype.md",
+    "ec/gopay/contact-phone-no-validate-on-finish.md",
+    "ec/gopay/credit-data-global-table.md",
+    "ec/homepage/display-strategy-enum-crash.md",
+    "ec/homepage/interest-free-card-every-visit.md",
+    "ec/kafka/consumer-enum-missing-crash.md",
+    "ec/living/tongdun-app-enum-missing.md",
+    "ec/notif/tt-gen-full-sentence-key.md",
+    "ec/order/lazada-credit-push-only-risk.md",
+    "ec/risk/jooq-null-traceid-bind.md",
+    "ec/risk/reloan-fee-will-level-storage.md"
+  ]
+}

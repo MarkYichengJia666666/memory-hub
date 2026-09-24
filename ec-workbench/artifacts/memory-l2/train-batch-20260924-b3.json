@@ -1,0 +1,66 @@
+{
+  "when": "2026-09-24 14:10:45",
+  "batch": 3,
+  "new": [
+    {
+      "path": "ec/apichannel/context-channel-unreliable.md",
+      "write_ok": true,
+      "import_http": 200
+    },
+    {
+      "path": "ec/auth/device-token-mismatch-risk.md",
+      "write_ok": true,
+      "import_http": 200
+    },
+    {
+      "path": "ec/config/downstream-repay-sync-needs-restart.md",
+      "write_ok": true,
+      "import_http": 200
+    },
+    {
+      "path": "ec/abtest/sub-abtest-not-deadloop.md",
+      "write_ok": true,
+      "import_http": 200
+    },
+    {
+      "path": "ec/loanmarket/partner-install-limit-intraday.md",
+      "write_ok": true,
+      "import_http": 200
+    },
+    {
+      "path": "ec/experiment/diversion-blank-blocks-enrollment.md",
+      "write_ok": true,
+      "import_http": 200
+    }
+  ],
+  "ec_l2_count": 27,
+  "ec_l2_files": [
+    "ec/abtest/sub-abtest-not-deadloop.md",
+    "ec/apichannel/collision-upgrade-fallback.md",
+    "ec/apichannel/context-channel-unreliable.md",
+    "ec/auth/device-token-mismatch-risk.md",
+    "ec/auth/ec-secured-api.md",
+    "ec/auth/h5-app-cross-login-order.md",
+    "ec/auth/reuse-deleted-user-check.md",
+    "ec/auth/trigger-auth-completed-before-persist.md",
+    "ec/bindcard/saqu-superbank-pattern.md",
+    "ec/config/downstream-repay-sync-needs-restart.md",
+    "ec/coupon/open-app-grant.md",
+    "ec/coupon/orthogonal-anti-settle-exp.md",
+    "ec/coupon/v1-dead-v2-kafka.md",
+    "ec/db/kyc-encrypt-is-status-table.md",
+    "ec/experiment/blank-group-null-grouptype.md",
+    "ec/experiment/diversion-blank-blocks-enrollment.md",
+    "ec/gopay/contact-phone-no-validate-on-finish.md",
+    "ec/gopay/credit-data-global-table.md",
+    "ec/homepage/display-strategy-enum-crash.md",
+    "ec/homepage/interest-free-card-every-visit.md",
+    "ec/kafka/consumer-enum-missing-crash.md",
+    "ec/living/tongdun-app-enum-missing.md",
+    "ec/loanmarket/partner-install-limit-intraday.md",
+    "ec/notif/tt-gen-full-sentence-key.md",
+    "ec/order/lazada-credit-push-only-risk.md",
+    "ec/risk/jooq-null-traceid-bind.md",
+    "ec/risk/reloan-fee-will-level-storage.md"
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "when": "2026-09-24 14:33:12",
+  "ec_head": "d103aeefa32 Merge branch 'release/20260922-5'",
+  "batch": "durable-closeout",
+  "new": [
+    {
+      "path": "ec/auth/merge-user-id-vs-merged-user-id.md",
+      "write_ok": true,
+      "import_http": 200
+    },
+    {
+      "path": "ec/loanmarket/flip-h5-revolving-whitelist-means-inloan.md",
+      "write_ok": true,
+      "import_http": 200
+    },
+    {
+      "path": "ec/risk/query-risk-trace-single-account-hot.md",
+      "write_ok": true,
+      "import_http": 200
+    },
+    {
+      "path": "ec/notif/repay-due-lrd-selector-chain.md",
+      "write_ok": true,
+      "import_http": 200
+    },
+    {
+      "path": "ec/homepage/h5-whole-process-hides-main-button.md",
+      "write_ok": true,
+      "import_http": 200
+    },
+    {
+      "path": "ec/auth/recover-account-dwlog-safe.md",
+      "write_ok": true,
+      "import_http": 200
+    },
+    {
+      "path": "ec/apichannel/lazada-first-reject-long-can-retry.md",
+      "write_ok": true,
+      "import_http": 200
+    },
+    {
+      "path": "ec/apichannel/gopay-submit-renamed-decision-tree.md",
+      "write_ok": true,
+      "import_http": 200
+    },
+    {
+      "path": "ec/homepage/multi-loan-init-uses-legacy-main-card.md",
+      "write_ok": true,
+      "import_http": 200
+    },
+    {
+      "path": "ec/risk/query-risk-trace-v2-pending-replace.md",
+      "write_ok": true,
+      "import_http": 200
+    }
+  ],
+  "hub_count": 61,
+  "local_active": 55,
+  "local_superseded": 5
+}

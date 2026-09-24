@@ -68,6 +68,9 @@ deploy/global-images/.admin-key
 deploy/global-images/.proxy-config/
 deploy/global-images/.memory-core-config/
 
+# EC Memory P0 身份凭据（含 user_key 明文）
+ec-workbench/.p0-memory-identity.json
+
 # Eval scripts output
 scripts/eval-report.json
 
@@ -139,3 +142,4 @@ MemoryCore/scripts/bench-l0-mongo/reports/
 # Local-only: parity snapshots & runtime configs (never commit)
 MemoryProxy/.archive-tmp/
 z_config/
+ec-workbench/.claude-via-memory/

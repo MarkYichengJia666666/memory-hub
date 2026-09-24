@@ -1,0 +1,133 @@
+{
+  "when": "2026-09-23 16:10:53",
+  "model": "deepseek-v4-flash-0731",
+  "note": "L2 inventory + L0 import(+instance) + L1 poll + Proxy tool-loop",
+  "inventory_passed": 3,
+  "l1_passed": 0,
+  "proxy_passed": 3,
+  "total": 3,
+  "imports": [
+    {
+      "id": "saqu-superbank",
+      "session_id": "p0-recall-saqu-superbank-1790150914",
+      "http": 400,
+      "resp_brief": "{'code': 400, 'message': 'MISSING_INSTANCE_ID', 'request_id': '58c743e1-d6c0-4ae7-9849-b40d7b82683c', 'data': None}"
+    },
+    {
+      "id": "ec-secured-api",
+      "session_id": "p0-recall-ec-secured-api-1790150914",
+      "http": 400,
+      "resp_brief": "{'code': 400, 'message': 'MISSING_INSTANCE_ID', 'request_id': 'f5abaac9-1d5e-460d-ae39-7c240ef07401', 'data': None}"
+    },
+    {
+      "id": "lazada-credit-push",
+      "session_id": "p0-recall-lazada-credit-push-1790150914",
+      "http": 400,
+      "resp_brief": "{'code': 400, 'message': 'MISSING_INSTANCE_ID', 'request_id': '7efa3d62-bc34-4e26-992e-74eaa6211c08', 'data': None}"
+    }
+  ],
+  "results": [
+    {
+      "id": "saqu-superbank",
+      "path": "ec/bindcard/saqu-superbank-pattern.md",
+      "q": "Saqu 绑卡只能绑自家卡且要可开关，应复用哪套已有模式？给出关键方法名。",
+      "inventory_ok": true,
+      "l1_ready": false,
+      "l1_snip": "",
+      "proxy_ok": true,
+      "used_tool_loop": true,
+      "rounds": 2,
+      "checks": {
+        "keepOnlySuperBank": true,
+        "SuperBank或FAMA": true
+      },
+      "prompt_tokens": 4330,
+      "elapsed_s": 5.48,
+      "answer_excerpt": "根据记忆中的 L2 场景 `ec/bindcard/saqu-superbank-pattern.md`，Saqu「只能绑自家卡 + 可开关」应**直接对标已落地的 SuperBank 渠道逻辑**，复用同一套接口（H5/WEB 共用），不要另起一套过滤。\n\n**关键方法名：**\n\n- **`LoanBankAccountService.keepOnlySuperBankIfInExperiment`** —— 核心过滤方法，直接复用/对标这个模式\n- **`LoanBankAccountController`** —— 接口入口\n- **`ExperimentNameSpace.SUPERBANK_CHANNEL_USER_BINDING_CARD`** —— 对标实验枚举（Saqu 侧换成自己的实验枚举）\n\n**行为链路要点：**\n`deviceId → mediaSource 白名单 → 命中实验才过滤 → 仅保留 `BankType.FAMA`（SuperBank）`\n\n**约束提醒：**\n- 不要另起一套过滤逻辑，复用 `keepOnlySuperBankIfInExperiment` 模式\n- 开关要能随时切换「只自家卡 / 全部卡」两种状态\n\n**路由锚点：** `GET /api/idn/cashloan/getSupportedBank`"
+    },
+    {
+      "id": "ec-secured-api",
+      "path": "ec/auth/ec-secured-api.md",
+      "q": "EC 接口鉴权注解正确名字是什么？账号找回登录前步骤能否加登录注解？",
+      "inventory_ok": true,
+      "l1_ready": false,
+      "l1_snip": "",
+      "proxy_ok": true,
+      "used_tool_loop": true,
+      "rounds": 2,
+      "checks": {
+        "ECSecuredApi": true,
+        "否定SecureAPI或登录前勿加": true
+      },
+      "prompt_tokens": 4539,
+      "elapsed_s": 6.6,
+      "answer_excerpt": "基于记忆中的记录，直接回答你的两个问题：\n\n## 1. EC 接口鉴权注解正确名字\n\n正确名字是 **`@ECSecuredApi`**，**不是** `@SecureAPI`。\n\n> ⚠️ 项目里没有 `@SecureAPI`，实际闸门是 `@ECSecuredApi`。不要搜/加 `@SecureAPI`。\n\n## 2. 账号找回登录前步骤能否加登录注解？\n\n**不能乱加。** 账号找回链路中，登录前接口（发码/验码等）**不应加**登录注解。\n\n关键原因：\n- 找回链路的部分接口（如 `POST /api/account-recovery/match`）**只认 `sessionToken`，不认 `userToken`**；\n- 登录前步骤如果加了 `@ECSecuredApi` 会**断流程**；\n- 部分接口（如 `GET /api/generalConfig`）在白名单内可免登录。\n\n**建议**：改找回鉴权前，先对整条链路（含复用现网接口）做一次完整复核，再决定哪些接口加、哪些不加。"
+    },
+    {
+      "id": "lazada-credit-push",
+      "path": "ec/order/lazada-credit-push-only-risk.md",
+      "q": "Lazada 额度变更推 API 渠道是否所有额度变更都推？应看哪条链路？",
+      "inventory_ok": true,
+      "l1_ready": false,
+      "l1_snip": "",
+      "proxy_ok": true,
+      "used_tool_loop": true,
+      "rounds": 2,
+      "checks": {
+        "并非全部": true,
+        "风控推送符号": true
+      },
+      "prompt_tokens": 4337,
+      "elapsed_s": 7.08,
+      "answer_excerpt": "基于记忆中的场景记录，直接回答你的问题：\n\n## 结论：**不是所有额度变更都会推**\n\nLazada「额度变更推送到 API 渠道」**并不是所有额度变更都会推**。\n\n## 应看的链路\n\n当前代码里，只有走**风控结果推送链路**才会落到：\n\n```\nLazadaBuyerApiChannelPushProvider#pushCreditModificationResultToApiChannel\n```\n\n### 关键链路节点（按顺序排查）\n\n1. **入口**：`LoanMarketObserver#processRiskEvent` —— 风控事件观察者\n2. **推送服务**：`ChannelPushService` 下的三个方法：\n   - `pushRiskResult`\n   - `pushCalcCreditRiskResult`\n   - `pushOrderRiskResult`\n3. **落地推送**：`LazadaBuyerApiChannelPushProvider#pushCreditModificationResultToApiChannel`\n4. **回调**：`ApiChannelCallBackService#callBackCreditModificationToApiChannel`\n\n## 排查建议\n\n如果你在排查「**为什么没推 Lazada**」，**不要假设所有额度变更都会回调渠道**，而是先确认：\n\n> 该额度变更是否走过了**风控结果推送链路**？\n\n只有经过风控结果推送的额度变更，才会触发到 API 渠道的回调推送。其他路径的额度变更（比如纯内部计算、非风控触发的变更）不会走到这条链路。"
+    }
+  ],
+  "l0_import_later": [
+    {
+      "id": "saqu-superbank",
+      "session_id": "p0-recall-saqu-superbank-1790151078",
+      "resp": {
+        "code": 0,
+        "message": "ok",
+        "request_id": "e1abe238-f6e4-4ca1-9145-b5aeb447d7a6",
+        "data": {
+          "imported": true,
+          "block_id": "chat_memory-team-25ax2ljxko-agt-25ay1hg9ya",
+          "session_id": "p0-recall-saqu-superbank-1790151078",
+          "accepted_count": 4
+        }
+      }
+    },
+    {
+      "id": "ec-secured-api",
+      "session_id": "p0-recall-ec-secured-api-1790151078",
+      "resp": {
+        "code": 0,
+        "message": "ok",
+        "request_id": "574ca9a6-0a19-4f2d-890a-1635ca7f17d7",
+        "data": {
+          "imported": true,
+          "block_id": "chat_memory-team-25ax2ljxko-agt-25ay1hg9ya",
+          "session_id": "p0-recall-ec-secured-api-1790151078",
+          "accepted_count": 4
+        }
+      }
+    },
+    {
+      "id": "lazada-credit-push",
+      "session_id": "p0-recall-lazada-credit-push-1790151078",
+      "resp": {
+        "code": 0,
+        "message": "ok",
+        "request_id": "8d6a266f-2c00-4d49-8cba-8cb6ca983672",
+        "data": {
+          "imported": true,
+          "block_id": "chat_memory-team-25ax2ljxko-agt-25ay1hg9ya",
+          "session_id": "p0-recall-lazada-credit-push-1790151078",
+          "accepted_count": 4
+        }
+      }
+    }
+  ],
+  "verdict": "inventory 3/3 + proxy tool-loop 3/3; L0 imported after for distill"
+}

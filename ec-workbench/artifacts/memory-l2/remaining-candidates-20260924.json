@@ -1,0 +1,408 @@
+{
+  "existing_active": 45,
+  "existing_superseded": 5,
+  "candidates_total": 200,
+  "already_covered": 152,
+  "worth_write_raw": 29,
+  "worth_write_deduped": 29,
+  "one_off_case": 1,
+  "process_or_noise": 12,
+  "low_score": 6,
+  "remaining_by_topic": {
+    "apichannel": 10,
+    "experiment": 4,
+    "bindcard": 1,
+    "kafka": 3,
+    "auth": 4,
+    "coupon": 3,
+    "risk": 2,
+    "misc": 1,
+    "order": 1
+  },
+  "remaining": [
+    {
+      "topic": "apichannel",
+      "score": 11,
+      "src": "ec",
+      "tid": "b0caa16c-8535-404b-8b93-2c4c96a98233",
+      "syms": [
+        "LoanUserCreditsService",
+        "getMinAvailableOrderSeqLimitCreditsCoupon",
+        "couponId",
+        "LoanUserCouponModel.listByIds",
+        "LoanUserCouponService.getMinAvailableOrderSeqLimitCreditsCoupon"
+      ],
+      "decision_line": "结论：主修 `LoanUserCreditsService` L353"
+    },
+    {
+      "topic": "apichannel",
+      "score": 10,
+      "src": "ec-1",
+      "tid": "3755a7cd-c638-45e3-b67c-200eecab29ab",
+      "syms": [
+        "skills/ui/",
+        "uiModules",
+        "list-modules",
+        "submit-order"
+      ],
+      "decision_line": "结论：**逻辑上可以认为模块化已可用；真机冒烟可选，完整打款复跑不建议仅为验证模块化而做。**"
+    },
+    {
+      "topic": "experiment",
+      "score": 10,
+      "src": "ec",
+      "tid": "b872ad7a-b23a-4d14-9372-da5e74151d5c",
+      "syms": [
+        "test-plan.md",
+        "abTestByUserId",
+        "isReloanNormalHeaderUser",
+        "remediation",
+        "specs/.reflect/TAPD-377582-reloan-grant-coupon-n2.json"
+      ],
+      "decision_line": "结论：我上午修的 4 个 warn 里，**3 个真修好了，1 个只修了一半**——而且那半个是我自己改出来的新错。"
+    },
+    {
+      "topic": "apichannel",
+      "score": 9,
+      "src": "ec",
+      "tid": "a1c8081e-d8b1-495e-8a7a-11240e8f476c",
+      "syms": [
+        "ApiChannelCheckMobileResultModel",
+        "ApiChannelCollisionResultServiceTest.java",
+        "ApiMarketingUserCheckResultServiceTest.java",
+        "NotifBlacklistPushServiceTest.java",
+        "findLastByMobileNumberMd5"
+      ],
+      "decision_line": "结论：UT 不需要改也不需要删。** 所有测试都在 Service 层 mock 了 Model，时间过滤的改动在 Model 层，对上层测试透明。"
+    },
+    {
+      "topic": "apichannel",
+      "score": 9,
+      "src": "ec",
+      "tid": "5d67d182-8501-4b66-805e-126552ad725e",
+      "syms": [
+        "playbooks/gobills-bill-inquiry-penalty-due-amount.md",
+        "Gopay3PController",
+        "GopayConverterUtils",
+        "penalty_amount",
+        "overdueInterest"
+      ],
+      "decision_line": "更新完成。以下是本次沉淀的内容： **新增 playbook**：`playbooks/gobills-bill-inquiry-penalty-due-amount.md` 覆盖了： 1. **架构背景**：GoBills 不是 EC 的 apichannel 渠道，走 Gopay3PController → GopayBiz → GopayConvert"
+    },
+    {
+      "topic": "apichannel",
+      "score": 9,
+      "src": "ec",
+      "tid": "fcc24824-2ef1-401c-99d3-610188ceef71",
+      "syms": [
+        "condition",
+        "gopay.submit_application",
+        "collision.decision_tree",
+        "legacyMs",
+        "api_channel.collision_decision_tree_percent"
+      ],
+      "decision_line": "结论：三阶段比较的是**同一个业务场景**，只是 process code 改名了"
+    },
+    {
+      "topic": "apichannel",
+      "score": 9,
+      "src": "ec",
+      "tid": "cc17f45a-bb3e-4e14-b280-946184056f41",
+      "syms": [
+        "FIRST_LOAN_REJECT_LONG_CAN_RETRY",
+        "CollisionProcessNode.BRANCH_FIRST_REJECT_180D",
+        "LazadaPreSelectChecker.convertStatusForUpgrade",
+        "LAZADA_WITHIN_REJECTION_PERIOD",
+        "LAZADA_APPROVE"
+      ],
+      "decision_line": "结论：改动极小，仅修改 2 个 Checker 的 upgrade 流映射。**"
+    },
+    {
+      "topic": "apichannel",
+      "score": 9,
+      "src": "ec-1",
+      "tid": "b0d70341-1362-4359-8637-b289d431aa64",
+      "syms": [
+        "repaymentAccountService",
+        "monitorService",
+        "RepaymentAccountService",
+        "RepaymentAccountCallerType",
+        "ApiChannelUserMonitorService"
+      ],
+      "decision_line": "结论： - **Task 1（Service 文件）**：那 10 个死方法在当前工作区版本中**已经不存在**（git status 显示文件已被修改过），所有剩余 import 仍有活跃方法在用，无孤儿 import，无需进一步操作。"
+    },
+    {
+      "topic": "bindcard",
+      "score": 9,
+      "src": "ec",
+      "tid": "ed671c6f-858e-4b55-a9c9-69de4a7be25c",
+      "syms": [
+        "IDNHomepageLoanStatusV5",
+        "MULTI_LOAN_CREDITS_DECREASE_QUICK_ORDER",
+        "PageCardV3",
+        "MULTI_LOAN_INIT",
+        "HomePageMainCardInfo"
+      ],
+      "decision_line": "结论：**除了额度测算阶段外，其余都走的是新版 `PageCardV3` 元素卡片系统，MAIN_BUTTON 是否展示统一受 `HomepageWholeProcessTool#showDownloadButton()` 控制**——H5\"全流程\"渠道（`isWholeProcess=true`）不展示按钮，其余渠道（App / 非全流程H5）才展示。"
+    },
+    {
+      "topic": "kafka",
+      "score": 9,
+      "src": "ec",
+      "tid": "b8cdc13d-885d-440c-b893-dc1724fb39dc",
+      "syms": [
+        "TargetTaskProducerJob",
+        "LoanRepaymentDueSelector",
+        "INSTALMENT_BILLING_DATE",
+        "RepaymentReminderInPersonDimensionSelector",
+        "INSTALMENT_BILLING_DATE_MOST_RECENTLY"
+      ],
+      "decision_line": "上报服务 502，已重试两次均失败，告知你上报失败原因：上报服务端返回 502 Bad Gateway。 --- ## 排查结论 这条消息是**贷款到期还款提醒**，触发链路如下： ### 触发入口（ec-scheduler） **`TargetTaskProducerJob`** — 定时 Job，读取数据库中所有有效的 Selector 配置，批量执行筛"
+    },
+    {
+      "topic": "apichannel",
+      "score": 8,
+      "src": "ec",
+      "tid": "468ce876-1e14-4803-9952-698294632dab",
+      "syms": [
+        "f15b76774ab",
+        "ec-core/src/main/java/com/yqg/core/service/payment/pm/pmenum/ReceiptPaymentChannel.java",
+        "com.yqg.ec.common.enums.ReceiptPaymentChannel",
+        "ec-common",
+        "com.yqg.core.service.payment.pm.pmenum.ReceiptPaymentChannel"
+      ],
+      "decision_line": "결론이 나왔습니다： **누가 삭제했나**: xiangwenyao, 2026-05-19 커밋 `f15b76774ab`（`[ec][ec-core]feat: add DANA Direct Debit support`, D606164）에서 삭제됐습니다. 삭제 이유：같은 커밋에서 `ec-core/src/main/java/com/yqg"
+    },
+    {
+      "topic": "apichannel",
+      "score": 8,
+      "src": "ec-1",
+      "tid": "24b9b619-cbea-4c05-83a2-ac006c1ce4dc",
+      "syms": [
+        "user-grafana",
+        "query_prometheus",
+        "Tomcat_WebModule_errorCount",
+        "Tomcat_WebModule_requestCount",
+        "Tomcat_WebModule_processingTime"
+      ],
+      "decision_line": "所有数据都能取到。以下是完整结论： --- ## 现有工具能拿到的 SLA 数据 **可以，通过 `user-grafana` MCP 的 Prometheus 查询完全可以获取服务 SLA。** 刚才已实际验证，当前数据如下： ### 实测结果（apichannel-api-application，过去 1 小时） | 指标 | 值 | PromQL 来源"
+    },
+    {
+      "topic": "auth",
+      "score": 8,
+      "src": "ec",
+      "tid": "8a592838-a7d5-478a-9102-686510232e3e",
+      "syms": [
+        "MERGE_USER_ID",
+        "MERGE_NORMALIZED_MOBILE_NUMBER",
+        "MERGED_USER_ID",
+        "MERGED_NORMALIZED_MOBILE_NUMBER",
+        "MobileNo"
+      ],
+      "decision_line": "结论：完全对应，`MERGE_*` 始终属于留存账号，`MERGED_*` 始终属于被删账号。**"
+    },
+    {
+      "topic": "auth",
+      "score": 8,
+      "src": "ec-1",
+      "tid": "1eed3344-7c07-4b23-9e61-dcc3507d084b",
+      "syms": [
+        "RecoverAccountProtectBlockLogger.safeLog",
+        "safeLog",
+        "BANK_LOCK",
+        "blockAfterLimitCount",
+        "incrementBlockAfterLimitCount"
+      ],
+      "decision_line": "结论：正常找回主流程基本不受影响；防护阈值/错误码/文案没改。DWLog 本身不会把业务打挂。**"
+    },
+    {
+      "topic": "auth",
+      "score": 8,
+      "src": "ec-1",
+      "tid": "9864b891-941b-493b-9976-ba365ab24783",
+      "syms": [
+        "SKILL.md",
+        "sql-quality-bitable.py",
+        "sql_mitigate.py",
+        "ec-slow-query",
+        "agreement-reconciliation"
+      ],
+      "decision_line": "情况清晰了： | 文件 | 本地 `~/.cursor/skills/` | 仓库 `.cursor/skills/` | 结论 | |---|---|---|---| | `SKILL.md` | 2026-07-10（**更新**） | 2026-06-25（旧） | 本地版为准 | | `sql-quality-bitable.py` | 2026-0"
+    },
+    {
+      "topic": "coupon",
+      "score": 8,
+      "src": "ec-1",
+      "tid": "43e21908-83ba-4ff8-b453-09672c85eea2",
+      "syms": [
+        "sw049365",
+        "isHitExperiment",
+        "specs/TAPD-370632-home-free-card-v3/reports/2026-08-17-api-selftest/report.html",
+        "results.json"
+      ],
+      "decision_line": "结论：7 PASS / 0 FAIL / 1 OBS**（Sketch TC 覆盖 6/9）"
+    },
+    {
+      "topic": "experiment",
+      "score": 8,
+      "src": "ec",
+      "tid": "3ff96fd7-bf28-4761-b4a3-44e7ce957278",
+      "syms": [
+        "reloan_order_26h1-lending-abroad-renew-repay_plan_coupon_v3",
+        "c.y.t.client.utils.TT",
+        "AbstractExpClient",
+        "technology-install-abroad-idle_event-h5",
+        "technology-not_withdraw-abroad-loan_all"
+      ],
+      "decision_line": "--- ## 最近10分钟 ec-api ERROR 排查结论 共 **100条** ERROR，全部是**配置类问题**，没有代码异常/系统故障。两大根因： --- ### 📊 按原因从多到少排序 | 排名 | 次数 | 类型 | 具体原因 | |------|------|------|---------| | 1 | **29次** | 翻译缺失 | "
+    },
+    {
+      "topic": "experiment",
+      "score": 8,
+      "src": "ec-1",
+      "tid": "3bee1099-3e70-48c9-9662-53c0008684ef",
+      "syms": [
+        "findings_resource_position.json",
+        "output_validator",
+        "HOME_INTEREST_FREE_CARD",
+        "free-interest-card-popup",
+        "tryEnrollAndHitV3"
+      ],
+      "decision_line": "结论：MISMATCH**"
+    },
+    {
+      "topic": "kafka",
+      "score": 8,
+      "src": "ec",
+      "tid": "15f64268-7d62-4400-9970-d0f4f9c71b63",
+      "syms": [
+        "MultiLoanProductProcessor",
+        "web_Flip",
+        "homepage_v5_config.web_channel_revolving_whitelist"
+      ],
+      "decision_line": "结论：Flip H5「在贷续借」目前没有成功 case；有的是结清后复贷。**"
+    },
+    {
+      "topic": "kafka",
+      "score": 8,
+      "src": "ec-1",
+      "tid": "21731dba-6d06-4cc7-9fa1-a0f60a0d2ac6",
+      "syms": [
+        "ec-scheduler",
+        "time_payout",
+        "financing_transaction_record",
+        "financing_additional_info"
+      ],
+      "decision_line": "今天凌晨 0 点到 2 点（WIB）的报告出来了，**共 1858 条慢查询，80 种 SQL 模式**，以下是关键结论： --- ## 🐢 慢查询榜 — 最值得关注 **#1 最慢：27,086ms（27 秒！）** ```sql SELECT ID FROM cash_loan_order WHERE time_payout >= ? AND time_"
+    },
+    {
+      "topic": "risk",
+      "score": 8,
+      "src": "ec",
+      "tid": "a3463da7-2b5d-443b-bd0c-fd3921d83088",
+      "syms": [
+        "junit-platform-console-standalone",
+        "junit-platform-launcher",
+        "RunTest",
+        "reports/channel-flow-self-test.md"
+      ],
+      "decision_line": "结论：我后来改用 `junit-platform-launcher`（本地仓库已有）配合一个自写的 `RunTest` 启动器来跑测试，已经拿到了结果（受限于本地 jOOQ 生成类过期，未能得到最终绿灯/红灯结论，已在 `reports/channel-flow-self-test.md` 中记录）。"
+    },
+    {
+      "topic": "risk",
+      "score": 8,
+      "src": "ec",
+      "tid": "badfbbdd-cd0c-4223-8960-7e0be8defe0f",
+      "syms": [
+        "indo-cashloan-ec-internal-api",
+        "queryLoanUserRiskTrace",
+        "loanAccountId",
+        "LoanUserRiskTraceModel",
+        "overseas-feature-engine-api"
+      ],
+      "decision_line": "结论：**是打进 ec-internal-api 的，但当前 prod 形态是「单账号高频」，不是「937 ID 一次 IN」**"
+    },
+    {
+      "topic": "apichannel",
+      "score": 7,
+      "src": "ec",
+      "tid": "8f62e33a-0d29-49f1-a3e7-99d490e3ba6d",
+      "syms": [
+        "ApiChannelCheckUserResultCleanJob",
+        "idStep"
+      ],
+      "decision_line": "结论先说：**大概率没问题，是日志设计 + 密集段删得慢**"
+    },
+    {
+      "topic": "auth",
+      "score": 7,
+      "src": "ec-1",
+      "tid": "e326c978-79bd-4daf-9b51-026401ef1caa",
+      "syms": [
+        "VerificationService",
+        "generateMessageContentWithToken",
+        "getVerificationContent",
+        "AbstractSecureCheckPurposeMethod",
+        "UserEkycCheckService"
+      ],
+      "decision_line": "两处都改完了，双侧对账（plan + tasks 一起比）差集为空，架构检查通过。代码没动。 **tasks 补登的 3 项**，我在写的时候顺手核了一下符号名，其中一个我最初写错了——`VerificationService` 的方法是 `generateMessageContentWithToken`，不是我凭印象写的 `getVerificationC"
+    },
+    {
+      "topic": "coupon",
+      "score": 7,
+      "src": "ec",
+      "tid": "6caf9e10-7820-4877-8836-d16370c54c58",
+      "syms": [
+        "abtest-mcp",
+        "experimentReport/statistics",
+        "ANTI_SETTLEMENT_LONG_TERM_EXPERIMENT"
+      ],
+      "decision_line": "结论：**部分能查，但不是你想的「EC 印尼生产用户分流结果」。**"
+    },
+    {
+      "topic": "coupon",
+      "score": 7,
+      "src": "ec",
+      "tid": "0a2722a5-dc1b-46e3-bd14-fa8af22c71f1",
+      "syms": [
+        "feature/butiejiama_v1",
+        "open_app_grant_coupon",
+        "loan_user_coupon"
+      ],
+      "decision_line": "结论：**实验组发券 UV 与入组（命中可发券分组）UV 几乎一致，偏差约 0.1%～0.2%。**"
+    },
+    {
+      "topic": "experiment",
+      "score": 7,
+      "src": "ec-1",
+      "tid": "43e21908-83ba-4ff8-b453-09672c85eea2",
+      "syms": [
+        "isHitExperiment"
+      ],
+      "decision_line": "结论：加白只差 **中部实验 25681 的对照组账号**；009 靠重部署，不靠再加白。"
+    },
+    {
+      "topic": "misc",
+      "score": 7,
+      "src": "ec",
+      "tid": "3135a68c-be62-4de7-90fb-16e043d6d755",
+      "syms": [
+        "EC_PROD.loan_account_adjusted_monthly_income",
+        "time_created"
+      ],
+      "decision_line": "结论：在刷，写库很活跃。**"
+    },
+    {
+      "topic": "order",
+      "score": 7,
+      "src": "ec",
+      "tid": "bde61934-4614-4786-9197-aaa8fe2abe56",
+      "syms": [
+        "POST_INTEREST_EXCLUDE_FEE",
+        "ppnRate",
+        "POST_PLATFORM_FEE"
+      ],
+      "decision_line": "结论：`ppnRate` 越高，`PPN` 越大，`POST_INTEREST_EXCLUDE_FEE` 越小；`ppnRate=0` 时就退化成老口径（只减 `POST_PLATFORM_FEE`）。"
+    }
+  ]
+}

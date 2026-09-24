@@ -1,0 +1,24 @@
+{
+  "path": "ec/coupon/open-app-grant.md",
+  "summary": "开屏灌券：openApp 只投递；发券在 Kafka Consumer；勿只改 Controller",
+  "team_id": "team-25ax2ljxko",
+  "agent_id": "agt-25ay1hg9ya",
+  "scope": "team:team-25ax2ljxko|agent:agt-25ay1hg9ya",
+  "write": {
+    "path": "ec/coupon/open-app-grant.md",
+    "updated_at": "2026-09-23T04:31:36.980Z",
+    "version": 0,
+    "team_id": "team-25ax2ljxko",
+    "agent_id": "agt-25ay1hg9ya"
+  },
+  "read_ok": true,
+  "ls_total": 2,
+  "import": {
+    "imported": true,
+    "block_id": "chat_memory-team-25ax2ljxko-agt-25ay1hg9ya",
+    "session_id": "p0-open-app-grant-1790137896",
+    "accepted_count": 4
+  },
+  "session_id": "p0-open-app-grant-1790137896",
+  "note": "L2 seeded then scenario/write (API cannot create); L0 imported for distill/search"
+}

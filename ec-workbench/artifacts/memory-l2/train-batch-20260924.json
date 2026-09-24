@@ -1,0 +1,134 @@
+{
+  "when": "2026-09-24 14:06:56",
+  "new_written": [
+    {
+      "path": "ec/auth/h5-app-cross-login-order.md",
+      "write_http": 200,
+      "write_ok": true,
+      "import_http": 200,
+      "import": {
+        "code": 0,
+        "message": "ok",
+        "request_id": "c8c02b64-c26a-4911-984e-77d03d574a4c",
+        "data": {
+          "imported": true,
+          "block_id": "chat_memory-team-25ax2ljxko-agt-25ay1hg9ya",
+          "session_id": "p0-train-ec-auth-h5-app-cross-login-order-1790230015",
+          "accepted_count": 4
+        }
+      },
+      "session_id": "p0-train-ec-auth-h5-app-cross-login-order-1790230015"
+    },
+    {
+      "path": "ec/experiment/blank-group-null-grouptype.md",
+      "write_http": 200,
+      "write_ok": true,
+      "import_http": 200,
+      "import": {
+        "code": 0,
+        "message": "ok",
+        "request_id": "60df888a-3b97-4252-aa9c-5f83f864cb9f",
+        "data": {
+          "imported": true,
+          "block_id": "chat_memory-team-25ax2ljxko-agt-25ay1hg9ya",
+          "session_id": "p0-train-ec-experiment-blank-group-null-grouptype-1790230015",
+          "accepted_count": 4
+        }
+      },
+      "session_id": "p0-train-ec-experiment-blank-group-null-grouptype-1790230015"
+    },
+    {
+      "path": "ec/notif/tt-gen-full-sentence-key.md",
+      "write_http": 200,
+      "write_ok": true,
+      "import_http": 200,
+      "import": {
+        "code": 0,
+        "message": "ok",
+        "request_id": "001ac0d0-f7a0-4379-bdee-6113dd63e618",
+        "data": {
+          "imported": true,
+          "block_id": "chat_memory-team-25ax2ljxko-agt-25ay1hg9ya",
+          "session_id": "p0-train-ec-notif-tt-gen-full-sentence-key-1790230016",
+          "accepted_count": 4
+        }
+      },
+      "session_id": "p0-train-ec-notif-tt-gen-full-sentence-key-1790230016"
+    },
+    {
+      "path": "ec/kafka/consumer-enum-missing-crash.md",
+      "write_http": 200,
+      "write_ok": true,
+      "import_http": 200,
+      "import": {
+        "code": 0,
+        "message": "ok",
+        "request_id": "12608459-fbdb-4f67-8c87-5f2113dc821c",
+        "data": {
+          "imported": true,
+          "block_id": "chat_memory-team-25ax2ljxko-agt-25ay1hg9ya",
+          "session_id": "p0-train-ec-kafka-consumer-enum-missing-crash-1790230016",
+          "accepted_count": 4
+        }
+      },
+      "session_id": "p0-train-ec-kafka-consumer-enum-missing-crash-1790230016"
+    },
+    {
+      "path": "ec/apichannel/collision-upgrade-fallback.md",
+      "write_http": 200,
+      "write_ok": true,
+      "import_http": 200,
+      "import": {
+        "code": 0,
+        "message": "ok",
+        "request_id": "e9356db3-c114-4952-be2e-2004ef094a55",
+        "data": {
+          "imported": true,
+          "block_id": "chat_memory-team-25ax2ljxko-agt-25ay1hg9ya",
+          "session_id": "p0-train-ec-apichannel-collision-upgrade-fallback-1790230016",
+          "accepted_count": 4
+        }
+      },
+      "session_id": "p0-train-ec-apichannel-collision-upgrade-fallback-1790230016"
+    },
+    {
+      "path": "ec/gopay/credit-data-global-table.md",
+      "write_http": 200,
+      "write_ok": true,
+      "import_http": 200,
+      "import": {
+        "code": 0,
+        "message": "ok",
+        "request_id": "ac3faeab-4c73-4a84-96cb-df0bc1db0cc3",
+        "data": {
+          "imported": true,
+          "block_id": "chat_memory-team-25ax2ljxko-agt-25ay1hg9ya",
+          "session_id": "p0-train-ec-gopay-credit-data-global-table-1790230016",
+          "accepted_count": 4
+        }
+      },
+      "session_id": "p0-train-ec-gopay-credit-data-global-table-1790230016"
+    }
+  ],
+  "l2_files": [
+    "ec/apichannel/collision-upgrade-fallback.md",
+    "ec/auth/ec-secured-api.md",
+    "ec/auth/h5-app-cross-login-order.md",
+    "ec/auth/reuse-deleted-user-check.md",
+    "ec/bindcard/saqu-superbank-pattern.md",
+    "ec/coupon/open-app-grant.md",
+    "ec/coupon/v1-dead-v2-kafka.md",
+    "ec/experiment/blank-group-null-grouptype.md",
+    "ec/gopay/credit-data-global-table.md",
+    "ec/homepage/interest-free-card-every-visit.md",
+    "ec/kafka/consumer-enum-missing-crash.md",
+    "ec/notif/tt-gen-full-sentence-key.md",
+    "ec/order/lazada-credit-push-only-risk.md",
+    "ec/risk/jooq-null-traceid-bind.md",
+    "ec/risk/reloan-fee-will-level-storage.md",
+    "开发工具链-Phabricator工作流.md",
+    "技术架构-TDAI-Gateway记忆引擎.md",
+    "技术架构-开屏灌券发券链路.md"
+  ],
+  "l2_count": 18
+}

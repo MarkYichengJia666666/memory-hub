@@ -73,6 +73,23 @@ fi
 
 bool() { [[ "$1" == "1" ]] && echo "true" || echo "false"; }
 
+# 可选：Claude Code（Anthropic Messages）单独上游。
+# 默认 OpenAI 兼容 upstream（如 /qwen/v1）不能吃 /v1/messages；
+# 设 PROXY_CC_UPSTREAM_URL（例：https://…/anthropic）后写入 upstream.agents.claude-code。
+PROXY_CC_UPSTREAM_URL="${PROXY_CC_UPSTREAM_URL:-}"
+PROXY_CC_UPSTREAM_API_KEY="${PROXY_CC_UPSTREAM_API_KEY:-${PROXY_UPSTREAM_API_KEY}}"
+AGENTS_YAML=""
+if [[ -n "$PROXY_CC_UPSTREAM_URL" ]]; then
+  AGENTS_YAML=$(cat <<AGENTS
+  agents:
+    claude-code:
+      url: "${PROXY_CC_UPSTREAM_URL}"
+      apiKey: "${PROXY_CC_UPSTREAM_API_KEY}"
+AGENTS
+)
+  info "claude-code 上游覆盖 → ${PROXY_CC_UPSTREAM_URL}"
+fi
+
 info "生成 proxy config → $CONFIG_FILE  (auth=$(bool $PROXY_ENABLE_AUTH) session-init=$(bool $PROXY_ENABLE_SESSION_INIT) tdai=$(bool $PROXY_ENABLE_TDAI))"
 cat > "$CONFIG_FILE" <<YAML
 # 由 start-proxy.sh 自动生成 —— 每次启动覆盖，请不要手动改。
@@ -84,6 +101,7 @@ server:
 upstream:
   url: "${PROXY_UPSTREAM_URL}"
   apiKey: "${PROXY_UPSTREAM_API_KEY}"
+${AGENTS_YAML}
 
 log:
   file: ""

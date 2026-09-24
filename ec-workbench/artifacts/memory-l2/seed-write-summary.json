@@ -1,0 +1,111 @@
+{
+  "written": [
+    {
+      "path": "ec/bindcard/saqu-superbank-pattern.md",
+      "ok": true,
+      "write": {
+        "path": "ec/bindcard/saqu-superbank-pattern.md",
+        "updated_at": "2026-09-23T07:55:01.166Z",
+        "version": 0,
+        "team_id": "team-25ax2ljxko",
+        "agent_id": "agt-25ay1hg9ya"
+      },
+      "read_len": 844
+    },
+    {
+      "path": "ec/coupon/v1-dead-v2-kafka.md",
+      "ok": true,
+      "write": {
+        "path": "ec/coupon/v1-dead-v2-kafka.md",
+        "updated_at": "2026-09-23T07:55:01.255Z",
+        "version": 0,
+        "team_id": "team-25ax2ljxko",
+        "agent_id": "agt-25ay1hg9ya"
+      },
+      "read_len": 1012
+    },
+    {
+      "path": "ec/risk/jooq-null-traceid-bind.md",
+      "ok": true,
+      "write": {
+        "path": "ec/risk/jooq-null-traceid-bind.md",
+        "updated_at": "2026-09-23T07:55:01.339Z",
+        "version": 0,
+        "team_id": "team-25ax2ljxko",
+        "agent_id": "agt-25ay1hg9ya"
+      },
+      "read_len": 888
+    },
+    {
+      "path": "ec/auth/ec-secured-api.md",
+      "ok": true,
+      "write": {
+        "path": "ec/auth/ec-secured-api.md",
+        "updated_at": "2026-09-23T07:55:01.422Z",
+        "version": 0,
+        "team_id": "team-25ax2ljxko",
+        "agent_id": "agt-25ay1hg9ya"
+      },
+      "read_len": 790
+    },
+    {
+      "path": "ec/order/lazada-credit-push-only-risk.md",
+      "ok": true,
+      "write": {
+        "path": "ec/order/lazada-credit-push-only-risk.md",
+        "updated_at": "2026-09-23T07:55:01.512Z",
+        "version": 0,
+        "team_id": "team-25ax2ljxko",
+        "agent_id": "agt-25ay1hg9ya"
+      },
+      "read_len": 862
+    },
+    {
+      "path": "ec/auth/reuse-deleted-user-check.md",
+      "ok": true,
+      "write": {
+        "path": "ec/auth/reuse-deleted-user-check.md",
+        "updated_at": "2026-09-23T07:55:01.583Z",
+        "version": 0,
+        "team_id": "team-25ax2ljxko",
+        "agent_id": "agt-25ay1hg9ya"
+      },
+      "read_len": 785
+    },
+    {
+      "path": "ec/homepage/interest-free-card-every-visit.md",
+      "ok": true,
+      "write": {
+        "path": "ec/homepage/interest-free-card-every-visit.md",
+        "updated_at": "2026-09-23T07:55:01.666Z",
+        "version": 0,
+        "team_id": "team-25ax2ljxko",
+        "agent_id": "agt-25ay1hg9ya"
+      },
+      "read_len": 654
+    },
+    {
+      "path": "ec/risk/reloan-fee-will-level-storage.md",
+      "ok": true,
+      "write": {
+        "path": "ec/risk/reloan-fee-will-level-storage.md",
+        "updated_at": "2026-09-23T07:55:01.745Z",
+        "version": 0,
+        "team_id": "team-25ax2ljxko",
+        "agent_id": "agt-25ay1hg9ya"
+      },
+      "read_len": 879
+    }
+  ],
+  "ls_files": [
+    "ec/auth/ec-secured-api.md",
+    "ec/auth/reuse-deleted-user-check.md",
+    "ec/bindcard/saqu-superbank-pattern.md",
+    "ec/coupon/open-app-grant.md",
+    "ec/coupon/v1-dead-v2-kafka.md",
+    "ec/homepage/interest-free-card-every-visit.md",
+    "ec/order/lazada-credit-push-only-risk.md",
+    "ec/risk/jooq-null-traceid-bind.md",
+    "ec/risk/reloan-fee-will-level-storage.md"
+  ]
+}

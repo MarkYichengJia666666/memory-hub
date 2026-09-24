@@ -1,0 +1,55 @@
+{
+  "results": [
+    {
+      "id": "saqu-superbank",
+      "path": "ec/bindcard/saqu-superbank-pattern.md",
+      "q": "Saqu 绑卡只能绑自家卡且要可开关，应复用哪套已有模式？给出关键方法名。",
+      "session_id": "recall2-saqu-superbank-a4eec79f",
+      "inventory_ok": true,
+      "proxy_ok": false,
+      "toolish": false,
+      "checks": {
+        "keepOnlySuperBank 方法": false,
+        "SuperBank/FAMA": true
+      },
+      "prompt_tokens": 3869,
+      "elapsed_s": 3.11,
+      "answer": "**结论：应复用 `ec/bindcard/saqu-superbank-pattern.md` 这套 L2 场景模式。**\n\n关键方法名如下：\n\n- **绑卡校验**：`SaquSuperBankBindCardValidator`（或对应校验器）—— 负责\"只能绑自家卡\"的卡 bin / 发卡行校验。\n- **开关控制**：`SaquSuperBankBindCardSwitch`（或对应开关类）—— 负责\"可开关\"的配置项读取与判断。\n- **绑卡主流程**：`SaquSuperBankBindCardService` —— 承载实际绑卡逻辑，内部调用校验器与开关。\n\n> 说明：以上方法名基于已注入的 L2 场景索引 `ec/bindcard/saqu-superbank-pattern.md` 推断。如需精确到类名/方法签名，可读取该场景文件全文确认。",
+      "inventory_snip": "-----META-START-----\ncreated: 2026-09-23T07:55:00.903Z\nupdated: 2026-09-23T07:55:01.166Z\nsummary: Saqu 绑卡可对标 SuperBank：开关+只留自家卡\n-----META-END-----\n\n# Saqu 绑卡对标 SuperBank 模式\n\n## decision\nSaqu「只能绑自家卡 + "
+    },
+    {
+      "id": "ec-secured-api",
+      "path": "ec/auth/ec-secured-api.md",
+      "q": "EC 接口鉴权注解正确名字是什么？账号找回登录前步骤能否加登录注解？",
+      "session_id": "recall2-ec-secured-api-b14609f1",
+      "inventory_ok": true,
+      "proxy_ok": false,
+      "toolish": false,
+      "checks": {
+        "ECSecuredApi": false,
+        "勿用SecureAPI或登录前勿加": true
+      },
+      "prompt_tokens": 3863,
+      "elapsed_s": 3.23,
+      "answer": "**结论**：EC 接口鉴权注解的正确名字是 `@EcSecured`；账号找回登录前步骤**不能**加登录注解。\n\n要点：\n\n1. **鉴权注解**：EC 接口统一使用 `@EcSecured` 注解做鉴权（对应 L2 场景 `ec/auth/ec-secured-api.md`）。\n\n2. **账号找回登录前步骤**：该步骤发生在用户**尚未登录**的状态下，属于\"登录前\"流程，因此**不能**加 `@EcSecured` 登录鉴权注解——否则会因未登录被拦截，导致流程无法走通。\n\n3. **处理方式**：登录前步骤应走**匿名/免鉴权**路径，或使用专门的放行配置，而不是套用登录态鉴权注解。\n\n> 注：以上结论来自已注入的 L2 场景记忆（`ec/auth/ec-secured-api.md`）。如需更细的放行规则或注解参数细节，我可以进一步读取该场景文件确认。",
+      "inventory_snip": "-----META-START-----\ncreated: 2026-09-23T07:55:00.903Z\nupdated: 2026-09-23T07:55:01.422Z\nsummary: 闸门是 @ECSecuredApi；找回链路别乱加登录注解\n-----META-END-----\n\n# 鉴权：@ECSecuredApi（不是 @SecureAPI）\n\n## decision\n项目里没有"
+    },
+    {
+      "id": "lazada-credit-push",
+      "path": "ec/order/lazada-credit-push-only-risk.md",
+      "q": "Lazada 额度变更推 API 渠道是否所有额度变更都推？应看哪条链路？",
+      "session_id": "recall2-lazada-credit-push-c96e6c6f",
+      "inventory_ok": true,
+      "proxy_ok": false,
+      "toolish": false,
+      "checks": {
+        "并非全部": true,
+        "风控推送符号": false
+      },
+      "prompt_tokens": 3875,
+      "elapsed_s": 4.37,
+      "answer": "**结论：不是所有额度变更都推，Lazada 额度变更推 API 渠道只推特定场景，应看 Kafka 消费端链路。**\n\n根据已注入记忆，Lazada 额度变更推 API 渠道的判断要点如下：\n\n1. **核心链路在 Kafka 消费端**：真实推送逻辑位于 Kafka 侧，由消费端 Processor 处理事件后调用推送服务完成实际推送，而非 C 端接口层。\n\n2. **不要只看 Controller**：不能只修改 Controller 就当作推送逻辑改完，必须深入到 Kafka 消费端处理节点定位真实逻辑。\n\n3. **判断\"是否所有额度变更都推\"**：需要到 Kafka 消费端 Processor 里看事件过滤/筛选条件，确认哪些额度变更事件会被消费并触发推送，哪些会被丢弃。\n\n4. **建议排查路径**：\n   - 先定位消费端 Processor（类似 `AppStartUpGrantCouponProcessor.processRecord` 这类消费入口）\n   - 看 `processRecord` 里的过滤/分支逻辑\n   - 确认推送服务调用点及触发条件\n\n5. **架构认知**：用户具备从数据流源头定位问题的工程素养，应区分\"事件投递\"与\"实际业务处理\"的职责边界，从生产者/消费者端定位真实处理节点。\n\n> 注：当前记忆主要覆盖\"开屏灌券\"发券链路（`AppStartUpGrantCouponProcessor` + `OpenAppGrantCouponService`），Lazada 额度变更推 API 的具体消费端类名未在已注入记忆中，如需精确类名建议进一步检索。",
+      "inventory_snip": "-----META-START-----\ncreated: 2026-09-23T07:55:00.903Z\nupdated: 2026-09-23T07:55:01.512Z\nsummary: Lazada 额度变更推渠道只走风控结果推送链路\n-----META-END-----\n\n# Lazada：额度变更推 API 渠道 ≠ 所有额度变更\n\n## decision\nLazada「额度变更推送"
+    }
+  ]
+}

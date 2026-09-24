@@ -1,0 +1,84 @@
+{
+  "when": "2026-09-24 14:15:14",
+  "batch": 5,
+  "new": [
+    {
+      "path": "ec/risk/web-calc-credits-no-channel.md",
+      "write_ok": true,
+      "write_http": 200,
+      "import_http": 200
+    },
+    {
+      "path": "ec/apichannel/jzdl-mobile-result-clean-job.md",
+      "write_ok": true,
+      "write_http": 200,
+      "import_http": 200
+    },
+    {
+      "path": "ec/gopay/api-channel-rejected-map-1001.md",
+      "write_ok": true,
+      "write_http": 200,
+      "import_http": 200
+    },
+    {
+      "path": "ec/apichannel/collision-process-is-new-flow.md",
+      "write_ok": true,
+      "write_http": 200,
+      "import_http": 200
+    },
+    {
+      "path": "ec/loanmarket/common-api-channel-zero-traffic.md",
+      "write_ok": true,
+      "write_http": 200,
+      "import_http": 200
+    },
+    {
+      "path": "ec/apichannel/akulaku-npe-missing-channel-user.md",
+      "write_ok": true,
+      "write_http": 200,
+      "import_http": 200
+    }
+  ],
+  "ec_l2_count": 39,
+  "ec_l2_files": [
+    "ec/abtest/sub-abtest-not-deadloop.md",
+    "ec/apichannel/akulaku-npe-missing-channel-user.md",
+    "ec/apichannel/collision-process-is-new-flow.md",
+    "ec/apichannel/collision-upgrade-fallback.md",
+    "ec/apichannel/context-channel-unreliable.md",
+    "ec/apichannel/jzdl-mobile-result-clean-job.md",
+    "ec/auth/device-token-mismatch-risk.md",
+    "ec/auth/ec-secured-api.md",
+    "ec/auth/h5-app-cross-login-order.md",
+    "ec/auth/h5-merge-channel-vs-force.md",
+    "ec/auth/reregister-order-visibility-by-migrate.md",
+    "ec/auth/reuse-deleted-user-check.md",
+    "ec/auth/trigger-auth-completed-before-persist.md",
+    "ec/bindcard/saqu-superbank-pattern.md",
+    "ec/config/downstream-repay-sync-needs-restart.md",
+    "ec/coupon/open-app-grant.md",
+    "ec/coupon/orthogonal-anti-settle-exp.md",
+    "ec/coupon/v1-dead-v2-kafka.md",
+    "ec/db/kyc-encrypt-is-status-table.md",
+    "ec/experiment/blank-group-null-grouptype.md",
+    "ec/experiment/diversion-blank-blocks-enrollment.md",
+    "ec/gopay/api-channel-rejected-map-1001.md",
+    "ec/gopay/contact-phone-no-validate-on-finish.md",
+    "ec/gopay/credit-data-global-table.md",
+    "ec/homepage/display-strategy-enum-crash.md",
+    "ec/homepage/interest-free-card-every-visit.md",
+    "ec/kafka/app-startup-at-least-once-realtime.md",
+    "ec/kafka/consumer-enum-missing-crash.md",
+    "ec/living/tongdun-app-enum-missing.md",
+    "ec/loanmarket/common-api-channel-zero-traffic.md",
+    "ec/loanmarket/event-type-mapping-missing-1001.md",
+    "ec/loanmarket/market-user-check-zombie.md",
+    "ec/loanmarket/partner-install-limit-intraday.md",
+    "ec/notif/pandora-forces-needtranslate.md",
+    "ec/notif/tt-gen-full-sentence-key.md",
+    "ec/order/lazada-credit-push-only-risk.md",
+    "ec/risk/jooq-null-traceid-bind.md",
+    "ec/risk/reloan-fee-will-level-storage.md",
+    "ec/risk/web-calc-credits-no-channel.md"
+  ]
+}

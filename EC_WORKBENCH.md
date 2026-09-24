@@ -10,8 +10,9 @@
 | [ec-workbench/slices/](./ec-workbench/slices/) | 6 个切片（含合并仓 `ec-cashloan-combined-slice`） |
 | [ec-workbench/slices/exp-ligation-slice/tools/capillary/](./ec-workbench/slices/exp-ligation-slice/tools/capillary/) | Capillary Agent |
 | [ec-workbench/slices/exp-ligation-slice/PLAYBOOK.md](./ec-workbench/slices/exp-ligation-slice/PLAYBOOK.md) | 用图说明 |
-| [ec-workbench/docs/](./ec-workbench/docs/) | 能力看板 canvas、阶段成果 |
-| [ec-workbench/artifacts/](./ec-workbench/artifacts/) | token 对照、capillary 报告与固化计划 |
+| [ec-workbench/docs/](./ec-workbench/docs/) | 能力看板 canvas、阶段成果、Chat Memory 旁路 Playbook |
+| [ec-workbench/skills/chat-memory-ec/](./ec-workbench/skills/chat-memory-ec/) | Chat Memory × EC 旁路 Skill |
+| [ec-workbench/artifacts/](./ec-workbench/artifacts/) | token 对照、capillary 报告、Memory L2 样例 |
 
 飞书成果文：[Memory Hub × EC CodeGraph 阶段成果](https://fintopia.feishu.cn/wiki/YJ4WwynYSiJz1Vkr2V8cEI38nrr)
 

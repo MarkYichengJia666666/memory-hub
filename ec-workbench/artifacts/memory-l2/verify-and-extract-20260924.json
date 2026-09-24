@@ -1,0 +1,85 @@
+{
+  "when": "2026-09-24 14:28:28",
+  "ec_head": "d103aeefa32 Merge branch 'release/20260922-5'",
+  "extract": {
+    "transcript_files": 461,
+    "uniq_candidates": 223,
+    "existing_before": 44
+  },
+  "verify_symbol_pass_approx": 31,
+  "actions": {
+    "superseded_or_fixed": [
+      {
+        "path": "ec/apichannel/no-order-after-reloan-legacy-bean.md",
+        "write_ok": true,
+        "import_http": null,
+        "status": "superseded"
+      },
+      {
+        "path": "ec/apichannel/akulaku-npe-missing-channel-user.md",
+        "write_ok": true,
+        "import_http": null,
+        "status": "superseded"
+      },
+      {
+        "path": "ec/loanmarket/market-user-check-zombie.md",
+        "write_ok": true,
+        "import_http": null,
+        "status": "superseded"
+      },
+      {
+        "path": "ec/loanmarket/common-api-channel-zero-traffic.md",
+        "write_ok": true,
+        "import_http": null,
+        "status": "superseded"
+      },
+      {
+        "path": "ec/apichannel/collision-upgrade-fallback.md",
+        "write_ok": true,
+        "import_http": null,
+        "status": "superseded"
+      },
+      {
+        "path": "ec/gopay/api-channel-rejected-map-1001.md",
+        "write_ok": true,
+        "import_http": 200,
+        "status": "active"
+      }
+    ],
+    "new": [
+      {
+        "path": "ec/auth/soft-delete-six-tables.md",
+        "write_ok": true,
+        "import_http": 200
+      },
+      {
+        "path": "ec/risk/multi-loan-normal-no-time-expire.md",
+        "write_ok": true,
+        "import_http": 200
+      },
+      {
+        "path": "ec/notif/ecresponse-error-hides-detailtt.md",
+        "write_ok": true,
+        "import_http": 200
+      },
+      {
+        "path": "ec/bindcard/saqu-no-dedicated-attribution.md",
+        "write_ok": true,
+        "import_http": 200
+      },
+      {
+        "path": "ec/config/request-channel-header-optional.md",
+        "write_ok": true,
+        "import_http": 200
+      },
+      {
+        "path": "ec/apichannel/collision-orchestrator-decision-tree-only.md",
+        "write_ok": true,
+        "import_http": 200
+      }
+    ]
+  },
+  "hub_ec_l2_count": 51,
+  "local_active": 45,
+  "local_superseded": 5
+}

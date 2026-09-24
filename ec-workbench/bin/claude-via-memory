@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# 用隔离配置走 Memory Proxy 的 Claude Code，不改 ~/.claude/settings.json
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+export CLAUDE_CONFIG_DIR="${CLAUDE_CONFIG_DIR:-$ROOT/.claude-via-memory}"
+IDENT="$ROOT/.p0-memory-identity.json"
+PROMPT_FILE="$ROOT/artifacts/memory-l2/MEMORY-FIRST-PROMPT.md"
+
+if [[ ! -f "$CLAUDE_CONFIG_DIR/settings.json" ]]; then
+  echo "缺少 $CLAUDE_CONFIG_DIR/settings.json" >&2
+  exit 1
+fi
+
+if [[ -f "$IDENT" ]]; then
+  export TDAI_TEAM_ID="$(python3 -c "import json;print(json.load(open('$IDENT'))['team_id'])")"
+  export TDAI_AGENT_ID="$(python3 -c "import json;print(json.load(open('$IDENT'))['agent_id'])")"
+  export TDAI_TASK_ID="$(python3 -c "import json;print(json.load(open('$IDENT'))['task_id'])")"
+fi
+
+APPEND_SYS='你接入了 TDAI Chat Memory（system 中有 <tdai_memory_tools> / <tdai_profile_memory>）。
+涉及业务判决、对标哪套逻辑、历史约定时：必须先用 Bash+curl 调 memory-bridge（tdai_memory_search 或 tdai_read_scene），禁止在未读 Memory 前 grep/find 业务仓或 wiki。
+回答开头写【来源：Memory】path=...；Memory 无结果再写【来源：代码】。
+禁止声称「没有 memory 工具」——工具是 curl 配方，不是原生 tool 列表项。'
+
+echo "CLAUDE_CONFIG_DIR=$CLAUDE_CONFIG_DIR"
+echo "Proxy: $(python3 -c "import json;print(json.load(open('$CLAUDE_CONFIG_DIR/settings.json'))['env']['ANTHROPIC_BASE_URL'])")"
+echo "选团队: ec-memory-p0 / Agent: ec-chat-memory（若弹 Form）"
+echo "权限: bypassPermissions（避免 auto 分类器卡死 curl→memory-bridge）"
+echo "勿选 auto mode。"
+echo ""
+echo "建议先：mkdir -p /tmp/mem-proof && cd /tmp/mem-proof"
+echo "开场白全文：$PROMPT_FILE"
+echo "验证问法（粘贴）："
+echo "  先按 <tdai_memory_tools> 用 curl 读 Memory，不要搜代码仓。"
+echo "  问题：Saqu「只能绑自家卡 + 要可开关」，应对标哪套已有过滤逻辑？关键方法名？"
+echo "  读完 L2 再答；开头写【来源：Memory】和 path。"
+echo ""
+
+exec claude --permission-mode bypassPermissions --append-system-prompt "$APPEND_SYS" "$@"

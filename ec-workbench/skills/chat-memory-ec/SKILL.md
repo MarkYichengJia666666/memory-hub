@@ -128,3 +128,4 @@ Panel **没有**聊天窗；Chat_Memory 页只查看 L0–L3。真对话走 Prox
 - **2026-09-23**：L2 `open-app-grant.md` + L0；Panel 可见；Proxy 开屏灌券命中 Kafka；批量 3 条 → `artifacts/memory-l2/usefulness-batch-20260923.md`
 - **2026-09-24**：训练 + 现码复核收尾；空目录 `claude-via-memory` 冒烟 **4/4**（Saqu / MERGE_ / H5 按钮 / APP_STARTUP）→ `artifacts/memory-l2/usefulness-batch-20260924.md`；主线收口：能存 → 能核 → 能用
 - **2026-09-24 傍晚**：半自动回写 + 保鲜抽检 + 负例清单 → `artifacts/memory-l2/writeback-freshness-20260924.md`
+- **2026-09-27**：负例 N1–N3 Proxy 工具环 **3/3 过** → `artifacts/memory-l2/negative-batch-20260927.md`（上午上游 502，恢复后复测）

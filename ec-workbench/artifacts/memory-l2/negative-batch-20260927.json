@@ -1,0 +1,106 @@
+[
+  {
+    "id": "N1",
+    "session_id": "neg-N1-1790475442",
+    "question": "先读 Memory 再答。印尼保险（ec-insurance）理赔结果回调走哪条 Kafka topic？关键 Consumer 类名是什么？没有相关记忆就说不知道，不要编。",
+    "rounds": 3,
+    "elapsed_s": 7.49,
+    "tools": [
+      {
+        "name": "tdai_memory_search",
+        "args": {
+          "query": "印尼保险 ec-insurance 理赔结果回调 Kafka topic Consumer"
+        }
+      },
+      {
+        "name": "tdai_scenario_ls",
+        "args": {}
+      },
+      {
+        "name": "tdai_memory_search",
+        "args": {
+          "query": "insurance 保险 理赔 claim callback"
+        }
+      }
+    ],
+    "answer": "【来源：Memory】无命中\n\n我在 Memory 中没有找到任何关于**印尼保险（ec-insurance）理赔结果回调**的相关记忆。\n\n具体来说：\n- **L2 场景索引**（`tdai_scenario_ls`）中没有任何 `ec/insurance` 或保险/理赔相关的场景块；\n- **L1 原子记忆**（`tdai_memory_search`）检索\"印尼保险 / ec-insurance / 理赔 / claim / callback\"均无命中。\n\n所以关于理赔结果回调走的 **Kafka topic** 和对应的 **Consumer 类名**，我没有相关记忆，无法给出答案。如果你有这方面的信息，可以告诉我，我会记下来供后续使用。",
+    "judge": {
+      "ok": true,
+      "refuse": true,
+      "invent": false,
+      "mix": false
+    }
+  },
+  {
+    "id": "N2",
+    "session_id": "neg-N2-1790475449",
+    "question": "先读 Memory 再答。CollisionOrchestrator.executeUpgradeWithFallback 现在还在不在？能不能当现码入口去搜？若有 superseded 条目请按现行结论答。",
+    "rounds": 2,
+    "elapsed_s": 6.62,
+    "tools": [
+      {
+        "name": "tdai_read_scene",
+        "args": {
+          "path": "ec/apichannel/collision-orchestrator-decision-tree-only.md"
+        }
+      },
+      {
+        "name": "tdai_memory_search",
+        "args": {
+          "query": "CollisionOrchestrator executeUpgradeWithFallback 现码入口"
+        }
+      }
+    ],
+    "answer": "【来源：Memory】path=`ec/apichannel/collision-orchestrator-decision-tree-only.md`\n\n**结论：`CollisionOrchestrator.executeUpgradeWithFallback` 已不在现码中，不能当现码入口去搜。**\n\n按现行 L2 判决（status=active，2026-09-24 对照 EC `d103aeefa32` 验证）：\n\n- 现码 `CollisionOrchestrator` **只有 `execute()`**：设 `upgradeFlow=true` 后统一跑 `CollisionProcessEnum.COLLISION_DECISION_TREE`。\n- 无节点命中时由 `CollisionProcessService` 兜底 `REJECT`（`ApiChannelUserType.REJECT`）。\n- **不要再找 `executeUpgradeWithFallback`** —— 该 API 已删除，属于旧 L2 `collision-upgrade-fallback` 的承接项。\n- 改撞库逻辑应看**决策树节点与 ProcessManage**，不要看已删除的 upgrade-with-fallback 接口。\n\nL1 原子检索无额外命中（仅返回一条无关的 H5 按钮 persona 记忆）。",
+    "judge": {
+      "ok": true,
+      "gone": true,
+      "current": true,
+      "still_true": false
+    }
+  },
+  {
+    "id": "N3",
+    "session_id": "neg-N3-1790475456",
+    "question": "先读 Memory 再答。开屏发券时怎么过滤用户只能绑自家银行卡？关键方法名是什么？要不要对标 Saqu 那套？",
+    "rounds": 3,
+    "elapsed_s": 10.46,
+    "tools": [
+      {
+        "name": "tdai_memory_search",
+        "args": {
+          "query": "开屏发券 绑卡过滤 自家银行卡"
+        }
+      },
+      {
+        "name": "tdai_scenario_ls",
+        "args": {}
+      },
+      {
+        "name": "tdai_read_scene",
+        "args": {
+          "path": "ec/coupon/open-app-grant.md"
+        }
+      },
+      {
+        "name": "tdai_read_scene",
+        "args": {
+          "path": "ec/bindcard/saqu-superbank-pattern.md"
+        }
+      },
+      {
+        "name": "tdai_read_scene",
+        "args": {
+          "path": "技术架构-开屏灌券发券链路.md"
+        }
+      }
+    ],
+    "answer": "我已经读取了相关的 L2 场景。现在让我综合回答用户的问题。\n\n【来源：Memory】path=`ec/coupon/open-app-grant.md`、`ec/bindcard/saqu-superbank-pattern.md`、`技术架构-开屏灌券发券链路.md`\n\n---\n\n## 回答\n\n### 1. 开屏发券时怎么过滤用户只能绑自家银行卡？\n\n根据记忆，**开屏发券本身不负责绑卡过滤**——发券在 Kafka 消费端（`AppStartUpGrantCouponProcessor.processRecord` → `OpenAppGrantCouponService`）完成，绑卡过滤是另一条链路（绑卡接口 `GET /api/idn/cashloan/getSupportedBank`）。\n\n如果你问的是**绑卡过滤**（Saqu 场景），记忆里的结论是：\n\n**行为链路**：`deviceId → mediaSource 白名单 → 命中实验才过滤 → 仅保留 `BankType.FAMA`（自家卡）`\n\n### 2. 关键方法名\n\n核心方法是：\n\n```\nLoanBankAccountService.keepOnlySuperBankIfInExperiment\n```\n\n配套的实验枚举：\n\n```\nExperimentNameSpace.SUPERBANK_CHANNEL_USER_BINDING_CARD\n```\n\n### 3. 要不要对标 Saqu 那套？\n\n**要，而且已经定了。** 记忆里明确记录（2026-09-23 决策）：\n\n- Saqu「只能绑自家卡 + 可开关」**直接对标已落地的 SuperBank 渠道逻辑**\n- H5（WEB）走**同一套接口**，复用 `keepOnlySuperBankIfInExperiment` 模式\n- **不要另起一套过滤**\n- 开关要能随时在「只自家卡 / 全部卡」之间切换\n\n### ⚠️ 注意区分\n\n**不要把绑卡过滤和开屏发券串台**——这是两条独立链路：\n\n| 链路 | 入口 | 核心逻辑 |\n|---|---|---|\n| 开屏发券 | `openApp` 投递事件 | Kafka 消费端 `AppStartUpGrantCouponProcessor.processRecord` → `OpenAppGrantCouponService` |\n| 绑卡过滤 | `GET /api/idn/cashloan/getSupportedBank` | `LoanBankAccountService.keepOnlySuperBankIfInExperiment` |\n\n如果你是在问**开屏发券链路里**是否也要做绑卡过滤，记忆里没有这个判决——发券和绑卡是两件事，需要你澄清具体场景。",
+    "judge": {
+      "ok": true,
+      "coupon": true,
+      "saqu_as_coupon": false,
+      "separates": true
+    }
+  }
+]

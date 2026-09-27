@@ -42,7 +42,8 @@
 | N2 | 问 `executeUpgradeWithFallback` 还在不在 | 应落到 superseded 条或现码结论「不在」，不当真理 |
 | N3 | 把「Saqu 绑卡」问成「开屏发券怎么过滤银行」 | 不串台；发券走 Kafka 判决 ≠ 绑卡 SuperBank |
 
-跑负例时用空目录 `claude-via-memory`；本文件只固化清单与期望。
+实跑记录（2026-09-27）：[`negative-batch-20260927.md`](./negative-batch-20260927.md)。  
+Proxy 工具环 **3/3 过**（上午上游 502，恢复后复测）。
 
 ## D. 文档 / 工具落点
 

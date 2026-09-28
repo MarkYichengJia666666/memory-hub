@@ -68,12 +68,12 @@ triggers:
 
 每次用 Memory 答完 / 挖出新结论，**必须**过一遍：
 
-1. 有没有**新判决**？有 → 按骨架起草到 `artifacts/memory-l2/seed/<biz>/<slug>.md`
+1. 有没有**新判决**？有 → 按骨架起草到 `artifacts/memory-l2/seed/<业务口>/<slug>.md`（业务口为主路径；`## workspace` 标 SDD）
 2. 有没有**打脸旧 L2**？有 → 旧条改 `status: superseded` + 原因；新条另开 path
 3. **人确认**后导入 Hub（禁止静默直写）：
 
 ```bash
-./ec-workbench/bin/seed-l2-to-hub ec-workbench/artifacts/memory-l2/seed/<biz>/<slug>.md
+./ec-workbench/bin/seed-l2-to-hub ec-workbench/artifacts/memory-l2/seed/<业务口>/<slug>.md
 ```
 
 4. 新开空目录用 `claude-via-memory` 或 `scenario/read` 确认能召回

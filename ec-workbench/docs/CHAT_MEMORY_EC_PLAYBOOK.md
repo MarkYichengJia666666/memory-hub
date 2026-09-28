@@ -41,7 +41,8 @@
 ## 路径与正文
 
 - 路径 = 索引：`ec/coupon/open-app-grant.md`
-- 字段：`decision` / `mouths` / `anchors` / `constraints` / `status`
+- 字段：`decision` / `workspace`（SDD specs 名） / `mouths` / `anchors` / `constraints` / `status`
+- 路径按**业务口**；SDD 只作正文溯源（见 `artifacts/memory-l2/seed/README.md`）
 - 样例正文：`artifacts/memory-l2/open-app-grant.md`
 - 有用性记录：`artifacts/memory-l2/usefulness-first-judgment.md`
 

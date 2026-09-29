@@ -7,8 +7,9 @@
 
 不是「把整个 transcript 交上来」，而是：
 
-1. 若干条 **`ec/<业务>/<slug>.md`**（判决正文）  
-2. 放在本仓：`ec-workbench/artifacts/memory-l2/seed/<业务>/<slug>.md`  
+1. 若干条 **`ec/<业务口>/<slug>.md`**（判决正文；业务口如 `auth` / `homepage` / `marketing`）  
+2. 放在本仓：`ec-workbench/artifacts/memory-l2/seed/<业务口>/<slug>.md`  
+   （路径按业务维度；所属 SDD 写在正文 `## workspace`，与 EC `specs/<TAPD-…>` 同名）  
 3. 开 PR；合并后再由有 Hub 的人写入运行时 Memory（或你本机按 Playbook 写入）
 
 **密钥、identity、Docker 卷不要提交。**
@@ -80,8 +81,11 @@ rg -l '结论先说|排查结论|应对标|关键方法' "$ROOT" --glob '*.jsonl
 
 ## 四步：写成 seed（格式固定）
 
-路径：`ec-workbench/artifacts/memory-l2/seed/<业务>/<slug>.md`  
-对外 Memory path 约定：`ec/<业务>/<slug>.md`（与 seed 相对路径一致）。
+路径：`ec-workbench/artifacts/memory-l2/seed/<业务口>/<slug>.md`  
+对外 Memory path 约定：`ec/<业务口>/<slug>.md`（与 seed 相对路径一致）。
+
+**业务口 = 目录**（与历史存量一致：`auth` / `homepage` / `order` / `marketing` …）。  
+**SDD 工作区 = 正文字段** `## workspace`（可从需求拆到多个业务口；一条判决只挂一个主口）。拆法见 `artifacts/memory-l2/seed/README.md`。
 
 模板：
 
@@ -90,6 +94,9 @@ rg -l '结论先说|排查结论|应对标|关键方法' "$ROOT" --glob '*.jsonl
 
 ## decision
 （3～8 句：结论 + 为何 + 排障时先看什么）
+
+## workspace
+- `TAPD-……`（与 EC `specs/<workspace>` 同名；跨需求可列多个）
 
 ## mouths
 - 业务词 / 服务名
@@ -114,8 +121,9 @@ YYYY-MM-DD
 
 样例可抄：
 
+- `ec-workbench/artifacts/memory-l2/seed/homepage/zero360-login-banner-via-login-banner-service.md`
+- `ec-workbench/artifacts/memory-l2/seed/marketing/unattrib-wany-exp-key-from-sitevars.md`
 - `ec-workbench/artifacts/memory-l2/seed/auth/merge-user-id-vs-merged-user-id.md`
-- `ec-workbench/artifacts/memory-l2/seed/bindcard/saqu-superbank-pattern.md`
 
 写之前先扫一眼同目录有没有近义文件，避免重复。
 
@@ -160,8 +168,8 @@ Commit 说明写清：来自哪个业务仓对话、几条、主题
 
 ## 最小检查清单（交 PR 前）
 
-- [ ] 路径 `seed/<biz>/<slug>.md`，slug 英文短横线  
-- [ ] 有 `decision` / `anchors` / `constraints` / `status` / `evidence`  
+- [ ] 路径 `seed/<业务口>/<slug>.md`，slug 英文短横线  
+- [ ] 有 `decision` / `workspace`（SDD） / `anchors` / `constraints` / `status` / `evidence`  
 - [ ] 至少 1 个可检索符号或路由  
 - [ ] 不是单次 trace 流水账  
 - [ ] 与已有 seed 不重复  

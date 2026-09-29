@@ -56,23 +56,25 @@ export default function MemoryHubCapabilities() {
           Agent**（不是 Hub 新产品件）。
         </Text>
         <Text size="small" tone="tertiary">
-          进度更新 Sep 27, 2026 · Hub :8125 / Core :8420 / Proxy :8096 / KS
-          :8424 · 隔离：只改切片/Hub，EC 与 ~/.cursor 不动
+          进度更新 Sep 29, 2026 · Hub :8125 / Core :8420 / Proxy :8096 / KS
+          :8424 · 隔离：只改切片/Hub，EC 与 ~/.cursor 不动 · memory-hub
+          feat/server_team @ 569e23c
         </Text>
       </Stack>
 
       <Grid columns={4} gap={12}>
         <Stat value="1" label="合并图 ready" tone="success" />
+        <Stat value="90" label="L2 seed active" tone="success" />
+        <Stat value="127" label="stitch overlay 边" tone="success" />
         <Stat value="3/3" label="负例 N1–N3" tone="success" />
-        <Stat value="~55" label="L2 active（旁路）" tone="success" />
-        <Stat value="4/4" label="Memory 有用性冒烟" tone="success" />
       </Grid>
 
       <Callout tone="info" title="怎么读这张表">
         **§1–9**：Memory Hub 能力清单。**§3 Chat Memory 旁路**已收口：存/核/用
-        + 半自动回写 + 负例 3/3。
-        **旁路 Loop**：新对话 → 人闸回写；新 commit（EC HEAD 基线差分）→
-        CodeGraph 切片扩 → sync → Memory 保鲜 → stitch B（`EC_BASELINE_LOOP.md`）。
+        + 半自动回写 + 负例 3/3；同事 PR #1 已合入 Aug–Sep 蒸馏 seed（业务口路径 +
+        `workspace` 字段）。
+        **旁路 Loop**：新对话 → 人闸回写；新 commit → 切片邻域扩 → CodeGraph sync →
+        保鲜 → stitch B（`EC_BASELINE_LOOP.md`）。
         **§10**：Capillary（独立，勿与 Memory 验收绑死）。
       </Callout>
 
@@ -84,7 +86,7 @@ export default function MemoryHubCapabilities() {
             "cg-zp42c34n",
             "发券+首页下单+还款+风控+绑卡",
             "ec-cashloan-combined-slice",
-            "712 files · 23629 nodes · 38576 edges",
+            "712 files · 图边 + overlay 127（反射/枚举）",
           ],
         ]}
       />
@@ -141,7 +143,7 @@ export default function MemoryHubCapabilities() {
             id: "1.6b",
             what: "EC HEAD 变了自动/手跑 sync",
             status: "done",
-            note: "基线差分；launchd 每天 10:30；只重建已挂切片",
+            note: "基线先 sync-slice-from-ec 再 sync；launchd 10:30",
           },
           {
             id: "1.7",
@@ -183,7 +185,7 @@ export default function MemoryHubCapabilities() {
             id: "1.12",
             what: "枚举 / 反射 / 跨仓连线",
             status: "partial",
-            note: "引擎仍穿不过；基线跑 B：merge-safe 写 overlay；动态写法人闸",
+            note: "引擎仍穿不过；overlay≈127；基线 B merge-safe；forName 人闸",
           },
         ])}
       />
@@ -289,11 +291,11 @@ export default function MemoryHubCapabilities() {
         ])}
       />
 
-      <H2>3. Chat Memory（旁路 P0 · 2026-09-27 收口）</H2>
+      <H2>3. Chat Memory（旁路 P0 · 2026-09-29）</H2>
       <Text tone="secondary" size="small">
-        L0→L1→L2→L3；路径 ec/&lt;biz&gt;/&lt;slug&gt;.md。不改 EC
-        主仓。Playbook / Skill / negative-batch-20260927 /
-        EC_BASELINE_LOOP。
+        L0→L1→L2→L3；路径 ec/&lt;业务口&gt;/&lt;slug&gt;.md + 正文
+        workspace。不改 EC 主仓。Playbook / Skill / COLLEAGUE_TRAIN /
+        EC_BASELINE_LOOP；PR #1 Aug–Sep 蒸馏已合。
       </Text>
       <Table
         headers={["编号", "能力", "进度", "你们备注"]}
@@ -302,13 +304,13 @@ export default function MemoryHubCapabilities() {
             id: "3.1",
             what: "记下偏好、决策、坑",
             status: "done",
-            note: "L2 seed≈55 active + Hub；现码核过 durable",
+            note: "seed 95（~90 active / 5 superseded）；Hub 写入仍人闸",
           },
           {
             id: "3.2",
             what: "导入历史对话",
             status: "done",
-            note: "ec/ec-1 transcript 提炼；L0 import 蒸馏 L1",
+            note: "Cursor+Claude 蒸馏；train-batch-20260928-from-aug1",
           },
           {
             id: "3.3",
@@ -319,8 +321,8 @@ export default function MemoryHubCapabilities() {
           {
             id: "3.4",
             what: "私有或分享给团队",
-            status: "partial",
-            note: "seed 已推 memory-hub；同事贡献仍待 1 条真跑",
+            status: "done",
+            note: "同事 PR #1 已合 memory-hub；业务口+workspace 约定落地",
           },
           {
             id: "3.5",
@@ -532,7 +534,7 @@ export default function MemoryHubCapabilities() {
             id: "7.3",
             what: "旧对话 → 记忆和 Skill",
             status: "done",
-            note: "transcript→seed→L2；同事贡献指南已发",
+            note: "transcript→seed；PR #1 合入；seed-l2-to-hub 批写 Hub 待做",
           },
           {
             id: "7.4",
@@ -606,10 +608,13 @@ export default function MemoryHubCapabilities() {
           负例 N1–N3 过线
         </Pill>
         <Pill tone="success" active>
+          同事 PR #1 seed 合入
+        </Pill>
+        <Pill tone="success" active>
           EC 基线 Loop（切片扩+sync+保鲜+stitch）
         </Pill>
         <Pill tone="warning" active>
-          同事贡献 1 条 seed
+          新 seed 批写进 Hub
         </Pill>
         <Pill tone="neutral">Capillary bury（独立 Loop）</Pill>
       </Row>

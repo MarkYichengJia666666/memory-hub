@@ -21,7 +21,10 @@
 ## 更新流程
 
 ```text
-EC 有改动 → 拷进对应业务源切片（可选）→ 合并进本仓 commit
+EC HEAD 变 → bin/on-ec-baseline-change
+  → sync-slice-from-ec（refresh 已有 + 同目录邻域 expand）
   → POST /v3/code-graph/sync { code_graph_id: cg-zp42c34n }
   → ready 后再查
 ```
+
+无邻域的新路径只进 `artifacts/slice-sync` 的 `skipped_new`，需人手扩嘴后再跑。

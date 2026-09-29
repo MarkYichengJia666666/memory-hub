@@ -15,6 +15,9 @@ ec_repo: "/Users/lipeng/IdeaProjects/ec"
 # 五业务已合成一张图
 combined_graph_id: &graph cg-zp42c34n
 
+# 反射/枚举补丁边（与 bin/callers-with-stitch 同一份）
+# artifacts/graph-stitch/overlay.yaml
+
 mouths:
   - id: homepage
     name: 首页

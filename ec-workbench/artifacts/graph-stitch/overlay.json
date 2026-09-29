@@ -1,0 +1,1750 @@
+{
+  "version": 1,
+  "graph_id": "cg-zp42c34n",
+  "updated": "2026-09-29",
+  "edges": [
+    {
+      "id": "kafka-config-to-pool",
+      "kind": "config",
+      "from": "kafka.topic_config",
+      "to": "ConsumerPoolService.run",
+      "evidence": "PLAYBOOK.md 消费应用拉起",
+      "notes": "ZK/配置枚举名 → ConsumerPool 反序列化 Context"
+    },
+    {
+      "id": "kafka-pool-spring-context",
+      "kind": "reflect_spring",
+      "from": "ConsumerPoolService.run",
+      "to": "SpringUtils.getInstance",
+      "evidence": "ConsumerPoolService.run",
+      "notes": "getInstance(entry.getKey().getContextClass())"
+    },
+    {
+      "id": "kafka-pool-spring-processor",
+      "kind": "reflect_spring",
+      "from": "ConsumerPoolService.run",
+      "to": "AppStartUpGrantCouponProcessor.processRecord",
+      "via": "getProcessorClass + SpringUtils.getInstance",
+      "covers": [
+        "AppStartUpGrantCouponProcessor",
+        "processRecord"
+      ],
+      "evidence": "PLAYBOOK.md 开屏发券",
+      "notes": "图无调用边；返回 Class 不是调用 processRecord"
+    },
+    {
+      "id": "kafka-context-returns-class",
+      "kind": "reflect_class_literal",
+      "from": "AppStartUpGrantCouponConsumerGroupContext.getProcessorClass",
+      "to": "AppStartUpGrantCouponProcessor",
+      "evidence": "getProcessorClass() return Xxx.class",
+      "covers": [
+        "AppStartUpGrantCouponProcessor",
+        "getProcessorClass"
+      ]
+    },
+    {
+      "id": "aviator-rule-call",
+      "kind": "aviator",
+      "from": "FilterStrategyService.hitStrategy",
+      "to": "FilterRuleFunction.call",
+      "via": "AviatorEvaluator.execute(\"rule(id)\")",
+      "evidence": "PLAYBOOK.md 图穿不过去的两截",
+      "covers": [
+        "hitStrategy",
+        "FilterRuleFunction"
+      ]
+    },
+    {
+      "id": "enum-nd817hb",
+      "kind": "enum_dispatch",
+      "from": "GeneralPageConfigFilterRuleService.getProcessor",
+      "to": "NationalDay817HomeBannerFilterRuleProcessor.hitRule",
+      "via": "ND817HB",
+      "evidence": "KEYS.md 首页 banner；PLAYBOOK 817 链",
+      "covers": [
+        "NationalDay817HomeBannerFilterRuleProcessor",
+        "getProcessor",
+        "ND817HB"
+      ]
+    },
+    {
+      "id": "enum-factory-base-hitrule",
+      "kind": "enum_dispatch",
+      "from": "GeneralPageConfigFilterRuleService.hitRule",
+      "to": "NationalDay817HomeBannerFilterRuleProcessor.hitRule",
+      "via": "getProcessor(ruleVO.type) 返回基类",
+      "evidence": "PLAYBOOK.md 按枚举找 processor",
+      "covers": [
+        "NationalDay817HomeBannerFilterRuleProcessor",
+        "hitRule"
+      ]
+    },
+    {
+      "id": "payment-method-reflect",
+      "kind": "reflect_spring",
+      "from": "PaymentService.getMethodInstance",
+      "to": "SpringUtils.getInstance",
+      "via": "PaymentMethod.getMethodClass(method)",
+      "evidence": "PaymentService 切片",
+      "covers": [
+        "PaymentService",
+        "getMethodInstance"
+      ]
+    },
+    {
+      "id": "scan-DownstreamOrderRepaySyncConsumerGroupContext-returns-DownstreamOrderRepaySyncProcessor",
+      "kind": "reflect_class_literal",
+      "from": "DownstreamOrderRepaySyncConsumerGroupContext.getProcessorClass",
+      "to": "DownstreamOrderRepaySyncProcessor",
+      "via": "return Xxx.class",
+      "covers": [
+        "DownstreamOrderRepaySyncProcessor",
+        "getProcessorClass"
+      ],
+      "evidence": "B extract-stitch-candidates · 合并切片",
+      "notes": "getProcessorClass return Xxx.class → ConsumerPool Spring 拉起"
+    },
+    {
+      "id": "scan-pool-to-DownstreamOrderRepaySyncProcessor",
+      "kind": "reflect_spring",
+      "from": "ConsumerPoolService.run",
+      "to": "DownstreamOrderRepaySyncProcessor.processRecord",
+      "via": "DownstreamOrderRepaySyncConsumerGroupContext.getProcessorClass + SpringUtils.getInstance",
+      "covers": [
+        "DownstreamOrderRepaySyncProcessor",
+        "processRecord"
+      ],
+      "evidence": "B extract-stitch-candidates · 合并切片",
+      "notes": "getProcessorClass return Xxx.class → ConsumerPool Spring 拉起"
+    },
+    {
+      "id": "scan-EcCombinedRepayEventGroupContext-returns-EcCombinedRepayEventProcessor",
+      "kind": "reflect_class_literal",
+      "from": "EcCombinedRepayEventGroupContext.getProcessorClass",
+      "to": "EcCombinedRepayEventProcessor",
+      "via": "return Xxx.class",
+      "covers": [
+        "EcCombinedRepayEventProcessor",
+        "getProcessorClass"
+      ],
+      "evidence": "B extract-stitch-candidates · 合并切片",
+      "notes": "getProcessorClass return Xxx.class → ConsumerPool Spring 拉起"
+    },
+    {
+      "id": "scan-pool-to-EcCombinedRepayEventProcessor",
+      "kind": "reflect_spring",
+      "from": "ConsumerPoolService.run",
+      "to": "EcCombinedRepayEventProcessor.processRecord",
+      "via": "EcCombinedRepayEventGroupContext.getProcessorClass + SpringUtils.getInstance",
+      "covers": [
+        "EcCombinedRepayEventProcessor",
+        "processRecord"
+      ],
+      "evidence": "B extract-stitch-candidates · 合并切片",
+      "notes": "getProcessorClass return Xxx.class → ConsumerPool Spring 拉起"
+    },
+    {
+      "id": "scan-LoanAccountRiskConsumerGroupContext-returns-LoanAccountRiskProcessor",
+      "kind": "reflect_class_literal",
+      "from": "LoanAccountRiskConsumerGroupContext.getProcessorClass",
+      "to": "LoanAccountRiskProcessor",
+      "via": "return Xxx.class",
+      "covers": [
+        "LoanAccountRiskProcessor",
+        "getProcessorClass"
+      ],
+      "evidence": "B extract-stitch-candidates · 合并切片",
+      "notes": "getProcessorClass return Xxx.class → ConsumerPool Spring 拉起"
+    },
+    {
+      "id": "scan-pool-to-LoanAccountRiskProcessor",
+      "kind": "reflect_spring",
+      "from": "ConsumerPoolService.run",
+      "to": "LoanAccountRiskProcessor.processRecord",
+      "via": "LoanAccountRiskConsumerGroupContext.getProcessorClass + SpringUtils.getInstance",
+      "covers": [
+        "LoanAccountRiskProcessor",
+        "processRecord"
+      ],
+      "evidence": "B extract-stitch-candidates · 合并切片",
+      "notes": "getProcessorClass return Xxx.class → ConsumerPool Spring 拉起"
+    },
+    {
+      "id": "scan-EasycashRiskConsumerGroupContext-returns-EasycashRiskProcessor",
+      "kind": "reflect_class_literal",
+      "from": "EasycashRiskConsumerGroupContext.getProcessorClass",
+      "to": "EasycashRiskProcessor",
+      "via": "return Xxx.class",
+      "covers": [
+        "EasycashRiskProcessor",
+        "getProcessorClass"
+      ],
+      "evidence": "B extract-stitch-candidates · 合并切片",
+      "notes": "getProcessorClass return Xxx.class → ConsumerPool Spring 拉起"
+    },
+    {
+      "id": "scan-pool-to-EasycashRiskProcessor",
+      "kind": "reflect_spring",
+      "from": "ConsumerPoolService.run",
+      "to": "EasycashRiskProcessor.processRecord",
+      "via": "EasycashRiskConsumerGroupContext.getProcessorClass + SpringUtils.getInstance",
+      "covers": [
+        "EasycashRiskProcessor",
+        "processRecord"
+      ],
+      "evidence": "B extract-stitch-candidates · 合并切片",
+      "notes": "getProcessorClass return Xxx.class → ConsumerPool Spring 拉起"
+    },
+    {
+      "id": "scan-FundRepayEventConsumerGroupContext-returns-FundRepayEventProcessor",
+      "kind": "reflect_class_literal",
+      "from": "FundRepayEventConsumerGroupContext.getProcessorClass",
+      "to": "FundRepayEventProcessor",
+      "via": "return Xxx.class",
+      "covers": [
+        "FundRepayEventProcessor",
+        "getProcessorClass"
+      ],
+      "evidence": "B extract-stitch-candidates · 合并切片",
+      "notes": "getProcessorClass return Xxx.class → ConsumerPool Spring 拉起"
+    },
+    {
+      "id": "scan-pool-to-FundRepayEventProcessor",
+      "kind": "reflect_spring",
+      "from": "ConsumerPoolService.run",
+      "to": "FundRepayEventProcessor.processRecord",
+      "via": "FundRepayEventConsumerGroupContext.getProcessorClass + SpringUtils.getInstance",
+      "covers": [
+        "FundRepayEventProcessor",
+        "processRecord"
+      ],
+      "evidence": "B extract-stitch-candidates · 合并切片",
+      "notes": "getProcessorClass return Xxx.class → ConsumerPool Spring 拉起"
+    },
+    {
+      "id": "scan-RiskCashLoanEventConsumerGroupContext-returns-RiskCashLoanEventProcessor",
+      "kind": "reflect_class_literal",
+      "from": "RiskCashLoanEventConsumerGroupContext.getProcessorClass",
+      "to": "RiskCashLoanEventProcessor",
+      "via": "return Xxx.class",
+      "covers": [
+        "RiskCashLoanEventProcessor",
+        "getProcessorClass"
+      ],
+      "evidence": "B extract-stitch-candidates · 合并切片",
+      "notes": "getProcessorClass return Xxx.class → ConsumerPool Spring 拉起"
+    },
+    {
+      "id": "scan-pool-to-RiskCashLoanEventProcessor",
+      "kind": "reflect_spring",
+      "from": "ConsumerPoolService.run",
+      "to": "RiskCashLoanEventProcessor.processRecord",
+      "via": "RiskCashLoanEventConsumerGroupContext.getProcessorClass + SpringUtils.getInstance",
+      "covers": [
+        "RiskCashLoanEventProcessor",
+        "processRecord"
+      ],
+      "evidence": "B extract-stitch-candidates · 合并切片",
+      "notes": "getProcessorClass return Xxx.class → ConsumerPool Spring 拉起"
+    },
+    {
+      "id": "scan-hp-BANNER_HOME_POP_UP_FOR_HAS_ORDER-AppResourceProcessorForHasOrder",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "AppResourceProcessorForHasOrder",
+      "via": "getProcessorType:BANNER_HOME_POP_UP_FOR_HAS_ORDER",
+      "covers": [
+        "AppResourceProcessorForHasOrder",
+        "BANNER_HOME_POP_UP_FOR_HAS_ORDER",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-BANNER_HOME_POP_UP_FOR_NEVER_APPLIED-BannerHomePopupProcessorForNeverApplied",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "BannerHomePopupProcessorForNeverApplied",
+      "via": "getProcessorType:BANNER_HOME_POP_UP_FOR_NEVER_APPLIED",
+      "covers": [
+        "BannerHomePopupProcessorForNeverApplied",
+        "BANNER_HOME_POP_UP_FOR_NEVER_APPLIED",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-BANNER_HOME_POP_UP_FOR_OVERDUE-AppResourceProcessorForOverdue",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "AppResourceProcessorForOverdue",
+      "via": "getProcessorType:BANNER_HOME_POP_UP_FOR_OVERDUE",
+      "covers": [
+        "AppResourceProcessorForOverdue",
+        "BANNER_HOME_POP_UP_FOR_OVERDUE",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-BANNER_HOME_POP_UP-BannerHomePopupProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "BannerHomePopupProcessor",
+      "via": "getProcessorType:BANNER_HOME_POP_UP",
+      "covers": [
+        "BannerHomePopupProcessor",
+        "BANNER_HOME_POP_UP",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-BANNER_HOME_POP_UP_FOR_CAN_CREATE_ORDER-BannerHomePopupProcessorForCanCreateOrder",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "BannerHomePopupProcessorForCanCreateOrder",
+      "via": "getProcessorType:BANNER_HOME_POP_UP_FOR_CAN_CREATE_ORDER",
+      "covers": [
+        "BannerHomePopupProcessorForCanCreateOrder",
+        "BANNER_HOME_POP_UP_FOR_CAN_CREATE_ORDER",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-RESOURCE_CAN_CREATE_ORDER_PRE_ACTION-ResourcePreActionProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "ResourcePreActionProcessor",
+      "via": "getProcessorType:RESOURCE_CAN_CREATE_ORDER_PRE_ACTION",
+      "covers": [
+        "ResourcePreActionProcessor",
+        "RESOURCE_CAN_CREATE_ORDER_PRE_ACTION",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-FUND_ORDER_BIZ_CHECK_V3-FundReviewCheckInfoV3Processor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "FundReviewCheckInfoV3Processor",
+      "via": "getProcessorType:FUND_ORDER_BIZ_CHECK_V3",
+      "covers": [
+        "FundReviewCheckInfoV3Processor",
+        "FUND_ORDER_BIZ_CHECK_V3",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-REPAYMENT_INFO_V3-RepaymentInfoV3Processor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "RepaymentInfoV3Processor",
+      "via": "getProcessorType:REPAYMENT_INFO_V3",
+      "covers": [
+        "RepaymentInfoV3Processor",
+        "REPAYMENT_INFO_V3",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-PAGE_JUMP_V3-PageJumpV3Processor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "PageJumpV3Processor",
+      "via": "getProcessorType:PAGE_JUMP_V3",
+      "covers": [
+        "PageJumpV3Processor",
+        "PAGE_JUMP_V3",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-AUTO_JUMP_BILL_PAGE_FOR_OVERDUE-BillPageJumpForOverdueProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "BillPageJumpForOverdueProcessor",
+      "via": "getProcessorType:AUTO_JUMP_BILL_PAGE_FOR_OVERDUE",
+      "covers": [
+        "BillPageJumpForOverdueProcessor",
+        "AUTO_JUMP_BILL_PAGE_FOR_OVERDUE",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-SIGNATURE_BIZ_CHECK_V3-SignatureCheckInfoV3Processor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "SignatureCheckInfoV3Processor",
+      "via": "getProcessorType:SIGNATURE_BIZ_CHECK_V3",
+      "covers": [
+        "SignatureCheckInfoV3Processor",
+        "SIGNATURE_BIZ_CHECK_V3",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-DEBT_BIZ_CHECK_V3-DebtCheckInfoV3Processor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "DebtCheckInfoV3Processor",
+      "via": "getProcessorType:DEBT_BIZ_CHECK_V3",
+      "covers": [
+        "DebtCheckInfoV3Processor",
+        "DEBT_BIZ_CHECK_V3",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-FUND_PAYOUT_BIZ_CHECK_V3-FundPayoutCheckInfoV3Processor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "FundPayoutCheckInfoV3Processor",
+      "via": "getProcessorType:FUND_PAYOUT_BIZ_CHECK_V3",
+      "covers": [
+        "FundPayoutCheckInfoV3Processor",
+        "FUND_PAYOUT_BIZ_CHECK_V3",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-HOME_PAGE_GUIDE_BUBBLE_V3-HomePageGuideBubbleInfoV3Processor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "HomePageGuideBubbleInfoV3Processor",
+      "via": "getProcessorType:HOME_PAGE_GUIDE_BUBBLE_V3",
+      "covers": [
+        "HomePageGuideBubbleInfoV3Processor",
+        "HOME_PAGE_GUIDE_BUBBLE_V3",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-AUTO_JUMP_BILL_PAGE_FOR_NOT_OVERDUE-BillPageJumpV3Processor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "BillPageJumpV3Processor",
+      "via": "getProcessorType:AUTO_JUMP_BILL_PAGE_FOR_NOT_OVERDUE",
+      "covers": [
+        "BillPageJumpV3Processor",
+        "AUTO_JUMP_BILL_PAGE_FOR_NOT_OVERDUE",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-LOAN_MARKET_INFO_V3-LoanMarketInfoV3Processor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "LoanMarketInfoV3Processor",
+      "via": "getProcessorType:LOAN_MARKET_INFO_V3",
+      "covers": [
+        "LoanMarketInfoV3Processor",
+        "LOAN_MARKET_INFO_V3",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-GRAB_ORDER_BIZ_CHECK_V3-GrabCheckInfoV3Processor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "GrabCheckInfoV3Processor",
+      "via": "getProcessorType:GRAB_ORDER_BIZ_CHECK_V3",
+      "covers": [
+        "GrabCheckInfoV3Processor",
+        "GRAB_ORDER_BIZ_CHECK_V3",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-DIRECT_DEBIT_BANK_V3-DirectDebitBankInfoV3Processor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "DirectDebitBankInfoV3Processor",
+      "via": "getProcessorType:DIRECT_DEBIT_BANK_V3",
+      "covers": [
+        "DirectDebitBankInfoV3Processor",
+        "DIRECT_DEBIT_BANK_V3",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-LAST_COMMON_CARD-LastCommonCardProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "LastCommonCardProcessor",
+      "via": "getProcessorType:LAST_COMMON_CARD",
+      "covers": [
+        "LastCommonCardProcessor",
+        "LAST_COMMON_CARD",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-COMMON_TYPE-CommonCardProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "CommonCardProcessor",
+      "via": "getProcessorType:COMMON_TYPE",
+      "covers": [
+        "CommonCardProcessor",
+        "COMMON_TYPE",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-H5_WHOLE_PROCESS_ORDER_UI_CONFIG-H5WholeProcessOrderUIConfigProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "H5WholeProcessOrderUIConfigProcessor",
+      "via": "getProcessorType:H5_WHOLE_PROCESS_ORDER_UI_CONFIG",
+      "covers": [
+        "H5WholeProcessOrderUIConfigProcessor",
+        "H5_WHOLE_PROCESS_ORDER_UI_CONFIG",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-ORDER_PAGE_CONFIG-OrderPageConfigProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "OrderPageConfigProcessor",
+      "via": "getProcessorType:ORDER_PAGE_CONFIG",
+      "covers": [
+        "OrderPageConfigProcessor",
+        "ORDER_PAGE_CONFIG",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-COMMON_CONFIG-HomePageConfigProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "HomePageConfigProcessor",
+      "via": "getProcessorType:COMMON_CONFIG",
+      "covers": [
+        "HomePageConfigProcessor",
+        "COMMON_CONFIG",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-CREATE_ORDER_PAGE_TOP_AREA-CreateOrderPageTopAreaProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "CreateOrderPageTopAreaProcessor",
+      "via": "getProcessorType:CREATE_ORDER_PAGE_TOP_AREA",
+      "covers": [
+        "CreateOrderPageTopAreaProcessor",
+        "CREATE_ORDER_PAGE_TOP_AREA",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-REAPPLY_USER_INFO-ReapplyUserInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "ReapplyUserInfoProcessor",
+      "via": "getUserInfoProcessorType:REAPPLY_USER_INFO",
+      "covers": [
+        "ReapplyUserInfoProcessor",
+        "REAPPLY_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-QUOTA_CARD_INFO-QuotaCardProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "QuotaCardProcessor",
+      "via": "getUserInfoProcessorType:QUOTA_CARD_INFO",
+      "covers": [
+        "QuotaCardProcessor",
+        "QUOTA_CARD_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-LOGIN_USER_INFO_PROCESSOR-LoginUserDefaultProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "LoginUserDefaultProcessor",
+      "via": "getUserInfoProcessorType:LOGIN_USER_INFO_PROCESSOR",
+      "covers": [
+        "LoginUserDefaultProcessor",
+        "LOGIN_USER_INFO_PROCESSOR",
+        "getUserInfoProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-WAITING_SUPPLEMENT_USER_INFO-WaitingSupplementUserInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "WaitingSupplementUserInfoProcessor",
+      "via": "getUserInfoProcessorType:WAITING_SUPPLEMENT_USER_INFO",
+      "covers": [
+        "WaitingSupplementUserInfoProcessor",
+        "WAITING_SUPPLEMENT_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-MULTI_LOAN_INIT_USER_INFO-MultiLoanInitUserInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "MultiLoanInitUserInfoProcessor",
+      "via": "getUserInfoProcessorType:MULTI_LOAN_INIT_USER_INFO",
+      "covers": [
+        "MultiLoanInitUserInfoProcessor",
+        "MULTI_LOAN_INIT_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-NOT_LOGIN_USER_INFO_PROCESSOR-NotLoginUserInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "NotLoginUserInfoProcessor",
+      "via": "getUserInfoProcessorType:NOT_LOGIN_USER_INFO_PROCESSOR",
+      "covers": [
+        "NotLoginUserInfoProcessor",
+        "NOT_LOGIN_USER_INFO_PROCESSOR",
+        "getUserInfoProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-REPAYMENT_QUOTA_CARD_INFO-RepaymentQuotaCardProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "RepaymentQuotaCardProcessor",
+      "via": "getUserInfoProcessorType:REPAYMENT_QUOTA_CARD_INFO",
+      "covers": [
+        "RepaymentQuotaCardProcessor",
+        "REPAYMENT_QUOTA_CARD_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-READY_USER_INFO-ReadyUserInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "ReadyUserInfoProcessor",
+      "via": "getUserInfoProcessorType:READY_USER_INFO",
+      "covers": [
+        "ReadyUserInfoProcessor",
+        "READY_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-NEVER_APPLIED_USER_INFO-NeverAppliedUserInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "NeverAppliedUserInfoProcessor",
+      "via": "getUserInfoProcessorType:NEVER_APPLIED_USER_INFO",
+      "covers": [
+        "NeverAppliedUserInfoProcessor",
+        "NEVER_APPLIED_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-REPAYMENT_USER_INFO-RepaymentUserInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "RepaymentUserInfoProcessor",
+      "via": "getUserInfoProcessorType:REPAYMENT_USER_INFO",
+      "covers": [
+        "RepaymentUserInfoProcessor",
+        "REPAYMENT_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-PAYING_USER_INFO-PayingUserInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "PayingUserInfoProcessor",
+      "via": "getUserInfoProcessorType:PAYING_USER_INFO",
+      "covers": [
+        "PayingUserInfoProcessor",
+        "PAYING_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-FINISH_SUPPLEMENT_USER_INFO-FinishSupplementUserInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "FinishSupplementUserInfoProcessor",
+      "via": "getUserInfoProcessorType:FINISH_SUPPLEMENT_USER_INFO",
+      "covers": [
+        "FinishSupplementUserInfoProcessor",
+        "FINISH_SUPPLEMENT_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-NEED_SUPPLEMENT_USER_INFO-NeedSupplementUserInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "NeedSupplementUserInfoProcessor",
+      "via": "getUserInfoProcessorType:NEED_SUPPLEMENT_USER_INFO",
+      "covers": [
+        "NeedSupplementUserInfoProcessor",
+        "NEED_SUPPLEMENT_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-CAN_CREATE_ORDER_USER_INFO-UserInfoCanOrderProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "UserInfoCanOrderProcessor",
+      "via": "getUserInfoProcessorType:CAN_CREATE_ORDER_USER_INFO",
+      "covers": [
+        "UserInfoCanOrderProcessor",
+        "CAN_CREATE_ORDER_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-MINIMALIST_ACCEPT_USER_INFO-MinimalistAcceptUserInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "MinimalistAcceptUserInfoProcessor",
+      "via": "getUserInfoProcessorType:MINIMALIST_ACCEPT_USER_INFO",
+      "covers": [
+        "MinimalistAcceptUserInfoProcessor",
+        "MINIMALIST_ACCEPT_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-MINIMALIST_IN_REVIEW_USER_INFO-MinimalistInReviewUserInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "MinimalistInReviewUserInfoProcessor",
+      "via": "getUserInfoProcessorType:MINIMALIST_IN_REVIEW_USER_INFO",
+      "covers": [
+        "MinimalistInReviewUserInfoProcessor",
+        "MINIMALIST_IN_REVIEW_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-GRAB_ORDER_BIZ_CHECK-GrabBizCheckUserInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "GrabBizCheckUserInfoProcessor",
+      "via": "getUserInfoProcessorType:GRAB_ORDER_BIZ_CHECK",
+      "covers": [
+        "GrabBizCheckUserInfoProcessor",
+        "GRAB_ORDER_BIZ_CHECK",
+        "getUserInfoProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-SIGNATURE_BIZ_CHECK-SignatureBizCheckUserInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "SignatureBizCheckUserInfoProcessor",
+      "via": "getUserInfoProcessorType:SIGNATURE_BIZ_CHECK",
+      "covers": [
+        "SignatureBizCheckUserInfoProcessor",
+        "SIGNATURE_BIZ_CHECK",
+        "getUserInfoProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-FUND_ORDER_BIZ_CHECK-FundBizCheckUserInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "FundBizCheckUserInfoProcessor",
+      "via": "getUserInfoProcessorType:FUND_ORDER_BIZ_CHECK",
+      "covers": [
+        "FundBizCheckUserInfoProcessor",
+        "FUND_ORDER_BIZ_CHECK",
+        "getUserInfoProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-DEBT_BIZ_CHECK-DebtBizCheckUserInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "DebtBizCheckUserInfoProcessor",
+      "via": "getUserInfoProcessorType:DEBT_BIZ_CHECK",
+      "covers": [
+        "DebtBizCheckUserInfoProcessor",
+        "DEBT_BIZ_CHECK",
+        "getUserInfoProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-FUND_PAYOUT_BIZ_CHECK-FundPayoutBizCheckUserInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "FundPayoutBizCheckUserInfoProcessor",
+      "via": "getUserInfoProcessorType:FUND_PAYOUT_BIZ_CHECK",
+      "covers": [
+        "FundPayoutBizCheckUserInfoProcessor",
+        "FUND_PAYOUT_BIZ_CHECK",
+        "getUserInfoProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-REJECT-RejectUserinfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "RejectUserinfoProcessor",
+      "via": "getUserInfoProcessorType:REJECT",
+      "covers": [
+        "RejectUserinfoProcessor",
+        "REJECT",
+        "getUserInfoProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-RELOAN_REJECT_USER_INFO-ReloanRejectUserinfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "ReloanRejectUserinfoProcessor",
+      "via": "getUserInfoProcessorType:RELOAN_REJECT_USER_INFO",
+      "covers": [
+        "ReloanRejectUserinfoProcessor",
+        "RELOAN_REJECT_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-CANCELLED-CancelledUserInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "CancelledUserInfoProcessor",
+      "via": "getUserInfoProcessorType:CANCELLED",
+      "covers": [
+        "CancelledUserInfoProcessor",
+        "CANCELLED",
+        "getUserInfoProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-CAN_REAPPLY_IN_FUTURE-CanReapplyInFutureUserInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "CanReapplyInFutureUserInfoProcessor",
+      "via": "getUserInfoProcessorType:CAN_REAPPLY_IN_FUTURE",
+      "covers": [
+        "CanReapplyInFutureUserInfoProcessor",
+        "CAN_REAPPLY_IN_FUTURE",
+        "getUserInfoProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-IMAGE_REVIEW_REJECTED-ImageReviewRejectedProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "ImageReviewRejectedProcessor",
+      "via": "getUserInfoProcessorType:IMAGE_REVIEW_REJECTED",
+      "covers": [
+        "ImageReviewRejectedProcessor",
+        "IMAGE_REVIEW_REJECTED",
+        "getUserInfoProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-INCREASE_REVIEW_REJECT_USER_INFO-IncreaseReviewRejectUserInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "IncreaseReviewRejectUserInfoProcessor",
+      "via": "getUserInfoProcessorType:INCREASE_REVIEW_REJECT_USER_INFO",
+      "covers": [
+        "IncreaseReviewRejectUserInfoProcessor",
+        "INCREASE_REVIEW_REJECT_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-REUPLOAD_FINISHED_USER_INFO-ReupploadFinishUserInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "ReupploadFinishUserInfoProcessor",
+      "via": "getUserInfoProcessorType:REUPLOAD_FINISHED_USER_INFO",
+      "covers": [
+        "ReupploadFinishUserInfoProcessor",
+        "REUPLOAD_FINISHED_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-CALC_CREDITS_IN_REVIEW_USER_INFO-CalcCreditsInReviewUserInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "CalcCreditsInReviewUserInfoProcessor",
+      "via": "getUserInfoProcessorType:CALC_CREDITS_IN_REVIEW_USER_INFO",
+      "covers": [
+        "CalcCreditsInReviewUserInfoProcessor",
+        "CALC_CREDITS_IN_REVIEW_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-IN_REVIEW_USER_INFO-ReviewUserInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "ReviewUserInfoProcessor",
+      "via": "getUserInfoProcessorType:IN_REVIEW_USER_INFO",
+      "covers": [
+        "ReviewUserInfoProcessor",
+        "IN_REVIEW_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-MULTI_LOAN_IN_REVIEW_USER_INFO-MultiLoanInReviewUserInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "MultiLoanInReviewUserInfoProcessor",
+      "via": "getUserInfoProcessorType:MULTI_LOAN_IN_REVIEW_USER_INFO",
+      "covers": [
+        "MultiLoanInReviewUserInfoProcessor",
+        "MULTI_LOAN_IN_REVIEW_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-LOAN_PRODUCT_INFO-LoanProductProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "LoanProductProcessor",
+      "via": "getProcessorType:LOAN_PRODUCT_INFO",
+      "covers": [
+        "LoanProductProcessor",
+        "LOAN_PRODUCT_INFO",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-MULTI_LOAN_PRODUCT_INFO-MultiLoanProductProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "MultiLoanProductProcessor",
+      "via": "getProcessorType:MULTI_LOAN_PRODUCT_INFO",
+      "covers": [
+        "MultiLoanProductProcessor",
+        "MULTI_LOAN_PRODUCT_INFO",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-ORDER_PROGRESS_STEP-OrderProgressStepProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "OrderProgressStepProcessor",
+      "via": "getProcessorType:ORDER_PROGRESS_STEP",
+      "covers": [
+        "OrderProgressStepProcessor",
+        "ORDER_PROGRESS_STEP",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-CAN_NOT_LOAN_CREDIT-CanNotLoanCreditProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "CanNotLoanCreditProcessor",
+      "via": "getProcessorType:CAN_NOT_LOAN_CREDIT",
+      "covers": [
+        "CanNotLoanCreditProcessor",
+        "CAN_NOT_LOAN_CREDIT",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-REJECT_STATUS-RejectCardProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "RejectCardProcessor",
+      "via": "getProcessorType:REJECT_STATUS",
+      "covers": [
+        "RejectCardProcessor",
+        "REJECT_STATUS",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-RELOAD_KTP-ReloadKtpCardProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "ReloadKtpCardProcessor",
+      "via": "getProcessorType:RELOAD_KTP",
+      "covers": [
+        "ReloadKtpCardProcessor",
+        "RELOAD_KTP",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-CREDITS_EXPIRED-CreditsExpiredProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "CreditsExpiredProcessor",
+      "via": "getProcessorType:CREDITS_EXPIRED",
+      "covers": [
+        "CreditsExpiredProcessor",
+        "CREDITS_EXPIRED",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-CAN_REAPPLY-CanReapplyProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "CanReapplyProcessor",
+      "via": "getProcessorType:CAN_REAPPLY",
+      "covers": [
+        "CanReapplyProcessor",
+        "CAN_REAPPLY",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-NEVER_APPLIED-NeverAppliedProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "NeverAppliedProcessor",
+      "via": "getProcessorType:NEVER_APPLIED",
+      "covers": [
+        "NeverAppliedProcessor",
+        "NEVER_APPLIED",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-NOT_LOGIN-NotLoginProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "NotLoginProcessor",
+      "via": "getProcessorType:NOT_LOGIN",
+      "covers": [
+        "NotLoginProcessor",
+        "NOT_LOGIN",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-ORDER_NEED_SUPPLEMENT_LIVING_INFO-NeedSupplementLivingInfo",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "NeedSupplementLivingInfo",
+      "via": "getProcessorType:ORDER_NEED_SUPPLEMENT_LIVING_INFO",
+      "covers": [
+        "NeedSupplementLivingInfo",
+        "ORDER_NEED_SUPPLEMENT_LIVING_INFO",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-ORDER_SUPPLEMENT_REVIEW-SupplementReview",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "SupplementReview",
+      "via": "getProcessorType:ORDER_SUPPLEMENT_REVIEW",
+      "covers": [
+        "SupplementReview",
+        "ORDER_SUPPLEMENT_REVIEW",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-CREDIT_GAIN_UPGRADE_POPUP-CreditGainUpgradePopupProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "CreditGainUpgradePopupProcessor",
+      "via": "getProcessorType:CREDIT_GAIN_UPGRADE_POPUP",
+      "covers": [
+        "CreditGainUpgradePopupProcessor",
+        "CREDIT_GAIN_UPGRADE_POPUP",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-LOAN_MARKET-LoanMarketProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "LoanMarketProcessor",
+      "via": "getProcessorType:LOAN_MARKET",
+      "covers": [
+        "LoanMarketProcessor",
+        "LOAN_MARKET",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-MAIN_CARD_REPAYMENT_INFO-MainCardRepaymentInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "MainCardRepaymentInfoProcessor",
+      "via": "getProcessorType:MAIN_CARD_REPAYMENT_INFO",
+      "covers": [
+        "MainCardRepaymentInfoProcessor",
+        "MAIN_CARD_REPAYMENT_INFO",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-OVERDUE_REPAYMENT_CARD-OverdueRepaymentCardProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "OverdueRepaymentCardProcessor",
+      "via": "getProcessorType:OVERDUE_REPAYMENT_CARD",
+      "covers": [
+        "OverdueRepaymentCardProcessor",
+        "OVERDUE_REPAYMENT_CARD",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-REPAYMENT_CARD-RepaymentCardProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "RepaymentCardProcessor",
+      "via": "getProcessorType:REPAYMENT_CARD",
+      "covers": [
+        "RepaymentCardProcessor",
+        "REPAYMENT_CARD",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-MANUAL_REVIEW-ManualReviewProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "ManualReviewProcessor",
+      "via": "getProcessorType:MANUAL_REVIEW",
+      "covers": [
+        "ManualReviewProcessor",
+        "MANUAL_REVIEW",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-REVIEW_FOR_RISK-RiskReviewProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "RiskReviewProcessor",
+      "via": "getProcessorType:REVIEW_FOR_RISK",
+      "covers": [
+        "RiskReviewProcessor",
+        "REVIEW_FOR_RISK",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-LENDING_GUIDANCE_ALERT_PROCESSOR-LendingGuidanceAlertProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "LendingGuidanceAlertProcessor",
+      "via": "getAlertProcessorType:LENDING_GUIDANCE_ALERT_PROCESSOR",
+      "covers": [
+        "LendingGuidanceAlertProcessor",
+        "LENDING_GUIDANCE_ALERT_PROCESSOR",
+        "getAlertProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-REPAYMENT_GUIDANCE_ALERT_PROCESSOR-RepaymentGuidanceAlertProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "RepaymentGuidanceAlertProcessor",
+      "via": "getAlertProcessorType:REPAYMENT_GUIDANCE_ALERT_PROCESSOR",
+      "covers": [
+        "RepaymentGuidanceAlertProcessor",
+        "REPAYMENT_GUIDANCE_ALERT_PROCESSOR",
+        "getAlertProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-LOAN_MARKET_WITH_SME_ENTRANCE_MIDDLE_INFO_PROCESSOR-LoanMarketSmeEntranceMiddleInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "LoanMarketSmeEntranceMiddleInfoProcessor",
+      "via": "getProcessorType:LOAN_MARKET_WITH_SME_ENTRANCE_MIDDLE_INFO_PROCESSOR",
+      "covers": [
+        "LoanMarketSmeEntranceMiddleInfoProcessor",
+        "LOAN_MARKET_WITH_SME_ENTRANCE_MIDDLE_INFO_PROCESSOR",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-EMPTY_MIDDLE_INFO_PROCESSOR-EmptyMiddleInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "EmptyMiddleInfoProcessor",
+      "via": "getProcessorType:EMPTY_MIDDLE_INFO_PROCESSOR",
+      "covers": [
+        "EmptyMiddleInfoProcessor",
+        "EMPTY_MIDDLE_INFO_PROCESSOR",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-SME_ENTRANCE_MIDDLE_INFO_PROCESSOR-SmeEntranceMiddleInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "SmeEntranceMiddleInfoProcessor",
+      "via": "getProcessorType:SME_ENTRANCE_MIDDLE_INFO_PROCESSOR",
+      "covers": [
+        "SmeEntranceMiddleInfoProcessor",
+        "SME_ENTRANCE_MIDDLE_INFO_PROCESSOR",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-WITH_SME_ENTRANCE_MIDDLE_INFO_PROCESSOR-WithSmeEntranceMiddleInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "WithSmeEntranceMiddleInfoProcessor",
+      "via": "getProcessorType:WITH_SME_ENTRANCE_MIDDLE_INFO_PROCESSOR",
+      "covers": [
+        "WithSmeEntranceMiddleInfoProcessor",
+        "WITH_SME_ENTRANCE_MIDDLE_INFO_PROCESSOR",
+        "getProcessorType"
+      ],
+      "evidence": "B homepage getProcessorType 枚举分发 · 合并切片",
+      "notes": "HomepageProcessorFactory.init 按枚举塞 Map，图无调用边"
+    },
+    {
+      "id": "scan-hp-IN_REVIEW_POINT-InReviewPointProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "InReviewPointProcessor",
+      "covers": [
+        "InReviewPointProcessor",
+        "IN_REVIEW_POINT",
+        "getPointProcessorType"
+      ],
+      "evidence": "baseline extract-stitch-candidates --merge-safe",
+      "notes": "homepage_enum_dispatch",
+      "via": "getPointProcessorType:IN_REVIEW_POINT"
+    },
+    {
+      "id": "scan-hp-INCREASE_REVIEW_NEVER_APPLIED_POINT-IncreaseReviewNeverAppliedPointProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "IncreaseReviewNeverAppliedPointProcessor",
+      "covers": [
+        "IncreaseReviewNeverAppliedPointProcessor",
+        "INCREASE_REVIEW_NEVER_APPLIED_POINT",
+        "getPointProcessorType"
+      ],
+      "evidence": "baseline extract-stitch-candidates --merge-safe",
+      "notes": "homepage_enum_dispatch",
+      "via": "getPointProcessorType:INCREASE_REVIEW_NEVER_APPLIED_POINT"
+    },
+    {
+      "id": "scan-hp-BASE_POINT-BaseHomepagePointDataProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "BaseHomepagePointDataProcessor",
+      "covers": [
+        "BaseHomepagePointDataProcessor",
+        "BASE_POINT",
+        "getPointProcessorType"
+      ],
+      "evidence": "baseline extract-stitch-candidates --merge-safe",
+      "notes": "homepage_enum_dispatch",
+      "via": "getPointProcessorType:BASE_POINT"
+    },
+    {
+      "id": "scan-hp-REAPPLY_POINT-ReapplyPointProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "ReapplyPointProcessor",
+      "covers": [
+        "ReapplyPointProcessor",
+        "REAPPLY_POINT",
+        "getPointProcessorType"
+      ],
+      "evidence": "baseline extract-stitch-candidates --merge-safe",
+      "notes": "homepage_enum_dispatch",
+      "via": "getPointProcessorType:REAPPLY_POINT"
+    },
+    {
+      "id": "scan-hp-NEVER_APPLIED_POINT-NeverAppliedPointProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "NeverAppliedPointProcessor",
+      "covers": [
+        "NeverAppliedPointProcessor",
+        "NEVER_APPLIED_POINT",
+        "getPointProcessorType"
+      ],
+      "evidence": "baseline extract-stitch-candidates --merge-safe",
+      "notes": "homepage_enum_dispatch",
+      "via": "getPointProcessorType:NEVER_APPLIED_POINT"
+    },
+    {
+      "id": "scan-hp-WAITING_FOR_SUPPLEMENT_POINT-WaitingForSupplementPointProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "WaitingForSupplementPointProcessor",
+      "covers": [
+        "WaitingForSupplementPointProcessor",
+        "WAITING_FOR_SUPPLEMENT_POINT",
+        "getPointProcessorType"
+      ],
+      "evidence": "baseline extract-stitch-candidates --merge-safe",
+      "notes": "homepage_enum_dispatch",
+      "via": "getPointProcessorType:WAITING_FOR_SUPPLEMENT_POINT"
+    },
+    {
+      "id": "scan-hp-INCREASE_REVIEW_REJECT_POINT-IncreaseReviewRejectProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "IncreaseReviewRejectProcessor",
+      "covers": [
+        "IncreaseReviewRejectProcessor",
+        "INCREASE_REVIEW_REJECT_POINT",
+        "getPointProcessorType"
+      ],
+      "evidence": "baseline extract-stitch-candidates --merge-safe",
+      "notes": "homepage_enum_dispatch",
+      "via": "getPointProcessorType:INCREASE_REVIEW_REJECT_POINT"
+    },
+    {
+      "id": "scan-hp-CAN_CREATE_ORDER_PRODUCT_INFO_PROCESSOR-CanCreateOrderProductProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "CanCreateOrderProductProcessor",
+      "covers": [
+        "CanCreateOrderProductProcessor",
+        "CAN_CREATE_ORDER_PRODUCT_INFO_PROCESSOR",
+        "getProductProcessorType"
+      ],
+      "evidence": "baseline extract-stitch-candidates --merge-safe",
+      "notes": "homepage_enum_dispatch",
+      "via": "getProductProcessorType:CAN_CREATE_ORDER_PRODUCT_INFO_PROCESSOR"
+    },
+    {
+      "id": "scan-hp-DEFAULT_PRODUCT_INFO_PROCESSOR-EmptyProductProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "EmptyProductProcessor",
+      "covers": [
+        "EmptyProductProcessor",
+        "DEFAULT_PRODUCT_INFO_PROCESSOR",
+        "getProductProcessorType"
+      ],
+      "evidence": "baseline extract-stitch-candidates --merge-safe",
+      "notes": "homepage_enum_dispatch",
+      "via": "getProductProcessorType:DEFAULT_PRODUCT_INFO_PROCESSOR"
+    },
+    {
+      "id": "scan-hp-DEFAULT_READY_NOTICE_INFO_PROCESSOR-DefaultReadyNoticeInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "DefaultReadyNoticeInfoProcessor",
+      "covers": [
+        "DefaultReadyNoticeInfoProcessor",
+        "DEFAULT_READY_NOTICE_INFO_PROCESSOR",
+        "getNoticeProcessorType"
+      ],
+      "evidence": "baseline extract-stitch-candidates --merge-safe",
+      "notes": "homepage_enum_dispatch",
+      "via": "getNoticeProcessorType:DEFAULT_READY_NOTICE_INFO_PROCESSOR"
+    },
+    {
+      "id": "scan-hp-LOW_INTEREST_PRODUCT_NOTICE_INFO_PROCESSOR-LowInterestProductNoticeInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "LowInterestProductNoticeInfoProcessor",
+      "covers": [
+        "LowInterestProductNoticeInfoProcessor",
+        "LOW_INTEREST_PRODUCT_NOTICE_INFO_PROCESSOR",
+        "getNoticeProcessorType"
+      ],
+      "evidence": "baseline extract-stitch-candidates --merge-safe",
+      "notes": "homepage_enum_dispatch",
+      "via": "getNoticeProcessorType:LOW_INTEREST_PRODUCT_NOTICE_INFO_PROCESSOR"
+    },
+    {
+      "id": "scan-hp-OVERDUE_NOTICE_INFO_PROCESSOR-OverdueNoticeInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "OverdueNoticeInfoProcessor",
+      "covers": [
+        "OverdueNoticeInfoProcessor",
+        "OVERDUE_NOTICE_INFO_PROCESSOR",
+        "getNoticeProcessorType"
+      ],
+      "evidence": "baseline extract-stitch-candidates --merge-safe",
+      "notes": "homepage_enum_dispatch",
+      "via": "getNoticeProcessorType:OVERDUE_NOTICE_INFO_PROCESSOR"
+    },
+    {
+      "id": "scan-hp-APPROACH_OVERDUE_NOTICE_INFO_PROCESSOR-ApproachOverdueNoticeInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "ApproachOverdueNoticeInfoProcessor",
+      "covers": [
+        "ApproachOverdueNoticeInfoProcessor",
+        "APPROACH_OVERDUE_NOTICE_INFO_PROCESSOR",
+        "getNoticeProcessorType"
+      ],
+      "evidence": "baseline extract-stitch-candidates --merge-safe",
+      "notes": "homepage_enum_dispatch",
+      "via": "getNoticeProcessorType:APPROACH_OVERDUE_NOTICE_INFO_PROCESSOR"
+    },
+    {
+      "id": "scan-hp-RECENTLY_ORDERS_NOTICE_INFO_PROCESSOR-RecentlyOrdersNoticeInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "RecentlyOrdersNoticeInfoProcessor",
+      "covers": [
+        "RecentlyOrdersNoticeInfoProcessor",
+        "RECENTLY_ORDERS_NOTICE_INFO_PROCESSOR",
+        "getNoticeProcessorType"
+      ],
+      "evidence": "baseline extract-stitch-candidates --merge-safe",
+      "notes": "homepage_enum_dispatch",
+      "via": "getNoticeProcessorType:RECENTLY_ORDERS_NOTICE_INFO_PROCESSOR"
+    },
+    {
+      "id": "scan-hp-CREDITS_CHANGE_NOTICE_INFO_PROCESSOR-CreditsChangeNoticeInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "CreditsChangeNoticeInfoProcessor",
+      "covers": [
+        "CreditsChangeNoticeInfoProcessor",
+        "CREDITS_CHANGE_NOTICE_INFO_PROCESSOR",
+        "getNoticeProcessorType"
+      ],
+      "evidence": "baseline extract-stitch-candidates --merge-safe",
+      "notes": "homepage_enum_dispatch",
+      "via": "getNoticeProcessorType:CREDITS_CHANGE_NOTICE_INFO_PROCESSOR"
+    },
+    {
+      "id": "scan-hp-ORDER_REJECT_NOTICE_INFO_PROCESSOR-OrderRejectNoticeInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "OrderRejectNoticeInfoProcessor",
+      "covers": [
+        "OrderRejectNoticeInfoProcessor",
+        "ORDER_REJECT_NOTICE_INFO_PROCESSOR",
+        "getNoticeProcessorType"
+      ],
+      "evidence": "baseline extract-stitch-candidates --merge-safe",
+      "notes": "homepage_enum_dispatch",
+      "via": "getNoticeProcessorType:ORDER_REJECT_NOTICE_INFO_PROCESSOR"
+    },
+    {
+      "id": "scan-hp-MULTI_LOAN_CREDITS_ACCEPTED_NOTICE_INFO_PROCESSOR-MultiLoanCreditsAcceptedNoticeInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "MultiLoanCreditsAcceptedNoticeInfoProcessor",
+      "covers": [
+        "MultiLoanCreditsAcceptedNoticeInfoProcessor",
+        "MULTI_LOAN_CREDITS_ACCEPTED_NOTICE_INFO_PROCESSOR",
+        "getNoticeProcessorType"
+      ],
+      "evidence": "baseline extract-stitch-candidates --merge-safe",
+      "notes": "homepage_enum_dispatch",
+      "via": "getNoticeProcessorType:MULTI_LOAN_CREDITS_ACCEPTED_NOTICE_INFO_PROCESSOR"
+    },
+    {
+      "id": "scan-hp-CAN_CREATE_ORDER_NOTICE_INFO_PROCESSOR-CanCreateOrderNoticeInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "CanCreateOrderNoticeInfoProcessor",
+      "covers": [
+        "CanCreateOrderNoticeInfoProcessor",
+        "CAN_CREATE_ORDER_NOTICE_INFO_PROCESSOR",
+        "getNoticeProcessorType"
+      ],
+      "evidence": "baseline extract-stitch-candidates --merge-safe",
+      "notes": "homepage_enum_dispatch",
+      "via": "getNoticeProcessorType:CAN_CREATE_ORDER_NOTICE_INFO_PROCESSOR"
+    },
+    {
+      "id": "scan-hp-NEW_PAYOUT_NOTICE_INFO_PROCESSOR-NewPayoutNoticeInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "NewPayoutNoticeInfoProcessor",
+      "covers": [
+        "NewPayoutNoticeInfoProcessor",
+        "NEW_PAYOUT_NOTICE_INFO_PROCESSOR",
+        "getNoticeProcessorType"
+      ],
+      "evidence": "baseline extract-stitch-candidates --merge-safe",
+      "notes": "homepage_enum_dispatch",
+      "via": "getNoticeProcessorType:NEW_PAYOUT_NOTICE_INFO_PROCESSOR"
+    },
+    {
+      "id": "scan-hp-LOAN_CREDITS_DECREASE_NOTICE_INFO_PROCESSOR-LoanCreditsDecreaseNoticeInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "LoanCreditsDecreaseNoticeInfoProcessor",
+      "covers": [
+        "LoanCreditsDecreaseNoticeInfoProcessor",
+        "LOAN_CREDITS_DECREASE_NOTICE_INFO_PROCESSOR",
+        "getNoticeProcessorType"
+      ],
+      "evidence": "baseline extract-stitch-candidates --merge-safe",
+      "notes": "homepage_enum_dispatch",
+      "via": "getNoticeProcessorType:LOAN_CREDITS_DECREASE_NOTICE_INFO_PROCESSOR"
+    },
+    {
+      "id": "scan-hp-CAN_APPLY_NOW_NOTICE_INFO_PROCESSOR-CanApplyNowNoticeProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "CanApplyNowNoticeProcessor",
+      "covers": [
+        "CanApplyNowNoticeProcessor",
+        "CAN_APPLY_NOW_NOTICE_INFO_PROCESSOR",
+        "getNoticeProcessorType"
+      ],
+      "evidence": "baseline extract-stitch-candidates --merge-safe",
+      "notes": "homepage_enum_dispatch",
+      "via": "getNoticeProcessorType:CAN_APPLY_NOW_NOTICE_INFO_PROCESSOR"
+    },
+    {
+      "id": "scan-hp-PAYOUT_NOTICE_INFO_PROCESSOR-PayoutNoticeInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "PayoutNoticeInfoProcessor",
+      "covers": [
+        "PayoutNoticeInfoProcessor",
+        "PAYOUT_NOTICE_INFO_PROCESSOR",
+        "getNoticeProcessorType"
+      ],
+      "evidence": "baseline extract-stitch-candidates --merge-safe",
+      "notes": "homepage_enum_dispatch",
+      "via": "getNoticeProcessorType:PAYOUT_NOTICE_INFO_PROCESSOR"
+    },
+    {
+      "id": "scan-hp-RISK_EXTRA_NOTICE_INFO_PROCESSOR-RiskExtraNoticeInfoProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "RiskExtraNoticeInfoProcessor",
+      "covers": [
+        "RiskExtraNoticeInfoProcessor",
+        "RISK_EXTRA_NOTICE_INFO_PROCESSOR",
+        "getNoticeProcessorType"
+      ],
+      "evidence": "baseline extract-stitch-candidates --merge-safe",
+      "notes": "homepage_enum_dispatch",
+      "via": "getNoticeProcessorType:RISK_EXTRA_NOTICE_INFO_PROCESSOR"
+    },
+    {
+      "id": "scan-hp-REJECT-RejectPointProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "RejectPointProcessor",
+      "covers": [
+        "RejectPointProcessor",
+        "REJECT",
+        "getPointProcessorType"
+      ],
+      "evidence": "baseline extract-stitch-candidates --merge-safe",
+      "notes": "homepage_enum_dispatch",
+      "via": "getPointProcessorType:REJECT"
+    },
+    {
+      "id": "scan-hp-CANCELLED_POINT-CancelledPointProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "CancelledPointProcessor",
+      "covers": [
+        "CancelledPointProcessor",
+        "CANCELLED_POINT",
+        "getPointProcessorType"
+      ],
+      "evidence": "baseline extract-stitch-candidates --merge-safe",
+      "notes": "homepage_enum_dispatch",
+      "via": "getPointProcessorType:CANCELLED_POINT"
+    },
+    {
+      "id": "scan-hp-IMAGE_REVIEW_REJECTED_POINT-ImageReviewRejectedPointProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "ImageReviewRejectedPointProcessor",
+      "covers": [
+        "ImageReviewRejectedPointProcessor",
+        "IMAGE_REVIEW_REJECTED_POINT",
+        "getPointProcessorType"
+      ],
+      "evidence": "baseline extract-stitch-candidates --merge-safe",
+      "notes": "homepage_enum_dispatch",
+      "via": "getPointProcessorType:IMAGE_REVIEW_REJECTED_POINT"
+    },
+    {
+      "id": "scan-hp-CAN_REAPPLY_IN_FUTURE_POINT-CanReapplyInFuturePointProcessor",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "CanReapplyInFuturePointProcessor",
+      "covers": [
+        "CanReapplyInFuturePointProcessor",
+        "CAN_REAPPLY_IN_FUTURE_POINT",
+        "getPointProcessorType"
+      ],
+      "evidence": "baseline extract-stitch-candidates --merge-safe",
+      "notes": "homepage_enum_dispatch",
+      "via": "getPointProcessorType:CAN_REAPPLY_IN_FUTURE_POINT"
+    }
+  ]
+}

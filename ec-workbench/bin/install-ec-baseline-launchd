@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# 安装 / 卸载本机每天定时的 EC 基线差分任务。
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+SRC="$ROOT/launchd/com.yqg.ec-baseline-change.plist"
+DST="$HOME/Library/LaunchAgents/com.yqg.ec-baseline-change.plist"
+LABEL="com.yqg.ec-baseline-change"
+
+mkdir -p "$ROOT/state/logs" "$HOME/Library/LaunchAgents"
+
+if [[ "${1:-}" == "--uninstall" ]]; then
+  launchctl bootout "gui/$(id -u)/$LABEL" 2>/dev/null || launchctl unload "$DST" 2>/dev/null || true
+  rm -f "$DST"
+  echo "uninstalled $LABEL"
+  exit 0
+fi
+
+cp "$SRC" "$DST"
+# reload
+launchctl bootout "gui/$(id -u)/$LABEL" 2>/dev/null || launchctl unload "$DST" 2>/dev/null || true
+if launchctl bootstrap "gui/$(id -u)" "$DST" 2>/dev/null; then
+  launchctl enable "gui/$(id -u)/$LABEL" 2>/dev/null || true
+  echo "installed+bootstrapped $DST"
+else
+  launchctl load -w "$DST"
+  echo "installed+loaded $DST"
+fi
+echo "schedule: daily 10:30 · manual: $ROOT/bin/on-ec-baseline-change"
+echo "logs: $ROOT/state/logs/"
+launchctl print "gui/$(id -u)/$LABEL" 2>/dev/null | head -20 || true

@@ -94,7 +94,8 @@ SDD explore / tasks / implement 要证「图有没有增益」，协议在 `sdd-
    避免只改了一处，漏了队列或定时任务。
 
 7. **认清「没连线」**  
-   图上找不到连线，有时只是配置或反射，不是没人用，不能当死代码删。
+   图上找不到连线，有时只是配置或反射，不是没人用，不能当死代码删。  
+   补丁边（不改进引擎）：`ec-workbench/artifacts/graph-stitch/overlay.yaml`，查询 `bin/callers-with-stitch <符号>`。Capillary 分类前会读同一份 overlay。
 
 8. **只凭方法名也能找**  
    不知道文件在哪，也能问出位置和谁在用。

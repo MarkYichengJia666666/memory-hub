@@ -1,0 +1,242 @@
+{
+  "root": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice",
+  "candidates": [
+    {
+      "pattern": "spring_get_instance",
+      "kind": "reflect_spring",
+      "from": "PaymentService",
+      "to": "SpringUtils.getInstance",
+      "via": "PaymentMethod.getMethodClass(method",
+      "covers": [
+        "PaymentService"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-core/src/main/java/com/yqg/core/service/payment/PaymentService.java",
+      "id_suggest": "scan-spring-PaymentService",
+      "in_overlay": false
+    },
+    {
+      "pattern": "getProcessorClass_return_class",
+      "kind": "reflect_class_literal",
+      "from": "DownstreamOrderRepaySyncConsumerGroupContext.getProcessorClass",
+      "to": "DownstreamOrderRepaySyncProcessor",
+      "via": "return Xxx.class",
+      "covers": [
+        "DownstreamOrderRepaySyncProcessor",
+        "getProcessorClass"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-core/src/main/java/com/yqg/core/service/kafka/consumer/context/DownstreamOrderRepaySyncConsumerGroupContext.java",
+      "id_suggest": "scan-DownstreamOrderRepaySyncConsumerGroupContext-returns-DownstreamOrderRepaySyncProcessor",
+      "in_overlay": false
+    },
+    {
+      "pattern": "kafka_pool_spring_processor",
+      "kind": "reflect_spring",
+      "from": "ConsumerPoolService.run",
+      "to": "DownstreamOrderRepaySyncProcessor.processRecord",
+      "via": "DownstreamOrderRepaySyncConsumerGroupContext.getProcessorClass + SpringUtils.getInstance",
+      "covers": [
+        "DownstreamOrderRepaySyncProcessor",
+        "processRecord"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-core/src/main/java/com/yqg/core/service/kafka/consumer/context/DownstreamOrderRepaySyncConsumerGroupContext.java",
+      "id_suggest": "scan-pool-to-DownstreamOrderRepaySyncProcessor",
+      "in_overlay": false
+    },
+    {
+      "pattern": "getProcessorClass_return_class",
+      "kind": "reflect_class_literal",
+      "from": "EcCombinedRepayEventGroupContext.getProcessorClass",
+      "to": "EcCombinedRepayEventProcessor",
+      "via": "return Xxx.class",
+      "covers": [
+        "EcCombinedRepayEventProcessor",
+        "getProcessorClass"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-core/src/main/java/com/yqg/core/service/kafka/consumer/context/EcCombinedRepayEventGroupContext.java",
+      "id_suggest": "scan-EcCombinedRepayEventGroupContext-returns-EcCombinedRepayEventProcessor",
+      "in_overlay": false
+    },
+    {
+      "pattern": "kafka_pool_spring_processor",
+      "kind": "reflect_spring",
+      "from": "ConsumerPoolService.run",
+      "to": "EcCombinedRepayEventProcessor.processRecord",
+      "via": "EcCombinedRepayEventGroupContext.getProcessorClass + SpringUtils.getInstance",
+      "covers": [
+        "EcCombinedRepayEventProcessor",
+        "processRecord"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-core/src/main/java/com/yqg/core/service/kafka/consumer/context/EcCombinedRepayEventGroupContext.java",
+      "id_suggest": "scan-pool-to-EcCombinedRepayEventProcessor",
+      "in_overlay": false
+    },
+    {
+      "pattern": "getProcessorClass_return_class",
+      "kind": "reflect_class_literal",
+      "from": "AppStartUpGrantCouponConsumerGroupContext.getProcessorClass",
+      "to": "AppStartUpGrantCouponProcessor",
+      "via": "return Xxx.class",
+      "covers": [
+        "AppStartUpGrantCouponProcessor",
+        "getProcessorClass"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-core/src/main/java/com/yqg/core/service/kafka/consumer/context/AppStartUpGrantCouponConsumerGroupContext.java",
+      "id_suggest": "scan-AppStartUpGrantCouponConsumerGroupContext-returns-AppStartUpGrantCouponProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "kafka_pool_spring_processor",
+      "kind": "reflect_spring",
+      "from": "ConsumerPoolService.run",
+      "to": "AppStartUpGrantCouponProcessor.processRecord",
+      "via": "AppStartUpGrantCouponConsumerGroupContext.getProcessorClass + SpringUtils.getInstance",
+      "covers": [
+        "AppStartUpGrantCouponProcessor",
+        "processRecord"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-core/src/main/java/com/yqg/core/service/kafka/consumer/context/AppStartUpGrantCouponConsumerGroupContext.java",
+      "id_suggest": "scan-pool-to-AppStartUpGrantCouponProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "getProcessorClass_return_class",
+      "kind": "reflect_class_literal",
+      "from": "LoanAccountRiskConsumerGroupContext.getProcessorClass",
+      "to": "LoanAccountRiskProcessor",
+      "via": "return Xxx.class",
+      "covers": [
+        "LoanAccountRiskProcessor",
+        "getProcessorClass"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-core/src/main/java/com/yqg/core/service/kafka/consumer/context/LoanAccountRiskConsumerGroupContext.java",
+      "id_suggest": "scan-LoanAccountRiskConsumerGroupContext-returns-LoanAccountRiskProcessor",
+      "in_overlay": false
+    },
+    {
+      "pattern": "kafka_pool_spring_processor",
+      "kind": "reflect_spring",
+      "from": "ConsumerPoolService.run",
+      "to": "LoanAccountRiskProcessor.processRecord",
+      "via": "LoanAccountRiskConsumerGroupContext.getProcessorClass + SpringUtils.getInstance",
+      "covers": [
+        "LoanAccountRiskProcessor",
+        "processRecord"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-core/src/main/java/com/yqg/core/service/kafka/consumer/context/LoanAccountRiskConsumerGroupContext.java",
+      "id_suggest": "scan-pool-to-LoanAccountRiskProcessor",
+      "in_overlay": false
+    },
+    {
+      "pattern": "getProcessorClass_return_class",
+      "kind": "reflect_class_literal",
+      "from": "EasycashRiskConsumerGroupContext.getProcessorClass",
+      "to": "EasycashRiskProcessor",
+      "via": "return Xxx.class",
+      "covers": [
+        "EasycashRiskProcessor",
+        "getProcessorClass"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-core/src/main/java/com/yqg/core/service/kafka/consumer/context/EasycashRiskConsumerGroupContext.java",
+      "id_suggest": "scan-EasycashRiskConsumerGroupContext-returns-EasycashRiskProcessor",
+      "in_overlay": false
+    },
+    {
+      "pattern": "kafka_pool_spring_processor",
+      "kind": "reflect_spring",
+      "from": "ConsumerPoolService.run",
+      "to": "EasycashRiskProcessor.processRecord",
+      "via": "EasycashRiskConsumerGroupContext.getProcessorClass + SpringUtils.getInstance",
+      "covers": [
+        "EasycashRiskProcessor",
+        "processRecord"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-core/src/main/java/com/yqg/core/service/kafka/consumer/context/EasycashRiskConsumerGroupContext.java",
+      "id_suggest": "scan-pool-to-EasycashRiskProcessor",
+      "in_overlay": false
+    },
+    {
+      "pattern": "getProcessorClass_return_class",
+      "kind": "reflect_class_literal",
+      "from": "FundRepayEventConsumerGroupContext.getProcessorClass",
+      "to": "FundRepayEventProcessor",
+      "via": "return Xxx.class",
+      "covers": [
+        "FundRepayEventProcessor",
+        "getProcessorClass"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-core/src/main/java/com/yqg/core/service/kafka/consumer/context/FundRepayEventConsumerGroupContext.java",
+      "id_suggest": "scan-FundRepayEventConsumerGroupContext-returns-FundRepayEventProcessor",
+      "in_overlay": false
+    },
+    {
+      "pattern": "kafka_pool_spring_processor",
+      "kind": "reflect_spring",
+      "from": "ConsumerPoolService.run",
+      "to": "FundRepayEventProcessor.processRecord",
+      "via": "FundRepayEventConsumerGroupContext.getProcessorClass + SpringUtils.getInstance",
+      "covers": [
+        "FundRepayEventProcessor",
+        "processRecord"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-core/src/main/java/com/yqg/core/service/kafka/consumer/context/FundRepayEventConsumerGroupContext.java",
+      "id_suggest": "scan-pool-to-FundRepayEventProcessor",
+      "in_overlay": false
+    },
+    {
+      "pattern": "getProcessorClass_return_class",
+      "kind": "reflect_class_literal",
+      "from": "RiskCashLoanEventConsumerGroupContext.getProcessorClass",
+      "to": "RiskCashLoanEventProcessor",
+      "via": "return Xxx.class",
+      "covers": [
+        "RiskCashLoanEventProcessor",
+        "getProcessorClass"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-core/src/main/java/com/yqg/core/service/kafka/consumer/context/RiskCashLoanEventConsumerGroupContext.java",
+      "id_suggest": "scan-RiskCashLoanEventConsumerGroupContext-returns-RiskCashLoanEventProcessor",
+      "in_overlay": false
+    },
+    {
+      "pattern": "kafka_pool_spring_processor",
+      "kind": "reflect_spring",
+      "from": "ConsumerPoolService.run",
+      "to": "RiskCashLoanEventProcessor.processRecord",
+      "via": "RiskCashLoanEventConsumerGroupContext.getProcessorClass + SpringUtils.getInstance",
+      "covers": [
+        "RiskCashLoanEventProcessor",
+        "processRecord"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-core/src/main/java/com/yqg/core/service/kafka/consumer/context/RiskCashLoanEventConsumerGroupContext.java",
+      "id_suggest": "scan-pool-to-RiskCashLoanEventProcessor",
+      "in_overlay": false
+    },
+    {
+      "pattern": "getRuleType_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "GeneralPageConfigFilterRuleService.getProcessor",
+      "to": "NationalDay817HomeBannerFilterRuleProcessor.hitRule",
+      "via": "NATIONAL_DAY_817_HOME_BANNER",
+      "covers": [
+        "NationalDay817HomeBannerFilterRuleProcessor",
+        "getProcessor",
+        "NATIONAL_DAY_817_HOME_BANNER"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-core/src/main/java/com/yqg/core/service/general/pageconfig/filterstrategy/processor/NationalDay817HomeBannerFilterRuleProcessor.java",
+      "id_suggest": "scan-enum-NATIONAL_DAY_817_HOME_BANNER-NationalDay817HomeBannerFilterRuleProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "spring_get_instance",
+      "kind": "reflect_spring",
+      "from": "LoanCreditsByAppController",
+      "to": "SpringUtils.getInstance",
+      "via": "SystemOperationAuditTrailSupport.class",
+      "covers": [
+        "LoanCreditsByAppController"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-admin/src/main/java/com/miyou/controllers/admin/loan/creditsbyapp/LoanCreditsByAppController.java",
+      "id_suggest": "scan-spring-LoanCreditsByAppController",
+      "in_overlay": false
+    }
+  ]
+}

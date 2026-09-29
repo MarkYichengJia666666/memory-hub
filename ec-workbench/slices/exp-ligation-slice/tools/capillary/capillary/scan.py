@@ -9,6 +9,7 @@ import yaml
 from .classify import VesselFinding, classify
 from .codegraph import CodeGraphClient
 from .experiment import ExperimentCache
+from .stitch import edges_covering, format_callers_block, load_overlay
 
 
 def load_config(path: Path) -> dict[str, Any]:
@@ -35,6 +36,7 @@ def scan(config_path: Path, root: Path) -> list[VesselFinding]:
     cg_cfg = cfg["codegraph"]
     client = CodeGraphClient(cg_cfg["base_url"], cg_cfg.get("service_id", "default"))
     cache = ExperimentCache(root / cfg["experiment"]["cache_path"])
+    overlay = load_overlay()
 
     findings: list[VesselFinding] = []
     for mouth in cfg.get("mouths") or []:
@@ -71,18 +73,29 @@ def scan(config_path: Path, root: Path) -> list[VesselFinding]:
             for sym in symbols:
                 search_txt = client.search(graph_id, sym, limit=5)
                 callers_txt = client.callers(graph_id, sym, limit=8)
+                stitch_txt = format_callers_block(sym, overlay)
                 hits[f"search:{sym}"] = search_txt
                 hits[f"callers:{sym}"] = callers_txt
+                if stitch_txt:
+                    hits[f"stitch:{sym}"] = stitch_txt
                 if not _graph_looks_empty(search_txt):
                     found_any = True
                 if not _graph_looks_empty(callers_txt):
                     callers_empty_all = False
+
+            stitch_hits = edges_covering(symbols, overlay)
+            stitch_covers = bool(stitch_hits)
+            if stitch_covers:
+                hits["stitch_ids"] = ", ".join(
+                    str(e.get("id") or "") for e in stitch_hits
+                )
 
             grade, why = classify(
                 exp,
                 enum_dispatch_mouth=enum_dispatch,
                 graph_found_any=found_any,
                 callers_empty_for_all=callers_empty_all and bool(symbols),
+                stitch_covers=stitch_covers,
             )
             if v.get("never_bury") and grade == "candidate_bury":
                 grade = "manual_only"

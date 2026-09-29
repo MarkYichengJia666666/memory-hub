@@ -62,6 +62,7 @@ def classify(
     enum_dispatch_mouth: bool,
     graph_found_any: bool,
     callers_empty_for_all: bool,
+    stitch_covers: bool = False,
 ) -> tuple[str, list[str]]:
     why: list[str] = []
     if exp is None:
@@ -97,6 +98,11 @@ def classify(
         return "live", why
 
     if st in {"ZERO_PERCENTAGE", "CLOSE", "LIGHT"} and not exp.user_effective:
+        if stitch_covers and callers_empty_for_all:
+            why.append(
+                "图 callers 空，但 stitch overlay 声明反射/枚举活边 → 不当死代码，只人工看"
+            )
+            return "manual_only", why
         if enum_dispatch_mouth and callers_empty_for_all:
             why.append("这张嘴有枚举/反射洞，callers 空不能当死代码 → 只人工看")
             return "manual_only", why

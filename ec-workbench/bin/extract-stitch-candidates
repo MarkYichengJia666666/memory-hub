@@ -1,0 +1,429 @@
+#!/usr/bin/env python3
+"""B：从 Java 扫反射/枚举固定写法，产出 overlay 候选。不写入 overlay（人闸）。"""
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import sys
+from datetime import datetime
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_SLICE = ROOT / "slices" / "ec-cashloan-combined-slice"
+CAP = ROOT / "slices" / "exp-ligation-slice" / "tools" / "capillary"
+sys.path.insert(0, str(CAP))
+
+from capillary.stitch import load_overlay  # noqa: E402
+
+CLASS_NAME = re.compile(r"\b(?:public|protected)\s+(?:abstract\s+)?class\s+(\w+)")
+GET_PROCESSOR_CLASS = re.compile(
+    r"getProcessorClass\s*\(\s*\)\s*\{[^{}]*?return\s+(\w+)\.class\s*;",
+    re.S,
+)
+GET_RULE_TYPE = re.compile(
+    r"getRuleType\s*\(\s*\)\s*\{[^{}]*?return\s+[\w.]+?\.(\w+)\s*;",
+    re.S,
+)
+GET_HOMEPAGE_TYPE = re.compile(
+    r"(getProcessorType|getAlertProcessorType|getUserInfoProcessorType|"
+    r"getNoticeProcessorType|getPointProcessorType|getProductProcessorType)"
+    r"\s*\(\s*\)\s*\{[^{}]*?return\s+[\w.]+\.(\w+)\s*;",
+    re.S,
+)
+HOMEPAGE_FROM = {
+    "getProcessorType": "HomepageProcessorFactory.getProcessors",
+    "getAlertProcessorType": "HomepageProcessorFactory.getProcessors",
+    "getUserInfoProcessorType": "HomepageProcessorFactory.getProcessors",
+    "getNoticeProcessorType": "HomepageProcessorFactory.getProcessors",
+    "getPointProcessorType": "HomepageProcessorFactory.getProcessors",
+    "getProductProcessorType": "HomepageProcessorFactory.getProcessors",
+}
+GET_ANY_CLASS = re.compile(
+    r"(get\w*Class)\s*\(\s*\)\s*\{[^{}]*?return\s+(\w+)\.class\s*;",
+    re.S,
+)
+GET_ENUM_RETURN = re.compile(
+    r"(get\w+)\s*\(\s*\)\s*\{[^{}]*?return\s+([\w.]+)\.(\w+)\s*;",
+    re.S,
+)
+SPRING_CLASS_LIT = re.compile(
+    r"SpringUtils\.getInstance\s*\(\s*(\w+)\.class\s*\)",
+)
+CLASS_FOR_NAME = re.compile(
+    r"Class\.forName\s*\(\s*\"([^\"]+)\"\s*\)",
+)
+SPRING_GET = re.compile(
+    r"SpringUtils\.getInstance\s*\(([^)]+)\)",
+)
+SKIP_RETURN = re.compile(
+    r"(ProcessorType|RuleOutput|BranchOutput|Enum)$"
+)
+
+
+def _class_name(text: str, path: Path) -> str:
+    m = CLASS_NAME.search(text)
+    return m.group(1) if m else path.stem
+
+
+SAFE_PATTERNS = {
+    "getProcessorClass_return_class",
+    "kafka_pool_spring_processor",
+    "getRuleType_enum_dispatch",
+    "homepage_enum_dispatch",
+    "get_any_class_literal",
+    "generic_enum_dispatch",
+    "spring_class_literal",
+}
+
+OVERLAY_JSON = ROOT / "artifacts" / "graph-stitch" / "overlay.json"
+OVERLAY_YAML = ROOT / "artifacts" / "graph-stitch" / "overlay.yaml"
+
+
+def write_overlay(ov: dict) -> None:
+    ov = dict(ov)
+    ov["updated"] = datetime.now().strftime("%Y-%m-%d")
+    OVERLAY_JSON.parent.mkdir(parents=True, exist_ok=True)
+    OVERLAY_JSON.write_text(json.dumps(ov, ensure_ascii=False, indent=2) + "\n")
+
+    def ydump(e: dict) -> str:
+        block = [
+            f"  - id: {e['id']}",
+            f"    kind: {e['kind']}",
+            f"    from: {e['from']}",
+            f"    to: {e['to']}",
+        ]
+        if e.get("via"):
+            via = str(e["via"]).replace('"', '\\"')
+            block.append(f'    via: "{via}"')
+        if e.get("covers"):
+            block.append("    covers: [" + ", ".join(str(x) for x in e["covers"]) + "]")
+        if e.get("evidence"):
+            block.append(f"    evidence: {e['evidence']}")
+        if e.get("notes"):
+            block.append(f"    notes: {e['notes']}")
+        return "\n".join(block)
+
+    lines = [
+        "# CodeGraph stitch overlay（基线可 --merge-safe 并入安全模式）",
+        "",
+        "version: 1",
+        f"graph_id: {ov.get('graph_id', 'cg-zp42c34n')}",
+        f"updated: {ov.get('updated')}",
+        "",
+        "edges:",
+        "",
+    ]
+    for e in ov.get("edges") or []:
+        lines.append(ydump(e))
+        lines.append("")
+    OVERLAY_YAML.write_text("\n".join(lines))
+
+
+def merge_safe(ov: dict, uniq: list[dict]) -> list[str]:
+    known = overlay_keys(ov)
+    added: list[str] = []
+    for c in uniq:
+        if c.get("in_overlay"):
+            continue
+        if c.get("pattern") not in SAFE_PATTERNS:
+            continue
+        if c.get("pattern") == "generic_enum_dispatch":
+            if "HomepageProcessorFactory" not in str(c.get("from")):
+                continue
+        if c.get("pattern") == "spring_class_literal":
+            to = str(c.get("to") or "")
+            if not (to.endswith("Processor") or to.endswith("Service")):
+                continue
+        key = (c["kind"], c["from"], c["to"])
+        if key in known:
+            continue
+        edge = {
+            "id": c["id_suggest"],
+            "kind": c["kind"],
+            "from": c["from"],
+            "to": c["to"],
+            "covers": c.get("covers") or [],
+            "evidence": "baseline extract-stitch-candidates --merge-safe",
+            "notes": c.get("pattern"),
+        }
+        if c.get("via"):
+            edge["via"] = c["via"]
+        ov.setdefault("edges", []).append(edge)
+        known.add(key)
+        c["in_overlay"] = True
+        added.append(c["id_suggest"])
+    if added:
+        write_overlay(ov)
+    return added
+
+
+def overlay_keys(ov: dict) -> set[tuple[str, str, str]]:
+    keys = set()
+    for e in ov.get("edges") or []:
+        keys.add((str(e.get("kind") or ""), str(e.get("from") or ""), str(e.get("to") or "")))
+    return keys
+
+
+def scan_file(path: Path) -> list[dict]:
+    try:
+        text = path.read_text(encoding="utf-8", errors="ignore")
+    except OSError:
+        return []
+    rel = str(path)
+    cls = _class_name(text, path)
+    out: list[dict] = []
+
+    if "ConsumerGroupContext" in cls or "getProcessorClass" in text:
+        for m in GET_PROCESSOR_CLASS.finditer(text):
+            proc = m.group(1)
+            if SKIP_RETURN.search(proc):
+                continue
+            out.append(
+                {
+                    "pattern": "getProcessorClass_return_class",
+                    "kind": "reflect_class_literal",
+                    "from": f"{cls}.getProcessorClass",
+                    "to": proc,
+                    "via": "return Xxx.class",
+                    "covers": [proc, "getProcessorClass"],
+                    "file": rel,
+                    "id_suggest": f"scan-{cls}-returns-{proc}",
+                }
+            )
+            out.append(
+                {
+                    "pattern": "kafka_pool_spring_processor",
+                    "kind": "reflect_spring",
+                    "from": "ConsumerPoolService.run",
+                    "to": f"{proc}.processRecord",
+                    "via": f"{cls}.getProcessorClass + SpringUtils.getInstance",
+                    "covers": [proc, "processRecord"],
+                    "file": rel,
+                    "id_suggest": f"scan-pool-to-{proc}",
+                }
+            )
+
+    for m in GET_ANY_CLASS.finditer(text):
+        method, proc = m.group(1), m.group(2)
+        if method == "getProcessorClass":
+            continue
+        if SKIP_RETURN.search(proc):
+            continue
+        out.append(
+            {
+                "pattern": "get_any_class_literal",
+                "kind": "reflect_class_literal",
+                "from": f"{cls}.{method}",
+                "to": proc,
+                "via": "return Xxx.class",
+                "covers": [proc, method],
+                "file": rel,
+                "id_suggest": f"scan-{cls}-{method}-{proc}",
+            }
+        )
+
+    if cls.startswith("Abstract") or "/enums/" in rel.replace("\\", "/"):
+        return out
+
+    if "FilterRuleProcessor" in text or cls.endswith("FilterRuleProcessor"):
+        for m in GET_RULE_TYPE.finditer(text):
+            enum_const = m.group(1)
+            out.append(
+                {
+                    "pattern": "getRuleType_enum_dispatch",
+                    "kind": "enum_dispatch",
+                    "from": "GeneralPageConfigFilterRuleService.getProcessor",
+                    "to": f"{cls}.hitRule",
+                    "via": enum_const,
+                    "covers": [cls, "getProcessor", enum_const],
+                    "file": rel,
+                    "id_suggest": f"scan-enum-{enum_const}-{cls}",
+                }
+            )
+
+    for m in GET_HOMEPAGE_TYPE.finditer(text):
+        method, enum_const = m.group(1), m.group(2)
+        frm = HOMEPAGE_FROM[method]
+        out.append(
+            {
+                "pattern": "homepage_enum_dispatch",
+                "kind": "enum_dispatch",
+                "from": frm,
+                "to": cls,
+                "via": f"{method}:{enum_const}",
+                "covers": [cls, enum_const, method],
+                "file": rel,
+                "id_suggest": f"scan-hp-{enum_const}-{cls}",
+            }
+        )
+
+    for m in GET_ENUM_RETURN.finditer(text):
+        method, enum_cls, enum_const = m.group(1), m.group(2), m.group(3)
+        if method in HOMEPAGE_FROM or method == "getRuleType":
+            continue
+        if method in {"getType", "getOrder", "getName"}:
+            continue
+        if "Processor" not in cls:
+            continue
+        if not method.startswith("get"):
+            continue
+        frm = "HomepageProcessorFactory.getProcessors" if "newhomepage" in rel else f"{cls}.{method}"
+        out.append(
+            {
+                "pattern": "generic_enum_dispatch",
+                "kind": "enum_dispatch",
+                "from": frm,
+                "to": cls,
+                "via": f"{method}:{enum_cls}.{enum_const}",
+                "covers": [cls, enum_const, method],
+                "file": rel,
+                "id_suggest": f"scan-enum2-{enum_const}-{cls}",
+            }
+        )
+
+    for m in SPRING_CLASS_LIT.finditer(text):
+        target = m.group(1)
+        if SKIP_RETURN.search(target):
+            continue
+        out.append(
+            {
+                "pattern": "spring_class_literal",
+                "kind": "reflect_spring",
+                "from": cls,
+                "to": target,
+                "via": f"SpringUtils.getInstance({target}.class)",
+                "covers": [cls, target],
+                "file": rel,
+                "id_suggest": f"scan-spring-lit-{cls}-{target}",
+            }
+        )
+
+    for m in CLASS_FOR_NAME.finditer(text):
+        fqcn = m.group(1)
+        simple = fqcn.rsplit(".", 1)[-1]
+        out.append(
+            {
+                "pattern": "class_for_name",
+                "kind": "reflect_forname",
+                "from": cls,
+                "to": simple,
+                "via": fqcn,
+                "covers": [cls, simple],
+                "file": rel,
+                "id_suggest": f"scan-forname-{cls}-{simple}",
+            }
+        )
+
+    if "SpringUtils.getInstance" in text and "getProcessorClass" not in text:
+        # 站点级：PaymentService 等
+        for m in SPRING_GET.finditer(text):
+            arg = " ".join(m.group(1).split())
+            if "getProcessorClass" in arg or "getContextClass" in arg:
+                continue
+            out.append(
+                {
+                    "pattern": "spring_get_instance",
+                    "kind": "reflect_spring",
+                    "from": cls,
+                    "to": "SpringUtils.getInstance",
+                    "via": arg[:160],
+                    "covers": [cls],
+                    "file": rel,
+                    "id_suggest": f"scan-spring-{cls}",
+                }
+            )
+            break
+
+    return out
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument(
+        "--root",
+        type=Path,
+        default=DEFAULT_SLICE,
+        help="Java 根目录（默认合并切片；基线脚本会传完整 EC_REPO）",
+    )
+    ap.add_argument("--limit", type=int, default=0, help="最多输出条数，0=不限")
+    ap.add_argument(
+        "--merge-safe",
+        action="store_true",
+        help="把安全模式新边写入 overlay.json/yaml（class_for_name / 非字面量 getInstance 仍只报告）",
+    )
+    args = ap.parse_args()
+    root: Path = args.root
+    if not root.is_dir():
+        print(f"root not found: {root}", file=sys.stderr)
+        return 2
+
+    ov = load_overlay()
+    known = overlay_keys(ov)
+    cands: list[dict] = []
+    for java in root.rglob("*.java"):
+        cands.extend(scan_file(java))
+
+    seen = set()
+    uniq = []
+    for c in cands:
+        k = c["id_suggest"]
+        if k in seen:
+            continue
+        seen.add(k)
+        key = (c["kind"], c["from"], c["to"])
+        c["in_overlay"] = key in known
+        uniq.append(c)
+    if args.limit:
+        uniq = uniq[: args.limit]
+
+    merged: list[str] = []
+    if args.merge_safe:
+        merged = merge_safe(ov, uniq)
+
+    new = [c for c in uniq if not c["in_overlay"]]
+    leftover = [c for c in new if c.get("pattern") not in SAFE_PATTERNS]
+    day = datetime.now().strftime("%Y%m%d-%H%M%S")
+    out_dir = ROOT / "artifacts" / "graph-stitch"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    js = out_dir / f"candidates-{day}.json"
+    md = out_dir / f"candidates-{day}.md"
+    payload = {
+        "root": str(root),
+        "merge_safe": args.merge_safe,
+        "merged": merged,
+        "candidates": uniq,
+    }
+    js.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n")
+    note = (
+        f"**--merge-safe** 已写入 overlay {len(merged)} 条。"
+        if args.merge_safe
+        else "**未写入 overlay。** 人审后拷边，或加 `--merge-safe`。"
+    )
+    lines = [
+        f"# Stitch 候选（B 扫描）· {day}",
+        "",
+        f"根目录：`{root}`",
+        f"合计 {len(uniq)}，新 {len(new)}，merge-safe 写入 {len(merged)}，人闸剩余 {len(leftover)}。",
+        "",
+        note,
+        "",
+        "| 状态 | id | pattern | kind | from → to |",
+        "|---|---|---|---|---|",
+    ]
+    for c in uniq:
+        st = "已有" if c["in_overlay"] else "新"
+        lines.append(
+            f"| {st} | `{c['id_suggest']}` | {c.get('pattern','')} | {c['kind']} | `{c['from']}` → `{c['to']}` |"
+        )
+    md.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print(f"wrote {md}")
+    print(f"wrote {js}")
+    print(
+        f"total={len(uniq)} new={len(new)} merged={len(merged)} leftover={len(leftover)}"
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,0 +1,561 @@
+{
+  "ec_head": "d103aeefa32c99ebd05058c7038bc8e5ee336a67",
+  "ec_oneline": "d103aeefa32 Merge branch 'release/20260922-5'",
+  "checked": 20,
+  "miss": 0,
+  "rows": [
+    {
+      "path": "abtest/sub-abtest-not-deadloop.md",
+      "status": "ok",
+      "symbols": [
+        {
+          "symbol": "CouponCreditLimit",
+          "files": 0,
+          "method_ok": null,
+          "sample": ""
+        },
+        {
+          "symbol": "ExecuteAbTestService",
+          "files": 0,
+          "method_ok": null,
+          "sample": ""
+        },
+        {
+          "symbol": "EcStrategyService",
+          "files": 0,
+          "method_ok": null,
+          "sample": ""
+        },
+        {
+          "symbol": "RealTimeEventController",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-api/src/main/java/com/miyou/controllers/realtimeevent/RealTimeEventController.java"
+        },
+        {
+          "symbol": "OpenAppGrantCouponService",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-core/src/main/java/com/yqg/core/service/loan/coupon/openappgrantcoupon/OpenAppGrantCouponService.java"
+        }
+      ]
+    },
+    {
+      "path": "apichannel/collision-orchestrator-decision-tree-only.md",
+      "status": "ok",
+      "symbols": [
+        {
+          "symbol": "CollisionOrchestrator",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-core/src/main/java/com/yqg/core/service/apichannel/collision/orchestrator/CollisionOrchestrator.java"
+        },
+        {
+          "symbol": "CollisionProcessEnum.COLLISION_DECISION_TREE",
+          "files": 1,
+          "method_ok": true,
+          "sample": "ec-core/src/main/java/com/yqg/core/service/apichannel/collision/enums/CollisionProcessEnum.java"
+        },
+        {
+          "symbol": "CollisionProcessService",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-core/src/main/java/com/yqg/core/service/apichannel/collision/service/CollisionProcessService.java"
+        },
+        {
+          "symbol": "REJECT",
+          "files": 0,
+          "method_ok": null,
+          "sample": ""
+        },
+        {
+          "symbol": "ApiChannelUserType.REJECT",
+          "files": 1,
+          "method_ok": true,
+          "sample": "ec-core/src/main/java/com/yqg/core/service/apichannel/enums/ApiChannelUserType.java"
+        }
+      ]
+    },
+    {
+      "path": "apichannel/collision-process-is-new-flow.md",
+      "status": "ok",
+      "symbols": [
+        {
+          "symbol": "CollisionProcessEnum",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-core/src/main/java/com/yqg/core/service/apichannel/collision/enums/CollisionProcessEnum.java"
+        },
+        {
+          "symbol": "ApiChannelUserType",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-core/src/main/java/com/yqg/core/service/apichannel/enums/ApiChannelUserType.java"
+        },
+        {
+          "symbol": "REJECT",
+          "files": 0,
+          "method_ok": null,
+          "sample": ""
+        },
+        {
+          "symbol": "CollisionProcessContext",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-core/src/main/java/com/yqg/core/service/apichannel/collision/context/CollisionProcessContext.java"
+        },
+        {
+          "symbol": "CollisionNodeContext",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-core/src/main/java/com/yqg/core/service/apichannel/collision/context/CollisionNodeContext.java"
+        }
+      ]
+    },
+    {
+      "path": "apichannel/context-channel-unreliable.md",
+      "status": "ok",
+      "symbols": [
+        {
+          "symbol": "CommonApiChannelService",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-core/src/main/java/com/yqg/core/service/apichannel/common/CommonApiChannelService.java"
+        },
+        {
+          "symbol": "ApiChannelCreditController",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-internal-api/src/main/java/com/miyou/controllers/apichannel/ApiChannelCreditController.java"
+        }
+      ]
+    },
+    {
+      "path": "apichannel/enrich-nik-fallback-fanout.md",
+      "status": "ok",
+      "symbols": [
+        {
+          "symbol": "ApiChannelUserCheckerService",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-core/src/main/java/com/yqg/core/service/apichannel/user/ApiChannelUserCheckerService.java"
+        },
+        {
+          "symbol": "ApiChannelUserMergeFilterService",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-core/src/main/java/com/yqg/core/service/apichannel/ApiChannelUserMergeFilterService.java"
+        }
+      ]
+    },
+    {
+      "path": "apichannel/gopay-submit-renamed-decision-tree.md",
+      "status": "ok",
+      "symbols": [
+        {
+          "symbol": "CollisionProcessEnum.COLLISION_DECISION_TREE",
+          "files": 1,
+          "method_ok": true,
+          "sample": "ec-core/src/main/java/com/yqg/core/service/apichannel/collision/enums/CollisionProcessEnum.java"
+        }
+      ]
+    },
+    {
+      "path": "apichannel/jzdl-mobile-result-clean-job.md",
+      "status": "ok",
+      "symbols": [
+        {
+          "symbol": "ApiChannelCheckMobileResultCleanJob",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-scheduler/src/main/java/com/yqg/scheduler/jobs/apichannel/ApiChannelCheckMobileResultCleanJob.java"
+        }
+      ]
+    },
+    {
+      "path": "apichannel/lazada-first-reject-long-can-retry.md",
+      "status": "ok",
+      "symbols": [
+        {
+          "symbol": "FIRST_LOAN_REJECT_LONG_CAN_RETRY",
+          "files": 0,
+          "method_ok": null,
+          "sample": ""
+        },
+        {
+          "symbol": "LazadaPreSelectChecker",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-core/src/main/java/com/yqg/core/service/apichannel/userstatus/LazadaPreSelectChecker.java"
+        },
+        {
+          "symbol": "LAZADA_APPROVE",
+          "files": 0,
+          "method_ok": null,
+          "sample": ""
+        },
+        {
+          "symbol": "LAPSED_USER",
+          "files": 0,
+          "method_ok": null,
+          "sample": ""
+        },
+        {
+          "symbol": "LazadaCreateOrderChecker",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-core/src/main/java/com/yqg/core/service/apichannel/userstatus/LazadaCreateOrderChecker.java"
+        },
+        {
+          "symbol": "LAZADA_WITHIN_REJECTION_PERIOD",
+          "files": 0,
+          "method_ok": null,
+          "sample": ""
+        }
+      ]
+    },
+    {
+      "path": "apichannel/marketing-check-fail-reasons.md",
+      "status": "ok",
+      "symbols": [
+        {
+          "symbol": "ApiMarketingUserCheckResultService",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-core/src/main/java/com/yqg/core/service/apichannel/user/ApiMarketingUserCheckResultService.java"
+        },
+        {
+          "symbol": "ApiMarketingBlackListChecker",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-core/src/main/java/com/yqg/core/service/apichannel/ApiMarketingBlackListChecker.java"
+        },
+        {
+          "symbol": "LogBusinessType.CHECK_EXIST_USER_FAILED_LOG",
+          "files": 1,
+          "method_ok": true,
+          "sample": "ec-core/src/main/java/com/yqg/core/util/log/LogBusinessType.java"
+        },
+        {
+          "symbol": "CheckFailedUserVO.failureReason",
+          "files": 1,
+          "method_ok": true,
+          "sample": "ec-core/src/main/java/com/yqg/core/service/loan/collision/vo/CheckFailedUserVO.java"
+        }
+      ]
+    },
+    {
+      "path": "auth/device-token-mismatch-risk.md",
+      "status": "ok",
+      "symbols": [
+        {
+          "symbol": "LoginStatusCacheModel.findLastNoSecondValidByUserIdNotInDeviceList",
+          "files": 1,
+          "method_ok": true,
+          "sample": "ec-core/src/main/java/com/yqg/core/model/sql/user/LoginStatusCacheModel.java"
+        },
+        {
+          "symbol": "AFTER_SECOND_VALID_STATUSES",
+          "files": 0,
+          "method_ok": null,
+          "sample": ""
+        },
+        {
+          "symbol": "UserSecureService.isRiskDevice",
+          "files": 1,
+          "method_ok": true,
+          "sample": "ec-core/src/main/java/com/yqg/core/service/secure/UserSecureService.java"
+        }
+      ]
+    },
+    {
+      "path": "bindcard/saqu-no-dedicated-attribution.md",
+      "status": "ok",
+      "symbols": [
+        {
+          "symbol": "SAQU",
+          "files": 0,
+          "method_ok": null,
+          "sample": ""
+        },
+        {
+          "symbol": "AdvertisementService",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-core/src/main/java/com/yqg/core/service/advertisement/AdvertisementService.java"
+        },
+        {
+          "symbol": "RegisterMediaSourceAdRuleMethod",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-core/src/main/java/com/yqg/core/service/stat/RegisterMediaSourceAdRuleMethod.java"
+        }
+      ]
+    },
+    {
+      "path": "config/downstream-repay-sync-needs-restart.md",
+      "status": "ok",
+      "symbols": [
+        {
+          "symbol": "DownstreamOrderRepaySyncConfig",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-core/src/main/java/com/yqg/core/service/sync/DownstreamOrderRepaySyncConfig.java"
+        }
+      ]
+    },
+    {
+      "path": "coupon/orthogonal-anti-settle-exp.md",
+      "status": "ok",
+      "symbols": [
+        {
+          "symbol": "AntiSettleCicilanPromoExpService.isExperimentGroup",
+          "files": 1,
+          "method_ok": true,
+          "sample": "ec-core/src/main/java/com/yqg/core/service/cashloan/AntiSettleCicilanPromoExpService.java"
+        },
+        {
+          "symbol": "EXPERIMENT_GROUP",
+          "files": 0,
+          "method_ok": null,
+          "sample": ""
+        }
+      ]
+    },
+    {
+      "path": "db/kyc-encrypt-is-status-table.md",
+      "status": "ok",
+      "symbols": [
+        {
+          "symbol": "USER_ID",
+          "files": 0,
+          "method_ok": null,
+          "sample": ""
+        },
+        {
+          "symbol": "ApiChannelAuthService",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-core/src/main/java/com/yqg/core/service/apichannel/auth/ApiChannelAuthService.java"
+        },
+        {
+          "symbol": "AuthIdentityInfoService",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-core/src/main/java/com/yqg/core/service/cashloan/auth/AuthIdentityInfoService.java"
+        }
+      ]
+    },
+    {
+      "path": "experiment/blank-group-null-grouptype.md",
+      "status": "ok",
+      "symbols": [
+        {
+          "symbol": "ExperimentAdapterResultVO",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-core/src/main/java/com/yqg/core/userflow/infrastructure/adapter/vo/ExperimentAdapterResultVO.java"
+        },
+        {
+          "symbol": "IExperimentAdapter",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-core/src/main/java/com/yqg/core/userflow/infrastructure/adapter/IExperimentAdapter.java"
+        },
+        {
+          "symbol": "ExpClient",
+          "files": 0,
+          "method_ok": null,
+          "sample": ""
+        }
+      ]
+    },
+    {
+      "path": "gopay/api-channel-rejected-map-1001.md",
+      "status": "ok",
+      "symbols": [
+        {
+          "symbol": "API_CHANNEL_USER_REJECTED",
+          "files": 0,
+          "method_ok": null,
+          "sample": ""
+        },
+        {
+          "symbol": "GopayController",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-api/src/main/java/com/miyou/controllers/apichannel/gopay/GopayController.java"
+        },
+        {
+          "symbol": "EcControllerExceptionAdvice",
+          "files": 2,
+          "method_ok": null,
+          "sample": "ec-api/src/main/java/com/miyou/configure/EcControllerExceptionAdvice.java"
+        },
+        {
+          "symbol": "EcExceptionType.API_CHANNEL_USER_REJECTED",
+          "files": 1,
+          "method_ok": true,
+          "sample": "ec-common/src/main/java/com/yqg/ec/common/exception/EcExceptionType.java"
+        },
+        {
+          "symbol": "EcExceptionType.COMMON_SERVER_ERROR",
+          "files": 1,
+          "method_ok": true,
+          "sample": "ec-common/src/main/java/com/yqg/ec/common/exception/EcExceptionType.java"
+        },
+        {
+          "symbol": "EcResponse.errStatus",
+          "files": 1,
+          "method_ok": true,
+          "sample": "ec-common-spring/src/main/java/com/yqg/ec/common/spring/response/EcResponse.java"
+        }
+      ]
+    },
+    {
+      "path": "homepage/display-strategy-enum-crash.md",
+      "status": "ok",
+      "symbols": [
+        {
+          "symbol": "HomeDisplayStrategy",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-core/src/main/java/com/yqg/core/service/cashloan/vo/enums/HomeDisplayStrategy.java"
+        },
+        {
+          "symbol": "EXPERIMENT_GROUP",
+          "files": 0,
+          "method_ok": null,
+          "sample": ""
+        },
+        {
+          "symbol": "HomepageContentTool",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-api/src/main/java/com/miyou/controllers/cashloan/utilities/HomepageContentTool.java"
+        },
+        {
+          "symbol": "HomePageResponseBuildTool",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/homepagecontext/HomePageResponseBuildTool.java"
+        },
+        {
+          "symbol": "RejectUserinfoProcessor",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfo/processor/reject/RejectUserinfoProcessor.java"
+        },
+        {
+          "symbol": "LoanMarketV3EntranceDisplayStrategy",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/loanmarket/display/LoanMarketV3EntranceDisplayStrategy.java"
+        }
+      ]
+    },
+    {
+      "path": "kafka/app-startup-at-least-once-realtime.md",
+      "status": "ok",
+      "symbols": [
+        {
+          "symbol": "APP_STARTUP_AT_LEAST_ONCE",
+          "files": 0,
+          "method_ok": null,
+          "sample": ""
+        },
+        {
+          "symbol": "AppStartupService.sendAppStartupEvent",
+          "files": 1,
+          "method_ok": true,
+          "sample": "ec-core/src/main/java/com/yqg/core/service/app/AppStartupService.java"
+        },
+        {
+          "symbol": "AppStartupAtLeastOnceEventProcessor",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-core/src/main/java/com/yqg/core/service/kafka/consumer/processor/AppStartupAtLeastOnceEventProcessor.java"
+        },
+        {
+          "symbol": "AppStartupService",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-core/src/main/java/com/yqg/core/service/app/AppStartupService.java"
+        }
+      ]
+    },
+    {
+      "path": "living/tencent-intl-h5-not-domestic-api.md",
+      "status": "ok",
+      "symbols": [
+        {
+          "symbol": "LivenessCompare",
+          "files": 0,
+          "method_ok": null,
+          "sample": ""
+        },
+        {
+          "symbol": "LivenessRecognition",
+          "files": 0,
+          "method_ok": null,
+          "sample": ""
+        },
+        {
+          "symbol": "ApplyWebVerificationBizTokenIntl",
+          "files": 0,
+          "method_ok": null,
+          "sample": ""
+        },
+        {
+          "symbol": "GetWebVerificationResultIntl",
+          "files": 0,
+          "method_ok": null,
+          "sample": ""
+        },
+        {
+          "symbol": "TencentAiService",
+          "files": 1,
+          "method_ok": null,
+          "sample": "ec-core/src/main/java/com/yqg/core/service/risk/provider/tencentai/TencentAiService.java"
+        },
+        {
+          "symbol": "TENCENT_H5",
+          "files": 0,
+          "method_ok": null,
+          "sample": ""
+        }
+      ]
+    },
+    {
+      "path": "loanmarket/event-type-mapping-missing-1001.md",
+      "status": "ok",
+      "symbols": [
+        {
+          "symbol": "LoanUserEventService.initUserEventTypeMappingCache",
+          "files": 1,
+          "method_ok": true,
+          "sample": "ec-core/src/main/java/com/yqg/core/service/loan/account/LoanUserEventService.java"
+        },
+        {
+          "symbol": "IDN_YQD",
+          "files": 0,
+          "method_ok": null,
+          "sample": ""
+        },
+        {
+          "symbol": "REAPPLY",
+          "files": 0,
+          "method_ok": null,
+          "sample": ""
+        },
+        {
+          "symbol": "RETRIEVAL_CALC_CREDITS_EXPIRE_USER",
+          "files": 0,
+          "method_ok": null,
+          "sample": ""
+        }
+      ]
+    }
+  ],
+  "report": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/artifacts/memory-l2/freshness-batch-20260927-104248.md"
+}

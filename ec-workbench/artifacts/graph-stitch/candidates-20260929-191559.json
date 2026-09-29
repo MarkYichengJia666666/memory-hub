@@ -1,0 +1,1442 @@
+{
+  "root": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice",
+  "candidates": [
+    {
+      "pattern": "spring_get_instance",
+      "kind": "reflect_spring",
+      "from": "PaymentService",
+      "to": "SpringUtils.getInstance",
+      "via": "PaymentMethod.getMethodClass(method",
+      "covers": [
+        "PaymentService"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-core/src/main/java/com/yqg/core/service/payment/PaymentService.java",
+      "id_suggest": "scan-spring-PaymentService",
+      "in_overlay": false
+    },
+    {
+      "pattern": "getProcessorClass_return_class",
+      "kind": "reflect_class_literal",
+      "from": "DownstreamOrderRepaySyncConsumerGroupContext.getProcessorClass",
+      "to": "DownstreamOrderRepaySyncProcessor",
+      "via": "return Xxx.class",
+      "covers": [
+        "DownstreamOrderRepaySyncProcessor",
+        "getProcessorClass"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-core/src/main/java/com/yqg/core/service/kafka/consumer/context/DownstreamOrderRepaySyncConsumerGroupContext.java",
+      "id_suggest": "scan-DownstreamOrderRepaySyncConsumerGroupContext-returns-DownstreamOrderRepaySyncProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "kafka_pool_spring_processor",
+      "kind": "reflect_spring",
+      "from": "ConsumerPoolService.run",
+      "to": "DownstreamOrderRepaySyncProcessor.processRecord",
+      "via": "DownstreamOrderRepaySyncConsumerGroupContext.getProcessorClass + SpringUtils.getInstance",
+      "covers": [
+        "DownstreamOrderRepaySyncProcessor",
+        "processRecord"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-core/src/main/java/com/yqg/core/service/kafka/consumer/context/DownstreamOrderRepaySyncConsumerGroupContext.java",
+      "id_suggest": "scan-pool-to-DownstreamOrderRepaySyncProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "getProcessorClass_return_class",
+      "kind": "reflect_class_literal",
+      "from": "EcCombinedRepayEventGroupContext.getProcessorClass",
+      "to": "EcCombinedRepayEventProcessor",
+      "via": "return Xxx.class",
+      "covers": [
+        "EcCombinedRepayEventProcessor",
+        "getProcessorClass"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-core/src/main/java/com/yqg/core/service/kafka/consumer/context/EcCombinedRepayEventGroupContext.java",
+      "id_suggest": "scan-EcCombinedRepayEventGroupContext-returns-EcCombinedRepayEventProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "kafka_pool_spring_processor",
+      "kind": "reflect_spring",
+      "from": "ConsumerPoolService.run",
+      "to": "EcCombinedRepayEventProcessor.processRecord",
+      "via": "EcCombinedRepayEventGroupContext.getProcessorClass + SpringUtils.getInstance",
+      "covers": [
+        "EcCombinedRepayEventProcessor",
+        "processRecord"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-core/src/main/java/com/yqg/core/service/kafka/consumer/context/EcCombinedRepayEventGroupContext.java",
+      "id_suggest": "scan-pool-to-EcCombinedRepayEventProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "getProcessorClass_return_class",
+      "kind": "reflect_class_literal",
+      "from": "AppStartUpGrantCouponConsumerGroupContext.getProcessorClass",
+      "to": "AppStartUpGrantCouponProcessor",
+      "via": "return Xxx.class",
+      "covers": [
+        "AppStartUpGrantCouponProcessor",
+        "getProcessorClass"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-core/src/main/java/com/yqg/core/service/kafka/consumer/context/AppStartUpGrantCouponConsumerGroupContext.java",
+      "id_suggest": "scan-AppStartUpGrantCouponConsumerGroupContext-returns-AppStartUpGrantCouponProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "kafka_pool_spring_processor",
+      "kind": "reflect_spring",
+      "from": "ConsumerPoolService.run",
+      "to": "AppStartUpGrantCouponProcessor.processRecord",
+      "via": "AppStartUpGrantCouponConsumerGroupContext.getProcessorClass + SpringUtils.getInstance",
+      "covers": [
+        "AppStartUpGrantCouponProcessor",
+        "processRecord"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-core/src/main/java/com/yqg/core/service/kafka/consumer/context/AppStartUpGrantCouponConsumerGroupContext.java",
+      "id_suggest": "scan-pool-to-AppStartUpGrantCouponProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "getProcessorClass_return_class",
+      "kind": "reflect_class_literal",
+      "from": "LoanAccountRiskConsumerGroupContext.getProcessorClass",
+      "to": "LoanAccountRiskProcessor",
+      "via": "return Xxx.class",
+      "covers": [
+        "LoanAccountRiskProcessor",
+        "getProcessorClass"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-core/src/main/java/com/yqg/core/service/kafka/consumer/context/LoanAccountRiskConsumerGroupContext.java",
+      "id_suggest": "scan-LoanAccountRiskConsumerGroupContext-returns-LoanAccountRiskProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "kafka_pool_spring_processor",
+      "kind": "reflect_spring",
+      "from": "ConsumerPoolService.run",
+      "to": "LoanAccountRiskProcessor.processRecord",
+      "via": "LoanAccountRiskConsumerGroupContext.getProcessorClass + SpringUtils.getInstance",
+      "covers": [
+        "LoanAccountRiskProcessor",
+        "processRecord"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-core/src/main/java/com/yqg/core/service/kafka/consumer/context/LoanAccountRiskConsumerGroupContext.java",
+      "id_suggest": "scan-pool-to-LoanAccountRiskProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "getProcessorClass_return_class",
+      "kind": "reflect_class_literal",
+      "from": "EasycashRiskConsumerGroupContext.getProcessorClass",
+      "to": "EasycashRiskProcessor",
+      "via": "return Xxx.class",
+      "covers": [
+        "EasycashRiskProcessor",
+        "getProcessorClass"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-core/src/main/java/com/yqg/core/service/kafka/consumer/context/EasycashRiskConsumerGroupContext.java",
+      "id_suggest": "scan-EasycashRiskConsumerGroupContext-returns-EasycashRiskProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "kafka_pool_spring_processor",
+      "kind": "reflect_spring",
+      "from": "ConsumerPoolService.run",
+      "to": "EasycashRiskProcessor.processRecord",
+      "via": "EasycashRiskConsumerGroupContext.getProcessorClass + SpringUtils.getInstance",
+      "covers": [
+        "EasycashRiskProcessor",
+        "processRecord"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-core/src/main/java/com/yqg/core/service/kafka/consumer/context/EasycashRiskConsumerGroupContext.java",
+      "id_suggest": "scan-pool-to-EasycashRiskProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "getProcessorClass_return_class",
+      "kind": "reflect_class_literal",
+      "from": "FundRepayEventConsumerGroupContext.getProcessorClass",
+      "to": "FundRepayEventProcessor",
+      "via": "return Xxx.class",
+      "covers": [
+        "FundRepayEventProcessor",
+        "getProcessorClass"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-core/src/main/java/com/yqg/core/service/kafka/consumer/context/FundRepayEventConsumerGroupContext.java",
+      "id_suggest": "scan-FundRepayEventConsumerGroupContext-returns-FundRepayEventProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "kafka_pool_spring_processor",
+      "kind": "reflect_spring",
+      "from": "ConsumerPoolService.run",
+      "to": "FundRepayEventProcessor.processRecord",
+      "via": "FundRepayEventConsumerGroupContext.getProcessorClass + SpringUtils.getInstance",
+      "covers": [
+        "FundRepayEventProcessor",
+        "processRecord"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-core/src/main/java/com/yqg/core/service/kafka/consumer/context/FundRepayEventConsumerGroupContext.java",
+      "id_suggest": "scan-pool-to-FundRepayEventProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "getProcessorClass_return_class",
+      "kind": "reflect_class_literal",
+      "from": "RiskCashLoanEventConsumerGroupContext.getProcessorClass",
+      "to": "RiskCashLoanEventProcessor",
+      "via": "return Xxx.class",
+      "covers": [
+        "RiskCashLoanEventProcessor",
+        "getProcessorClass"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-core/src/main/java/com/yqg/core/service/kafka/consumer/context/RiskCashLoanEventConsumerGroupContext.java",
+      "id_suggest": "scan-RiskCashLoanEventConsumerGroupContext-returns-RiskCashLoanEventProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "kafka_pool_spring_processor",
+      "kind": "reflect_spring",
+      "from": "ConsumerPoolService.run",
+      "to": "RiskCashLoanEventProcessor.processRecord",
+      "via": "RiskCashLoanEventConsumerGroupContext.getProcessorClass + SpringUtils.getInstance",
+      "covers": [
+        "RiskCashLoanEventProcessor",
+        "processRecord"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-core/src/main/java/com/yqg/core/service/kafka/consumer/context/RiskCashLoanEventConsumerGroupContext.java",
+      "id_suggest": "scan-pool-to-RiskCashLoanEventProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "getRuleType_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "GeneralPageConfigFilterRuleService.getProcessor",
+      "to": "NationalDay817HomeBannerFilterRuleProcessor.hitRule",
+      "via": "NATIONAL_DAY_817_HOME_BANNER",
+      "covers": [
+        "NationalDay817HomeBannerFilterRuleProcessor",
+        "getProcessor",
+        "NATIONAL_DAY_817_HOME_BANNER"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-core/src/main/java/com/yqg/core/service/general/pageconfig/filterstrategy/processor/NationalDay817HomeBannerFilterRuleProcessor.java",
+      "id_suggest": "scan-enum-NATIONAL_DAY_817_HOME_BANNER-NationalDay817HomeBannerFilterRuleProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "AppResourceProcessorForHasOrder",
+      "via": "getProcessorType:BANNER_HOME_POP_UP_FOR_HAS_ORDER",
+      "covers": [
+        "AppResourceProcessorForHasOrder",
+        "BANNER_HOME_POP_UP_FOR_HAS_ORDER",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/appresource/AppResourceProcessorForHasOrder.java",
+      "id_suggest": "scan-hp-BANNER_HOME_POP_UP_FOR_HAS_ORDER-AppResourceProcessorForHasOrder",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "BannerHomePopupProcessorForNeverApplied",
+      "via": "getProcessorType:BANNER_HOME_POP_UP_FOR_NEVER_APPLIED",
+      "covers": [
+        "BannerHomePopupProcessorForNeverApplied",
+        "BANNER_HOME_POP_UP_FOR_NEVER_APPLIED",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/appresource/BannerHomePopupProcessorForNeverApplied.java",
+      "id_suggest": "scan-hp-BANNER_HOME_POP_UP_FOR_NEVER_APPLIED-BannerHomePopupProcessorForNeverApplied",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "AppResourceProcessorForOverdue",
+      "via": "getProcessorType:BANNER_HOME_POP_UP_FOR_OVERDUE",
+      "covers": [
+        "AppResourceProcessorForOverdue",
+        "BANNER_HOME_POP_UP_FOR_OVERDUE",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/appresource/AppResourceProcessorForOverdue.java",
+      "id_suggest": "scan-hp-BANNER_HOME_POP_UP_FOR_OVERDUE-AppResourceProcessorForOverdue",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "BannerHomePopupProcessor",
+      "via": "getProcessorType:BANNER_HOME_POP_UP",
+      "covers": [
+        "BannerHomePopupProcessor",
+        "BANNER_HOME_POP_UP",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/appresource/BannerHomePopupProcessor.java",
+      "id_suggest": "scan-hp-BANNER_HOME_POP_UP-BannerHomePopupProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "BannerHomePopupProcessorForCanCreateOrder",
+      "via": "getProcessorType:BANNER_HOME_POP_UP_FOR_CAN_CREATE_ORDER",
+      "covers": [
+        "BannerHomePopupProcessorForCanCreateOrder",
+        "BANNER_HOME_POP_UP_FOR_CAN_CREATE_ORDER",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/appresource/BannerHomePopupProcessorForCanCreateOrder.java",
+      "id_suggest": "scan-hp-BANNER_HOME_POP_UP_FOR_CAN_CREATE_ORDER-BannerHomePopupProcessorForCanCreateOrder",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "ResourcePreActionProcessor",
+      "via": "getProcessorType:RESOURCE_CAN_CREATE_ORDER_PRE_ACTION",
+      "covers": [
+        "ResourcePreActionProcessor",
+        "RESOURCE_CAN_CREATE_ORDER_PRE_ACTION",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/appresource/ResourcePreActionProcessor.java",
+      "id_suggest": "scan-hp-RESOURCE_CAN_CREATE_ORDER_PRE_ACTION-ResourcePreActionProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "FundReviewCheckInfoV3Processor",
+      "via": "getProcessorType:FUND_ORDER_BIZ_CHECK_V3",
+      "covers": [
+        "FundReviewCheckInfoV3Processor",
+        "FUND_ORDER_BIZ_CHECK_V3",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfov3/FundReviewCheckInfoV3Processor.java",
+      "id_suggest": "scan-hp-FUND_ORDER_BIZ_CHECK_V3-FundReviewCheckInfoV3Processor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "RepaymentInfoV3Processor",
+      "via": "getProcessorType:REPAYMENT_INFO_V3",
+      "covers": [
+        "RepaymentInfoV3Processor",
+        "REPAYMENT_INFO_V3",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfov3/RepaymentInfoV3Processor.java",
+      "id_suggest": "scan-hp-REPAYMENT_INFO_V3-RepaymentInfoV3Processor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "PageJumpV3Processor",
+      "via": "getProcessorType:PAGE_JUMP_V3",
+      "covers": [
+        "PageJumpV3Processor",
+        "PAGE_JUMP_V3",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfov3/PageJumpV3Processor.java",
+      "id_suggest": "scan-hp-PAGE_JUMP_V3-PageJumpV3Processor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "BillPageJumpForOverdueProcessor",
+      "via": "getProcessorType:AUTO_JUMP_BILL_PAGE_FOR_OVERDUE",
+      "covers": [
+        "BillPageJumpForOverdueProcessor",
+        "AUTO_JUMP_BILL_PAGE_FOR_OVERDUE",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfov3/BillPageJumpForOverdueProcessor.java",
+      "id_suggest": "scan-hp-AUTO_JUMP_BILL_PAGE_FOR_OVERDUE-BillPageJumpForOverdueProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "SignatureCheckInfoV3Processor",
+      "via": "getProcessorType:SIGNATURE_BIZ_CHECK_V3",
+      "covers": [
+        "SignatureCheckInfoV3Processor",
+        "SIGNATURE_BIZ_CHECK_V3",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfov3/SignatureCheckInfoV3Processor.java",
+      "id_suggest": "scan-hp-SIGNATURE_BIZ_CHECK_V3-SignatureCheckInfoV3Processor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "DebtCheckInfoV3Processor",
+      "via": "getProcessorType:DEBT_BIZ_CHECK_V3",
+      "covers": [
+        "DebtCheckInfoV3Processor",
+        "DEBT_BIZ_CHECK_V3",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfov3/DebtCheckInfoV3Processor.java",
+      "id_suggest": "scan-hp-DEBT_BIZ_CHECK_V3-DebtCheckInfoV3Processor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "FundPayoutCheckInfoV3Processor",
+      "via": "getProcessorType:FUND_PAYOUT_BIZ_CHECK_V3",
+      "covers": [
+        "FundPayoutCheckInfoV3Processor",
+        "FUND_PAYOUT_BIZ_CHECK_V3",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfov3/FundPayoutCheckInfoV3Processor.java",
+      "id_suggest": "scan-hp-FUND_PAYOUT_BIZ_CHECK_V3-FundPayoutCheckInfoV3Processor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "HomePageGuideBubbleInfoV3Processor",
+      "via": "getProcessorType:HOME_PAGE_GUIDE_BUBBLE_V3",
+      "covers": [
+        "HomePageGuideBubbleInfoV3Processor",
+        "HOME_PAGE_GUIDE_BUBBLE_V3",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfov3/HomePageGuideBubbleInfoV3Processor.java",
+      "id_suggest": "scan-hp-HOME_PAGE_GUIDE_BUBBLE_V3-HomePageGuideBubbleInfoV3Processor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "BillPageJumpV3Processor",
+      "via": "getProcessorType:AUTO_JUMP_BILL_PAGE_FOR_NOT_OVERDUE",
+      "covers": [
+        "BillPageJumpV3Processor",
+        "AUTO_JUMP_BILL_PAGE_FOR_NOT_OVERDUE",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfov3/BillPageJumpV3Processor.java",
+      "id_suggest": "scan-hp-AUTO_JUMP_BILL_PAGE_FOR_NOT_OVERDUE-BillPageJumpV3Processor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "LoanMarketInfoV3Processor",
+      "via": "getProcessorType:LOAN_MARKET_INFO_V3",
+      "covers": [
+        "LoanMarketInfoV3Processor",
+        "LOAN_MARKET_INFO_V3",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfov3/LoanMarketInfoV3Processor.java",
+      "id_suggest": "scan-hp-LOAN_MARKET_INFO_V3-LoanMarketInfoV3Processor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "GrabCheckInfoV3Processor",
+      "via": "getProcessorType:GRAB_ORDER_BIZ_CHECK_V3",
+      "covers": [
+        "GrabCheckInfoV3Processor",
+        "GRAB_ORDER_BIZ_CHECK_V3",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfov3/GrabCheckInfoV3Processor.java",
+      "id_suggest": "scan-hp-GRAB_ORDER_BIZ_CHECK_V3-GrabCheckInfoV3Processor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "DirectDebitBankInfoV3Processor",
+      "via": "getProcessorType:DIRECT_DEBIT_BANK_V3",
+      "covers": [
+        "DirectDebitBankInfoV3Processor",
+        "DIRECT_DEBIT_BANK_V3",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfov3/DirectDebitBankInfoV3Processor.java",
+      "id_suggest": "scan-hp-DIRECT_DEBIT_BANK_V3-DirectDebitBankInfoV3Processor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "LastCommonCardProcessor",
+      "via": "getProcessorType:LAST_COMMON_CARD",
+      "covers": [
+        "LastCommonCardProcessor",
+        "LAST_COMMON_CARD",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/elementmodel/LastCommonCardProcessor.java",
+      "id_suggest": "scan-hp-LAST_COMMON_CARD-LastCommonCardProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "CommonCardProcessor",
+      "via": "getProcessorType:COMMON_TYPE",
+      "covers": [
+        "CommonCardProcessor",
+        "COMMON_TYPE",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/elementmodel/CommonCardProcessor.java",
+      "id_suggest": "scan-hp-COMMON_TYPE-CommonCardProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "H5WholeProcessOrderUIConfigProcessor",
+      "via": "getProcessorType:H5_WHOLE_PROCESS_ORDER_UI_CONFIG",
+      "covers": [
+        "H5WholeProcessOrderUIConfigProcessor",
+        "H5_WHOLE_PROCESS_ORDER_UI_CONFIG",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/pageconfig/H5WholeProcessOrderUIConfigProcessor.java",
+      "id_suggest": "scan-hp-H5_WHOLE_PROCESS_ORDER_UI_CONFIG-H5WholeProcessOrderUIConfigProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "OrderPageConfigProcessor",
+      "via": "getProcessorType:ORDER_PAGE_CONFIG",
+      "covers": [
+        "OrderPageConfigProcessor",
+        "ORDER_PAGE_CONFIG",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/pageconfig/OrderPageConfigProcessor.java",
+      "id_suggest": "scan-hp-ORDER_PAGE_CONFIG-OrderPageConfigProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "HomePageConfigProcessor",
+      "via": "getProcessorType:COMMON_CONFIG",
+      "covers": [
+        "HomePageConfigProcessor",
+        "COMMON_CONFIG",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/pageconfig/HomePageConfigProcessor.java",
+      "id_suggest": "scan-hp-COMMON_CONFIG-HomePageConfigProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "CreateOrderPageTopAreaProcessor",
+      "via": "getProcessorType:CREATE_ORDER_PAGE_TOP_AREA",
+      "covers": [
+        "CreateOrderPageTopAreaProcessor",
+        "CREATE_ORDER_PAGE_TOP_AREA",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/toparea/processor/CreateOrderPageTopAreaProcessor.java",
+      "id_suggest": "scan-hp-CREATE_ORDER_PAGE_TOP_AREA-CreateOrderPageTopAreaProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "ReapplyUserInfoProcessor",
+      "via": "getUserInfoProcessorType:REAPPLY_USER_INFO",
+      "covers": [
+        "ReapplyUserInfoProcessor",
+        "REAPPLY_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfo/processor/ReapplyUserInfoProcessor.java",
+      "id_suggest": "scan-hp-REAPPLY_USER_INFO-ReapplyUserInfoProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "QuotaCardProcessor",
+      "via": "getUserInfoProcessorType:QUOTA_CARD_INFO",
+      "covers": [
+        "QuotaCardProcessor",
+        "QUOTA_CARD_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfo/processor/QuotaCardProcessor.java",
+      "id_suggest": "scan-hp-QUOTA_CARD_INFO-QuotaCardProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "LoginUserDefaultProcessor",
+      "via": "getUserInfoProcessorType:LOGIN_USER_INFO_PROCESSOR",
+      "covers": [
+        "LoginUserDefaultProcessor",
+        "LOGIN_USER_INFO_PROCESSOR",
+        "getUserInfoProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfo/processor/LoginUserDefaultProcessor.java",
+      "id_suggest": "scan-hp-LOGIN_USER_INFO_PROCESSOR-LoginUserDefaultProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "WaitingSupplementUserInfoProcessor",
+      "via": "getUserInfoProcessorType:WAITING_SUPPLEMENT_USER_INFO",
+      "covers": [
+        "WaitingSupplementUserInfoProcessor",
+        "WAITING_SUPPLEMENT_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfo/processor/WaitingSupplementUserInfoProcessor.java",
+      "id_suggest": "scan-hp-WAITING_SUPPLEMENT_USER_INFO-WaitingSupplementUserInfoProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "MultiLoanInitUserInfoProcessor",
+      "via": "getUserInfoProcessorType:MULTI_LOAN_INIT_USER_INFO",
+      "covers": [
+        "MultiLoanInitUserInfoProcessor",
+        "MULTI_LOAN_INIT_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfo/processor/MultiLoanInitUserInfoProcessor.java",
+      "id_suggest": "scan-hp-MULTI_LOAN_INIT_USER_INFO-MultiLoanInitUserInfoProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "NotLoginUserInfoProcessor",
+      "via": "getUserInfoProcessorType:NOT_LOGIN_USER_INFO_PROCESSOR",
+      "covers": [
+        "NotLoginUserInfoProcessor",
+        "NOT_LOGIN_USER_INFO_PROCESSOR",
+        "getUserInfoProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfo/processor/NotLoginUserInfoProcessor.java",
+      "id_suggest": "scan-hp-NOT_LOGIN_USER_INFO_PROCESSOR-NotLoginUserInfoProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "RepaymentQuotaCardProcessor",
+      "via": "getUserInfoProcessorType:REPAYMENT_QUOTA_CARD_INFO",
+      "covers": [
+        "RepaymentQuotaCardProcessor",
+        "REPAYMENT_QUOTA_CARD_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfo/processor/RepaymentQuotaCardProcessor.java",
+      "id_suggest": "scan-hp-REPAYMENT_QUOTA_CARD_INFO-RepaymentQuotaCardProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "ReadyUserInfoProcessor",
+      "via": "getUserInfoProcessorType:READY_USER_INFO",
+      "covers": [
+        "ReadyUserInfoProcessor",
+        "READY_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfo/processor/ReadyUserInfoProcessor.java",
+      "id_suggest": "scan-hp-READY_USER_INFO-ReadyUserInfoProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "NeverAppliedUserInfoProcessor",
+      "via": "getUserInfoProcessorType:NEVER_APPLIED_USER_INFO",
+      "covers": [
+        "NeverAppliedUserInfoProcessor",
+        "NEVER_APPLIED_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfo/processor/NeverAppliedUserInfoProcessor.java",
+      "id_suggest": "scan-hp-NEVER_APPLIED_USER_INFO-NeverAppliedUserInfoProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "RepaymentUserInfoProcessor",
+      "via": "getUserInfoProcessorType:REPAYMENT_USER_INFO",
+      "covers": [
+        "RepaymentUserInfoProcessor",
+        "REPAYMENT_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfo/processor/RepaymentUserInfoProcessor.java",
+      "id_suggest": "scan-hp-REPAYMENT_USER_INFO-RepaymentUserInfoProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "PayingUserInfoProcessor",
+      "via": "getUserInfoProcessorType:PAYING_USER_INFO",
+      "covers": [
+        "PayingUserInfoProcessor",
+        "PAYING_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfo/processor/PayingUserInfoProcessor.java",
+      "id_suggest": "scan-hp-PAYING_USER_INFO-PayingUserInfoProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "FinishSupplementUserInfoProcessor",
+      "via": "getUserInfoProcessorType:FINISH_SUPPLEMENT_USER_INFO",
+      "covers": [
+        "FinishSupplementUserInfoProcessor",
+        "FINISH_SUPPLEMENT_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfo/processor/FinishSupplementUserInfoProcessor.java",
+      "id_suggest": "scan-hp-FINISH_SUPPLEMENT_USER_INFO-FinishSupplementUserInfoProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "NeedSupplementUserInfoProcessor",
+      "via": "getUserInfoProcessorType:NEED_SUPPLEMENT_USER_INFO",
+      "covers": [
+        "NeedSupplementUserInfoProcessor",
+        "NEED_SUPPLEMENT_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfo/processor/NeedSupplementUserInfoProcessor.java",
+      "id_suggest": "scan-hp-NEED_SUPPLEMENT_USER_INFO-NeedSupplementUserInfoProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "UserInfoCanOrderProcessor",
+      "via": "getUserInfoProcessorType:CAN_CREATE_ORDER_USER_INFO",
+      "covers": [
+        "UserInfoCanOrderProcessor",
+        "CAN_CREATE_ORDER_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfo/processor/cancreateorder/UserInfoCanOrderProcessor.java",
+      "id_suggest": "scan-hp-CAN_CREATE_ORDER_USER_INFO-UserInfoCanOrderProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "MinimalistAcceptUserInfoProcessor",
+      "via": "getUserInfoProcessorType:MINIMALIST_ACCEPT_USER_INFO",
+      "covers": [
+        "MinimalistAcceptUserInfoProcessor",
+        "MINIMALIST_ACCEPT_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfo/processor/cancreateorder/MinimalistAcceptUserInfoProcessor.java",
+      "id_suggest": "scan-hp-MINIMALIST_ACCEPT_USER_INFO-MinimalistAcceptUserInfoProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "MinimalistInReviewUserInfoProcessor",
+      "via": "getUserInfoProcessorType:MINIMALIST_IN_REVIEW_USER_INFO",
+      "covers": [
+        "MinimalistInReviewUserInfoProcessor",
+        "MINIMALIST_IN_REVIEW_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfo/processor/cancreateorder/MinimalistInReviewUserInfoProcessor.java",
+      "id_suggest": "scan-hp-MINIMALIST_IN_REVIEW_USER_INFO-MinimalistInReviewUserInfoProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "GrabBizCheckUserInfoProcessor",
+      "via": "getUserInfoProcessorType:GRAB_ORDER_BIZ_CHECK",
+      "covers": [
+        "GrabBizCheckUserInfoProcessor",
+        "GRAB_ORDER_BIZ_CHECK",
+        "getUserInfoProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfo/processor/orderbizcheck/GrabBizCheckUserInfoProcessor.java",
+      "id_suggest": "scan-hp-GRAB_ORDER_BIZ_CHECK-GrabBizCheckUserInfoProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "SignatureBizCheckUserInfoProcessor",
+      "via": "getUserInfoProcessorType:SIGNATURE_BIZ_CHECK",
+      "covers": [
+        "SignatureBizCheckUserInfoProcessor",
+        "SIGNATURE_BIZ_CHECK",
+        "getUserInfoProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfo/processor/orderbizcheck/SignatureBizCheckUserInfoProcessor.java",
+      "id_suggest": "scan-hp-SIGNATURE_BIZ_CHECK-SignatureBizCheckUserInfoProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "FundBizCheckUserInfoProcessor",
+      "via": "getUserInfoProcessorType:FUND_ORDER_BIZ_CHECK",
+      "covers": [
+        "FundBizCheckUserInfoProcessor",
+        "FUND_ORDER_BIZ_CHECK",
+        "getUserInfoProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfo/processor/orderbizcheck/FundBizCheckUserInfoProcessor.java",
+      "id_suggest": "scan-hp-FUND_ORDER_BIZ_CHECK-FundBizCheckUserInfoProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "DebtBizCheckUserInfoProcessor",
+      "via": "getUserInfoProcessorType:DEBT_BIZ_CHECK",
+      "covers": [
+        "DebtBizCheckUserInfoProcessor",
+        "DEBT_BIZ_CHECK",
+        "getUserInfoProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfo/processor/orderbizcheck/DebtBizCheckUserInfoProcessor.java",
+      "id_suggest": "scan-hp-DEBT_BIZ_CHECK-DebtBizCheckUserInfoProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "FundPayoutBizCheckUserInfoProcessor",
+      "via": "getUserInfoProcessorType:FUND_PAYOUT_BIZ_CHECK",
+      "covers": [
+        "FundPayoutBizCheckUserInfoProcessor",
+        "FUND_PAYOUT_BIZ_CHECK",
+        "getUserInfoProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfo/processor/orderbizcheck/FundPayoutBizCheckUserInfoProcessor.java",
+      "id_suggest": "scan-hp-FUND_PAYOUT_BIZ_CHECK-FundPayoutBizCheckUserInfoProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "RejectUserinfoProcessor",
+      "via": "getUserInfoProcessorType:REJECT",
+      "covers": [
+        "RejectUserinfoProcessor",
+        "REJECT",
+        "getUserInfoProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfo/processor/reject/RejectUserinfoProcessor.java",
+      "id_suggest": "scan-hp-REJECT-RejectUserinfoProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "ReloanRejectUserinfoProcessor",
+      "via": "getUserInfoProcessorType:RELOAN_REJECT_USER_INFO",
+      "covers": [
+        "ReloanRejectUserinfoProcessor",
+        "RELOAN_REJECT_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfo/processor/reject/ReloanRejectUserinfoProcessor.java",
+      "id_suggest": "scan-hp-RELOAN_REJECT_USER_INFO-ReloanRejectUserinfoProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "CancelledUserInfoProcessor",
+      "via": "getUserInfoProcessorType:CANCELLED",
+      "covers": [
+        "CancelledUserInfoProcessor",
+        "CANCELLED",
+        "getUserInfoProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfo/processor/reject/CancelledUserInfoProcessor.java",
+      "id_suggest": "scan-hp-CANCELLED-CancelledUserInfoProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "CanReapplyInFutureUserInfoProcessor",
+      "via": "getUserInfoProcessorType:CAN_REAPPLY_IN_FUTURE",
+      "covers": [
+        "CanReapplyInFutureUserInfoProcessor",
+        "CAN_REAPPLY_IN_FUTURE",
+        "getUserInfoProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfo/processor/reject/CanReapplyInFutureUserInfoProcessor.java",
+      "id_suggest": "scan-hp-CAN_REAPPLY_IN_FUTURE-CanReapplyInFutureUserInfoProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "ImageReviewRejectedProcessor",
+      "via": "getUserInfoProcessorType:IMAGE_REVIEW_REJECTED",
+      "covers": [
+        "ImageReviewRejectedProcessor",
+        "IMAGE_REVIEW_REJECTED",
+        "getUserInfoProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfo/processor/reject/ImageReviewRejectedProcessor.java",
+      "id_suggest": "scan-hp-IMAGE_REVIEW_REJECTED-ImageReviewRejectedProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "IncreaseReviewRejectUserInfoProcessor",
+      "via": "getUserInfoProcessorType:INCREASE_REVIEW_REJECT_USER_INFO",
+      "covers": [
+        "IncreaseReviewRejectUserInfoProcessor",
+        "INCREASE_REVIEW_REJECT_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfo/processor/reject/IncreaseReviewRejectUserInfoProcessor.java",
+      "id_suggest": "scan-hp-INCREASE_REVIEW_REJECT_USER_INFO-IncreaseReviewRejectUserInfoProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "ReupploadFinishUserInfoProcessor",
+      "via": "getUserInfoProcessorType:REUPLOAD_FINISHED_USER_INFO",
+      "covers": [
+        "ReupploadFinishUserInfoProcessor",
+        "REUPLOAD_FINISHED_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfo/processor/review/ReupploadFinishUserInfoProcessor.java",
+      "id_suggest": "scan-hp-REUPLOAD_FINISHED_USER_INFO-ReupploadFinishUserInfoProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "CalcCreditsInReviewUserInfoProcessor",
+      "via": "getUserInfoProcessorType:CALC_CREDITS_IN_REVIEW_USER_INFO",
+      "covers": [
+        "CalcCreditsInReviewUserInfoProcessor",
+        "CALC_CREDITS_IN_REVIEW_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfo/processor/review/CalcCreditsInReviewUserInfoProcessor.java",
+      "id_suggest": "scan-hp-CALC_CREDITS_IN_REVIEW_USER_INFO-CalcCreditsInReviewUserInfoProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "ReviewUserInfoProcessor",
+      "via": "getUserInfoProcessorType:IN_REVIEW_USER_INFO",
+      "covers": [
+        "ReviewUserInfoProcessor",
+        "IN_REVIEW_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfo/processor/review/ReviewUserInfoProcessor.java",
+      "id_suggest": "scan-hp-IN_REVIEW_USER_INFO-ReviewUserInfoProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "MultiLoanInReviewUserInfoProcessor",
+      "via": "getUserInfoProcessorType:MULTI_LOAN_IN_REVIEW_USER_INFO",
+      "covers": [
+        "MultiLoanInReviewUserInfoProcessor",
+        "MULTI_LOAN_IN_REVIEW_USER_INFO",
+        "getUserInfoProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/userinfo/processor/review/MultiLoanInReviewUserInfoProcessor.java",
+      "id_suggest": "scan-hp-MULTI_LOAN_IN_REVIEW_USER_INFO-MultiLoanInReviewUserInfoProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "LoanProductProcessor",
+      "via": "getProcessorType:LOAN_PRODUCT_INFO",
+      "covers": [
+        "LoanProductProcessor",
+        "LOAN_PRODUCT_INFO",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/elementmodel/order/LoanProductProcessor.java",
+      "id_suggest": "scan-hp-LOAN_PRODUCT_INFO-LoanProductProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "MultiLoanProductProcessor",
+      "via": "getProcessorType:MULTI_LOAN_PRODUCT_INFO",
+      "covers": [
+        "MultiLoanProductProcessor",
+        "MULTI_LOAN_PRODUCT_INFO",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/elementmodel/order/MultiLoanProductProcessor.java",
+      "id_suggest": "scan-hp-MULTI_LOAN_PRODUCT_INFO-MultiLoanProductProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "OrderProgressStepProcessor",
+      "via": "getProcessorType:ORDER_PROGRESS_STEP",
+      "covers": [
+        "OrderProgressStepProcessor",
+        "ORDER_PROGRESS_STEP",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/elementmodel/orderstep/OrderProgressStepProcessor.java",
+      "id_suggest": "scan-hp-ORDER_PROGRESS_STEP-OrderProgressStepProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "CanNotLoanCreditProcessor",
+      "via": "getProcessorType:CAN_NOT_LOAN_CREDIT",
+      "covers": [
+        "CanNotLoanCreditProcessor",
+        "CAN_NOT_LOAN_CREDIT",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/elementmodel/cannotloan/CanNotLoanCreditProcessor.java",
+      "id_suggest": "scan-hp-CAN_NOT_LOAN_CREDIT-CanNotLoanCreditProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "RejectCardProcessor",
+      "via": "getProcessorType:REJECT_STATUS",
+      "covers": [
+        "RejectCardProcessor",
+        "REJECT_STATUS",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/elementmodel/reject/RejectCardProcessor.java",
+      "id_suggest": "scan-hp-REJECT_STATUS-RejectCardProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "ReloadKtpCardProcessor",
+      "via": "getProcessorType:RELOAD_KTP",
+      "covers": [
+        "ReloadKtpCardProcessor",
+        "RELOAD_KTP",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/elementmodel/reject/ReloadKtpCardProcessor.java",
+      "id_suggest": "scan-hp-RELOAD_KTP-ReloadKtpCardProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "CreditsExpiredProcessor",
+      "via": "getProcessorType:CREDITS_EXPIRED",
+      "covers": [
+        "CreditsExpiredProcessor",
+        "CREDITS_EXPIRED",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/elementmodel/auth/CreditsExpiredProcessor.java",
+      "id_suggest": "scan-hp-CREDITS_EXPIRED-CreditsExpiredProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "CanReapplyProcessor",
+      "via": "getProcessorType:CAN_REAPPLY",
+      "covers": [
+        "CanReapplyProcessor",
+        "CAN_REAPPLY",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/elementmodel/auth/CanReapplyProcessor.java",
+      "id_suggest": "scan-hp-CAN_REAPPLY-CanReapplyProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "NeverAppliedProcessor",
+      "via": "getProcessorType:NEVER_APPLIED",
+      "covers": [
+        "NeverAppliedProcessor",
+        "NEVER_APPLIED",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/elementmodel/auth/NeverAppliedProcessor.java",
+      "id_suggest": "scan-hp-NEVER_APPLIED-NeverAppliedProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "NotLoginProcessor",
+      "via": "getProcessorType:NOT_LOGIN",
+      "covers": [
+        "NotLoginProcessor",
+        "NOT_LOGIN",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/elementmodel/auth/NotLoginProcessor.java",
+      "id_suggest": "scan-hp-NOT_LOGIN-NotLoginProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "NeedSupplementLivingInfo",
+      "via": "getProcessorType:ORDER_NEED_SUPPLEMENT_LIVING_INFO",
+      "covers": [
+        "NeedSupplementLivingInfo",
+        "ORDER_NEED_SUPPLEMENT_LIVING_INFO",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/elementmodel/ordersupplement/NeedSupplementLivingInfo.java",
+      "id_suggest": "scan-hp-ORDER_NEED_SUPPLEMENT_LIVING_INFO-NeedSupplementLivingInfo",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "SupplementReview",
+      "via": "getProcessorType:ORDER_SUPPLEMENT_REVIEW",
+      "covers": [
+        "SupplementReview",
+        "ORDER_SUPPLEMENT_REVIEW",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/elementmodel/ordersupplement/SupplementReview.java",
+      "id_suggest": "scan-hp-ORDER_SUPPLEMENT_REVIEW-SupplementReview",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "CreditGainUpgradePopupProcessor",
+      "via": "getProcessorType:CREDIT_GAIN_UPGRADE_POPUP",
+      "covers": [
+        "CreditGainUpgradePopupProcessor",
+        "CREDIT_GAIN_UPGRADE_POPUP",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/elementmodel/creditgain/CreditGainUpgradePopupProcessor.java",
+      "id_suggest": "scan-hp-CREDIT_GAIN_UPGRADE_POPUP-CreditGainUpgradePopupProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "LoanMarketProcessor",
+      "via": "getProcessorType:LOAN_MARKET",
+      "covers": [
+        "LoanMarketProcessor",
+        "LOAN_MARKET",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/elementmodel/loanmarket/LoanMarketProcessor.java",
+      "id_suggest": "scan-hp-LOAN_MARKET-LoanMarketProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "MainCardRepaymentInfoProcessor",
+      "via": "getProcessorType:MAIN_CARD_REPAYMENT_INFO",
+      "covers": [
+        "MainCardRepaymentInfoProcessor",
+        "MAIN_CARD_REPAYMENT_INFO",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/elementmodel/repayment/MainCardRepaymentInfoProcessor.java",
+      "id_suggest": "scan-hp-MAIN_CARD_REPAYMENT_INFO-MainCardRepaymentInfoProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "OverdueRepaymentCardProcessor",
+      "via": "getProcessorType:OVERDUE_REPAYMENT_CARD",
+      "covers": [
+        "OverdueRepaymentCardProcessor",
+        "OVERDUE_REPAYMENT_CARD",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/elementmodel/repayment/OverdueRepaymentCardProcessor.java",
+      "id_suggest": "scan-hp-OVERDUE_REPAYMENT_CARD-OverdueRepaymentCardProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "RepaymentCardProcessor",
+      "via": "getProcessorType:REPAYMENT_CARD",
+      "covers": [
+        "RepaymentCardProcessor",
+        "REPAYMENT_CARD",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/elementmodel/repayment/RepaymentCardProcessor.java",
+      "id_suggest": "scan-hp-REPAYMENT_CARD-RepaymentCardProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "ManualReviewProcessor",
+      "via": "getProcessorType:MANUAL_REVIEW",
+      "covers": [
+        "ManualReviewProcessor",
+        "MANUAL_REVIEW",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/elementmodel/review/ManualReviewProcessor.java",
+      "id_suggest": "scan-hp-MANUAL_REVIEW-ManualReviewProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "RiskReviewProcessor",
+      "via": "getProcessorType:REVIEW_FOR_RISK",
+      "covers": [
+        "RiskReviewProcessor",
+        "REVIEW_FOR_RISK",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/elementmodel/review/RiskReviewProcessor.java",
+      "id_suggest": "scan-hp-REVIEW_FOR_RISK-RiskReviewProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "LendingGuidanceAlertProcessor",
+      "via": "getAlertProcessorType:LENDING_GUIDANCE_ALERT_PROCESSOR",
+      "covers": [
+        "LendingGuidanceAlertProcessor",
+        "LENDING_GUIDANCE_ALERT_PROCESSOR",
+        "getAlertProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/alert/processor/LendingGuidanceAlertProcessor.java",
+      "id_suggest": "scan-hp-LENDING_GUIDANCE_ALERT_PROCESSOR-LendingGuidanceAlertProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "RepaymentGuidanceAlertProcessor",
+      "via": "getAlertProcessorType:REPAYMENT_GUIDANCE_ALERT_PROCESSOR",
+      "covers": [
+        "RepaymentGuidanceAlertProcessor",
+        "REPAYMENT_GUIDANCE_ALERT_PROCESSOR",
+        "getAlertProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/alert/processor/RepaymentGuidanceAlertProcessor.java",
+      "id_suggest": "scan-hp-REPAYMENT_GUIDANCE_ALERT_PROCESSOR-RepaymentGuidanceAlertProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "LoanMarketSmeEntranceMiddleInfoProcessor",
+      "via": "getProcessorType:LOAN_MARKET_WITH_SME_ENTRANCE_MIDDLE_INFO_PROCESSOR",
+      "covers": [
+        "LoanMarketSmeEntranceMiddleInfoProcessor",
+        "LOAN_MARKET_WITH_SME_ENTRANCE_MIDDLE_INFO_PROCESSOR",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/middle/processor/LoanMarketSmeEntranceMiddleInfoProcessor.java",
+      "id_suggest": "scan-hp-LOAN_MARKET_WITH_SME_ENTRANCE_MIDDLE_INFO_PROCESSOR-LoanMarketSmeEntranceMiddleInfoProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "EmptyMiddleInfoProcessor",
+      "via": "getProcessorType:EMPTY_MIDDLE_INFO_PROCESSOR",
+      "covers": [
+        "EmptyMiddleInfoProcessor",
+        "EMPTY_MIDDLE_INFO_PROCESSOR",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/middle/processor/EmptyMiddleInfoProcessor.java",
+      "id_suggest": "scan-hp-EMPTY_MIDDLE_INFO_PROCESSOR-EmptyMiddleInfoProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "SmeEntranceMiddleInfoProcessor",
+      "via": "getProcessorType:SME_ENTRANCE_MIDDLE_INFO_PROCESSOR",
+      "covers": [
+        "SmeEntranceMiddleInfoProcessor",
+        "SME_ENTRANCE_MIDDLE_INFO_PROCESSOR",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/middle/processor/SmeEntranceMiddleInfoProcessor.java",
+      "id_suggest": "scan-hp-SME_ENTRANCE_MIDDLE_INFO_PROCESSOR-SmeEntranceMiddleInfoProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "homepage_enum_dispatch",
+      "kind": "enum_dispatch",
+      "from": "HomepageProcessorFactory.getProcessors",
+      "to": "WithSmeEntranceMiddleInfoProcessor",
+      "via": "getProcessorType:WITH_SME_ENTRANCE_MIDDLE_INFO_PROCESSOR",
+      "covers": [
+        "WithSmeEntranceMiddleInfoProcessor",
+        "WITH_SME_ENTRANCE_MIDDLE_INFO_PROCESSOR",
+        "getProcessorType"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/middle/processor/WithSmeEntranceMiddleInfoProcessor.java",
+      "id_suggest": "scan-hp-WITH_SME_ENTRANCE_MIDDLE_INFO_PROCESSOR-WithSmeEntranceMiddleInfoProcessor",
+      "in_overlay": true
+    },
+    {
+      "pattern": "spring_get_instance",
+      "kind": "reflect_spring",
+      "from": "LoanCreditsByAppController",
+      "to": "SpringUtils.getInstance",
+      "via": "SystemOperationAuditTrailSupport.class",
+      "covers": [
+        "LoanCreditsByAppController"
+      ],
+      "file": "/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/slices/ec-cashloan-combined-slice/ec-admin/src/main/java/com/miyou/controllers/admin/loan/creditsbyapp/LoanCreditsByAppController.java",
+      "id_suggest": "scan-spring-LoanCreditsByAppController",
+      "in_overlay": false
+    }
+  ]
+}

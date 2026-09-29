@@ -38,6 +38,16 @@
 ## 会话收尾 / 保鲜 / 负例
 
 详见 Skill 同名三节。导入脚本：[`../bin/seed-l2-to-hub`](../bin/seed-l2-to-hub)。
+
+## EC 基线差分（commit → sync → 保鲜 → stitch）
+
+本机接新 commit：[`EC_BASELINE_LOOP.md`](./EC_BASELINE_LOOP.md)
+
+```bash
+./ec-workbench/bin/on-ec-baseline-change          # HEAD 有变才跑
+./ec-workbench/bin/install-ec-baseline-launchd   # 每天 10:30
+```
+
 ## 路径与正文
 
 - 路径 = 索引：`ec/coupon/open-app-grant.md`

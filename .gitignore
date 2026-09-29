@@ -143,3 +143,4 @@ MemoryCore/scripts/bench-l0-mongo/reports/
 MemoryProxy/.archive-tmp/
 z_config/
 ec-workbench/.claude-via-memory/
+ec-workbench/state/

@@ -9,7 +9,9 @@
 | `slices/` | EC 业务切片与合并切片（Java 源码子集，非全仓） |
 | `slices/ec-cashloan-combined-slice/` | 合并切片，对应图 `cg-zp42c34n` |
 | `slices/exp-ligation-slice/tools/capillary/` | Capillary Agent（体检+人闸） |
-| `docs/` | 能力看板 canvas、成果说明、[Chat Memory 旁路 Playbook](./docs/CHAT_MEMORY_EC_PLAYBOOK.md) |
+| `docs/` | 能力看板、Playbook、[EC 基线 Loop](./docs/EC_BASELINE_LOOP.md)、[Graph Stitch](./docs/GRAPH_STITCH.md) |
+| `bin/on-ec-baseline-change` | EC HEAD 差分 → 切片扩 → sync → 保鲜 → stitch（手动/launchd） |
+| `bin/sync-slice-from-ec` | 合并切片：refresh 已有 + 同目录邻域 expand |
 | `skills/chat-memory-ec/` | Chat Memory × EC 旁路 Skill（写 L2 / 召回 / Proxy） |
 | `artifacts/` | token 对照、capillary 报告、`memory-l2/` 样例 |
 

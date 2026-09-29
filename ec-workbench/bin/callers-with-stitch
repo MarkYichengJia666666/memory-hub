@@ -1,0 +1,51 @@
+#!/usr/bin/env python3
+"""图 callers ∪ stitch overlay。用法：
+  ./ec-workbench/bin/callers-with-stitch AppStartUpGrantCouponProcessor
+  ./ec-workbench/bin/callers-with-stitch NationalDay817HomeBannerFilterRuleProcessor --no-graph
+"""
+from __future__ import annotations
+
+import argparse
+import sys
+from pathlib import Path
+
+CAP = (
+    Path(__file__).resolve().parents[1]
+    / "slices"
+    / "exp-ligation-slice"
+    / "tools"
+    / "capillary"
+)
+sys.path.insert(0, str(CAP))
+
+from capillary.codegraph import CodeGraphClient  # noqa: E402
+from capillary.stitch import format_callers_block, load_overlay  # noqa: E402
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("symbol")
+    ap.add_argument("--graph", default="cg-zp42c34n")
+    ap.add_argument("--ks", default="http://127.0.0.1:8424/v3/code-graph")
+    ap.add_argument("--no-graph", action="store_true", help="只打印 overlay")
+    args = ap.parse_args()
+    ov = load_overlay()
+    print(f"overlay={ov.get('graph_id')} edges={len(ov.get('edges') or [])}")
+    print()
+    if not args.no_graph:
+        try:
+            client = CodeGraphClient(args.ks)
+            text = client.callers(args.graph, args.symbol, limit=12)
+            print("=== CodeGraph callers ===")
+            print(text or "(empty)")
+            print()
+        except Exception as e:
+            print(f"=== CodeGraph callers (skip: {e}) ===\n")
+    block = format_callers_block(args.symbol, ov)
+    print("=== Stitch overlay ===")
+    print(block or "(no stitch edge for this symbol)")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

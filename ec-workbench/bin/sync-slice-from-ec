@@ -1,0 +1,229 @@
+#!/usr/bin/env python3
+"""把 EC 现码同步进合并切片：刷新已有文件 + 按目录邻域扩拷新文件。
+
+不整仓拷贝。规则：
+1. refresh：切片里已有的 *.java，若 EC 有对应路径且内容不同 → 覆盖
+2. expand：--from..--to 区间内 A/M 的 *.java，若其父目录在切片里已有 ≥1 个文件 → 拷入
+3. missing：切片有、EC 无 → 只报告，不删
+
+报告：artifacts/slice-sync/slice-sync-<ts>.{md,json}
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import shutil
+import subprocess
+import sys
+from datetime import datetime
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_SLICE = ROOT / "slices" / "ec-cashloan-combined-slice"
+DEFAULT_EC = Path("/Users/lipeng/IdeaProjects/ec")
+OUT_DIR = ROOT / "artifacts" / "slice-sync"
+
+
+def git_diff_names(ec: Path, fro: str, to: str) -> list[tuple[str, str]]:
+    """Return [(status, relpath), ...] for java files. status: A/M/D/R…"""
+    if not fro or not to:
+        return []
+    r = subprocess.run(
+        ["git", "-C", str(ec), "diff", "--name-status", "--diff-filter=AMDR", f"{fro}..{to}", "--", "*.java"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if r.returncode != 0:
+        # fro 可能已不可达；降级只扫 to 相对空
+        print(f"WARN: git diff {fro}..{to} failed: {r.stderr.strip()[:200]}", file=sys.stderr)
+        return []
+    out: list[tuple[str, str]] = []
+    for line in r.stdout.splitlines():
+        if not line.strip():
+            continue
+        parts = line.split("\t")
+        st = parts[0][0]  # A/M/D/R
+        if st == "R" and len(parts) >= 3:
+            out.append((st, parts[2]))
+        elif len(parts) >= 2:
+            out.append((st, parts[1]))
+    return out
+
+
+def slice_java_index(slice_root: Path) -> dict[str, Path]:
+    idx: dict[str, Path] = {}
+    for p in slice_root.rglob("*.java"):
+        rel = str(p.relative_to(slice_root))
+        idx[rel] = p
+    return idx
+
+
+def parent_dirs_with_files(idx: dict[str, Path]) -> set[str]:
+    dirs: set[str] = set()
+    for rel in idx:
+        parent = str(Path(rel).parent)
+        if parent != ".":
+            dirs.add(parent)
+    return dirs
+
+
+def copy_file(src: Path, dst: Path) -> None:
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(src, dst)
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--ec", type=Path, default=DEFAULT_EC)
+    ap.add_argument("--slice", type=Path, default=DEFAULT_SLICE)
+    ap.add_argument("--from-sha", default="", help="基线 sha；空则不做 expand")
+    ap.add_argument("--to-sha", default="HEAD", help="目标 sha（默认 HEAD）")
+    ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--no-refresh", action="store_true", help="跳过已有文件刷新")
+    ap.add_argument("--no-expand", action="store_true", help="跳过邻域扩拷")
+    args = ap.parse_args()
+
+    ec: Path = args.ec
+    slice_root: Path = args.slice
+    if not ec.is_dir():
+        print(f"EC not found: {ec}", file=sys.stderr)
+        return 2
+    if not slice_root.is_dir():
+        print(f"slice not found: {slice_root}", file=sys.stderr)
+        return 2
+
+    to_sha = args.to_sha
+    if to_sha == "HEAD":
+        to_sha = subprocess.check_output(
+            ["git", "-C", str(ec), "rev-parse", "HEAD"], text=True
+        ).strip()
+
+    idx = slice_java_index(slice_root)
+    covered_dirs = parent_dirs_with_files(idx)
+
+    refreshed: list[str] = []
+    unchanged = 0
+    missing_in_ec: list[str] = []
+    expanded: list[str] = []
+    skipped_new: list[str] = []
+    deleted_in_range: list[str] = []
+
+    # 1) refresh
+    if not args.no_refresh:
+        for rel, dst in sorted(idx.items()):
+            src = ec / rel
+            if not src.is_file():
+                missing_in_ec.append(rel)
+                continue
+            same = False
+            try:
+                same = src.read_bytes() == dst.read_bytes()
+            except OSError:
+                same = False
+            if same:
+                unchanged += 1
+                continue
+            if not args.dry_run:
+                copy_file(src, dst)
+            refreshed.append(rel)
+
+    # 2) expand from commit range
+    if not args.no_expand and args.from_sha:
+        for st, rel in git_diff_names(ec, args.from_sha, to_sha):
+            if not rel.endswith(".java"):
+                continue
+            if st == "D":
+                if rel in idx:
+                    deleted_in_range.append(rel)
+                continue
+            if rel in idx and rel in refreshed:
+                continue  # already refreshed
+            if rel in idx:
+                # in slice but content same → still ok; if not refreshed, force copy when A/M
+                src = ec / rel
+                if src.is_file() and not args.no_refresh:
+                    if not args.dry_run:
+                        copy_file(src, dst := slice_root / rel)
+                    if rel not in refreshed:
+                        refreshed.append(rel)
+                continue
+            parent = str(Path(rel).parent)
+            if parent not in covered_dirs:
+                skipped_new.append(rel)
+                continue
+            src = ec / rel
+            if not src.is_file():
+                continue
+            if not args.dry_run:
+                copy_file(src, slice_root / rel)
+            expanded.append(rel)
+            # 扩拷后该目录仍 covered；同批后续兄弟也能进
+            covered_dirs.add(parent)
+            idx[rel] = slice_root / rel
+
+    day = datetime.now().strftime("%Y%m%d-%H%M%S")
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "ec": str(ec),
+        "slice": str(slice_root),
+        "from_sha": args.from_sha or None,
+        "to_sha": to_sha,
+        "dry_run": args.dry_run,
+        "refreshed": refreshed,
+        "expanded": expanded,
+        "unchanged": unchanged,
+        "missing_in_ec": missing_in_ec,
+        "skipped_new": skipped_new,
+        "deleted_in_range": deleted_in_range,
+        "slice_java_before": len(idx) - len(expanded),
+        "slice_java_after": len(slice_java_index(slice_root)) if not args.dry_run else len(idx),
+    }
+    js = OUT_DIR / f"slice-sync-{day}.json"
+    md = OUT_DIR / f"slice-sync-{day}.md"
+    js.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n")
+
+    mode = "DRY-RUN" if args.dry_run else "applied"
+    lines = [
+        f"# Slice sync · {day} ({mode})",
+        "",
+        f"- EC: `{ec}`",
+        f"- slice: `{slice_root}`",
+        f"- range: `{args.from_sha or '—'}` → `{to_sha[:12]}`",
+        "",
+        f"| 动作 | 数 |",
+        f"|---|---|",
+        f"| refreshed | {len(refreshed)} |",
+        f"| expanded（邻域新文件） | {len(expanded)} |",
+        f"| unchanged | {unchanged} |",
+        f"| missing_in_ec（切片有 EC 无） | {len(missing_in_ec)} |",
+        f"| skipped_new（新路径无邻域） | {len(skipped_new)} |",
+        f"| deleted_in_range（切片内被删） | {len(deleted_in_range)} |",
+        "",
+    ]
+    if expanded:
+        lines += ["## expanded", ""] + [f"- `{r}`" for r in expanded] + [""]
+    if refreshed and len(refreshed) <= 40:
+        lines += ["## refreshed", ""] + [f"- `{r}`" for r in refreshed] + [""]
+    elif refreshed:
+        lines += ["## refreshed（前 40）", ""] + [f"- `{r}`" for r in refreshed[:40]] + [f"- …共 {len(refreshed)}", ""]
+    if skipped_new:
+        lines += ["## skipped_new（需人手扩嘴）", ""] + [f"- `{r}`" for r in skipped_new[:50]] + [""]
+    if missing_in_ec:
+        lines += ["## missing_in_ec", ""] + [f"- `{r}`" for r in missing_in_ec[:30]] + [""]
+    if deleted_in_range:
+        lines += ["## deleted_in_range（未自动删切片）", ""] + [f"- `{r}`" for r in deleted_in_range] + [""]
+
+    md.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print(f"wrote {md}")
+    print(f"wrote {js}")
+    print(
+        f"refreshed={len(refreshed)} expanded={len(expanded)} "
+        f"unchanged={unchanged} skipped_new={len(skipped_new)} "
+        f"missing={len(missing_in_ec)} deleted={len(deleted_in_range)}"
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

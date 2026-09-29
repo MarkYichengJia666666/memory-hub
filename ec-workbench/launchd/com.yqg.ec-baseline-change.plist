@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  本机定时：每天 10:30 跑 EC 基线差分（有变化才 sync+保鲜）。
+  安装：./ec-workbench/bin/install-ec-baseline-launchd
+  卸载：./ec-workbench/bin/install-ec-baseline-launchd --uninstall
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.yqg.ec-baseline-change</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/bin/on-ec-baseline-change</string>
+  </array>
+  <key>WorkingDirectory</key>
+  <string>/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory</string>
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>10</integer>
+    <key>Minute</key>
+    <integer>30</integer>
+  </dict>
+  <key>StandardOutPath</key>
+  <string>/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/state/logs/launchd-stdout.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/lipeng/IdeaProjects/TencentDB-Agent-Memory/ec-workbench/state/logs/launchd-stderr.log</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+    <key>EC_REPO</key>
+    <string>/Users/lipeng/IdeaProjects/ec</string>
+  </dict>
+</dict>
+</plist>

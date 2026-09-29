@@ -1,0 +1,189 @@
+#!/usr/bin/env python3
+"""抽检 active L2 anchors 是否仍存在于当前 EC 现码。只出报告，不改 Hub。"""
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import subprocess
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]  # ec-workbench
+REPO = ROOT.parent
+SEED = ROOT / "artifacts" / "memory-l2" / "seed"
+DEFAULT_EC = Path("/Users/lipeng/IdeaProjects/ec")
+
+
+def git_head(ec: Path) -> str:
+    return subprocess.check_output(
+        ["git", "-C", str(ec), "rev-parse", "HEAD"], text=True
+    ).strip()
+
+
+def git_oneline(ec: Path) -> str:
+    return subprocess.check_output(
+        ["git", "-C", str(ec), "log", "-1", "--oneline"], text=True
+    ).strip()
+
+
+def load_active_seeds() -> list[tuple[Path, list[str], str]]:
+    out = []
+    for p in sorted(SEED.rglob("*.md")):
+        t = p.read_text(encoding="utf-8", errors="ignore")
+        if re.search(r"^## status\s*\nsuperseded", t, re.M):
+            continue
+        syms = re.findall(r"`([A-Z][A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)?)`", t)
+        syms = list(dict.fromkeys(syms))[:6]
+        if syms:
+            out.append((p, syms, t))
+    return out
+
+
+def pick(cands: list, limit: int) -> list:
+    if limit <= 0 or limit >= len(cands):
+        return cands
+    seen = set()
+    pick_list = []
+    for p, syms, t in cands:
+        biz = p.relative_to(SEED).parts[0]
+        if biz in seen and len(pick_list) >= max(6, limit // 2):
+            continue
+        seen.add(biz)
+        pick_list.append((p, syms, t))
+        if len(pick_list) >= limit:
+            return pick_list
+    for item in cands:
+        if item not in pick_list:
+            pick_list.append(item)
+        if len(pick_list) >= limit:
+            break
+    return pick_list
+
+
+def index_java(ec: Path) -> dict[str, list[Path]]:
+    by_name: dict[str, list[Path]] = {}
+    for f in ec.rglob("*.java"):
+        by_name.setdefault(f.stem, []).append(f)
+    return by_name
+
+
+def check_one(syms: list[str], by_name: dict[str, list[Path]], ec: Path) -> tuple[str, list]:
+    details = []
+    any_ok = False
+    for s in syms:
+        key = s.split(".")[0]
+        files = by_name.get(key, [])
+        method_ok = None
+        if "." in s and files:
+            method = s.split(".", 1)[1]
+            method_ok = False
+            for f in files[:30]:
+                try:
+                    if method in f.read_text(encoding="utf-8", errors="ignore"):
+                        method_ok = True
+                        break
+                except OSError:
+                    continue
+        ok = bool(files) and (method_ok is not False)
+        if ok:
+            any_ok = True
+        rel = str(files[0].relative_to(ec)) if files else ""
+        details.append({"symbol": s, "files": len(files), "method_ok": method_ok, "sample": rel})
+    return ("ok" if any_ok else "miss"), details
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--ec", type=Path, default=Path(
+        __import__("os").environ.get("EC_REPO", str(DEFAULT_EC))
+    ))
+    ap.add_argument("--limit", type=int, default=20, help="0 = all active with symbols")
+    ap.add_argument("--out", type=Path, default=None)
+    args = ap.parse_args()
+    ec: Path = args.ec
+    if not ec.is_dir():
+        print(f"EC repo not found: {ec}", file=sys.stderr)
+        return 2
+
+    head = git_head(ec)
+    oneline = git_oneline(ec)
+    cands = load_active_seeds()
+    chosen = pick(cands, args.limit)
+    print(f"EC={ec} HEAD={head[:12]} … indexing java …", flush=True)
+    by_name = index_java(ec)
+    print(f"java classes={len(by_name)} seeds_active_with_symbols={len(cands)} checking={len(chosen)}", flush=True)
+
+    rows = []
+    miss = 0
+    for p, syms, _t in chosen:
+        status, details = check_one(syms, by_name, ec)
+        if status == "miss":
+            miss += 1
+        rows.append(
+            {
+                "path": str(p.relative_to(SEED)),
+                "status": status,
+                "symbols": details,
+            }
+        )
+
+    day = datetime.now().strftime("%Y%m%d-%H%M%S")
+    out = args.out or (ROOT / "artifacts" / "memory-l2" / f"freshness-batch-{day}.md")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    json_out = out.with_suffix(".json")
+
+    lines = [
+        f"# Memory 保鲜抽检 · {day}",
+        "",
+        f"> EC：`{oneline}`",
+        f"> 仓：`{ec}`",
+        f"> 抽样：{len(chosen)} / active-with-symbols {len(cands)}；**只报告，不改 Hub**",
+        "",
+        f"**结果：ok={len(chosen) - miss} miss={miss}**",
+        "",
+        "| seed | 结果 |",
+        "|---|---|",
+    ]
+    for r in rows:
+        lines.append(f"| {r['path']} | {r['status']} |")
+    if miss:
+        lines += ["", "## miss 明细（建议人审后 superseded）", ""]
+        for r in rows:
+            if r["status"] != "miss":
+                continue
+            lines.append(f"### `{r['path']}`")
+            for d in r["symbols"]:
+                lines.append(
+                    f"- `{d['symbol']}` files={d['files']} method_ok={d['method_ok']} {d['sample']}"
+                )
+            lines.append("")
+    else:
+        lines += ["", "本批无 miss。", ""]
+
+    out.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    json_out.write_text(
+        json.dumps(
+            {
+                "ec_head": head,
+                "ec_oneline": oneline,
+                "checked": len(chosen),
+                "miss": miss,
+                "rows": rows,
+                "report": str(out),
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    print(f"report={out}")
+    print(f"json={json_out}")
+    print(f"miss={miss}")
+    return 0 if miss == 0 else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

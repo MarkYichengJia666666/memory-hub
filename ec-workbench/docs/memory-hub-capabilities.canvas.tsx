@@ -56,23 +56,24 @@ export default function MemoryHubCapabilities() {
           Agent**（不是 Hub 新产品件）。
         </Text>
         <Text size="small" tone="tertiary">
-          进度更新 Sep 24, 2026 · Hub :8125 / Core :8420 / Proxy :8096 ·
-          隔离：只改切片/Hub，EC 与 ~/.cursor 不动
+          进度更新 Sep 27, 2026 · Hub :8125 / Core :8420 / Proxy :8096 / KS
+          :8424 · 隔离：只改切片/Hub，EC 与 ~/.cursor 不动
         </Text>
       </Stack>
 
       <Grid columns={4} gap={12}>
         <Stat value="1" label="合并图 ready" tone="success" />
-        <Stat value="712" label="files · cg-zp42c34n" tone="success" />
+        <Stat value="3/3" label="负例 N1–N3" tone="success" />
         <Stat value="~55" label="L2 active（旁路）" tone="success" />
         <Stat value="4/4" label="Memory 有用性冒烟" tone="success" />
       </Grid>
 
       <Callout tone="info" title="怎么读这张表">
-        **§1–9**：Memory Hub 能力清单。主线曾在 CodeGraph；**§3 Chat Memory
-        旁路 P0 已收口**（存/核/用）。
-        **§1.x**：切片建图 → 合成一图 → 查询/sync 已验证。
-        **§10**：Capillary Agent（图 + 实验 MCP + 人闸；独立于 Memory 验收）。
+        **§1–9**：Memory Hub 能力清单。**§3 Chat Memory 旁路**已收口：存/核/用
+        + 半自动回写 + 负例 3/3。
+        **旁路 Loop**：新对话 → 人闸回写；新 commit（EC HEAD 基线差分）→
+        CodeGraph 切片扩 → sync → Memory 保鲜 → stitch B（`EC_BASELINE_LOOP.md`）。
+        **§10**：Capillary（独立，勿与 Memory 验收绑死）。
       </Callout>
 
       <H2>在线图（当前）</H2>
@@ -134,7 +135,13 @@ export default function MemoryHubCapabilities() {
             id: "1.6",
             what: "补源码后 sync",
             status: "done",
-            note: "切片扩文件后 sync；增量 syncIndex",
+            note: "切片扩文件后 sync；现由 on-ec-baseline-change 触发",
+          },
+          {
+            id: "1.6b",
+            what: "EC HEAD 变了自动/手跑 sync",
+            status: "done",
+            note: "基线差分；launchd 每天 10:30；只重建已挂切片",
           },
           {
             id: "1.7",
@@ -175,8 +182,8 @@ export default function MemoryHubCapabilities() {
           {
             id: "1.12",
             what: "枚举 / 反射 / 跨仓连线",
-            status: "skip",
-            note: "图穿不过；PLAYBOOK 标手工",
+            status: "partial",
+            note: "引擎仍穿不过；基线跑 B：merge-safe 写 overlay；动态写法人闸",
           },
         ])}
       />
@@ -282,10 +289,11 @@ export default function MemoryHubCapabilities() {
         ])}
       />
 
-      <H2>3. Chat Memory（旁路 P0 · 2026-09-24 收口）</H2>
+      <H2>3. Chat Memory（旁路 P0 · 2026-09-27 收口）</H2>
       <Text tone="secondary" size="small">
-        L0→L1→L2→L3；路径约定 ec/&lt;biz&gt;/&lt;slug&gt;.md。不改 EC
-        主仓。详见 Playbook / Skill / usefulness-batch-20260924。
+        L0→L1→L2→L3；路径 ec/&lt;biz&gt;/&lt;slug&gt;.md。不改 EC
+        主仓。Playbook / Skill / negative-batch-20260927 /
+        EC_BASELINE_LOOP。
       </Text>
       <Table
         headers={["编号", "能力", "进度", "你们备注"]}
@@ -294,7 +302,7 @@ export default function MemoryHubCapabilities() {
             id: "3.1",
             what: "记下偏好、决策、坑",
             status: "done",
-            note: "L2 seed≈55 active + Hub 写入；现码核过 durable",
+            note: "L2 seed≈55 active + Hub；现码核过 durable",
           },
           {
             id: "3.2",
@@ -312,13 +320,31 @@ export default function MemoryHubCapabilities() {
             id: "3.4",
             what: "私有或分享给团队",
             status: "partial",
-            note: "seed 已推 memory-hub；同事按 COLLEAGUE_TRAIN 贡献",
+            note: "seed 已推 memory-hub；同事贡献仍待 1 条真跑",
           },
           {
             id: "3.5",
             what: "经 Proxy 自动写入、下一轮自动带上",
             status: "partial",
-            note: "注入已验；半自动回写 seed-l2-to-hub+人闸已通；全自动写入未做",
+            note: "注入+半自动回写人闸已通；全自动写入不做",
+          },
+          {
+            id: "3.7",
+            what: "用后半自动回写（人闸）",
+            status: "done",
+            note: "seed-l2-to-hub；样例 ec/ops/session-closeout-writeback",
+          },
+          {
+            id: "3.8",
+            what: "保鲜抽检（对 EC 现码）",
+            status: "done",
+            note: "bin/freshness-check；只报告不改 Hub",
+          },
+          {
+            id: "3.9",
+            what: "负例：无命中/superseded/不串台",
+            status: "done",
+            note: "N1–N3 Proxy 工具环 3/3",
           },
           {
             id: "3.6",
@@ -329,6 +355,58 @@ export default function MemoryHubCapabilities() {
         ])}
       />
 
+      <H2>L. 旁路 Loop（commit × 对话）</H2>
+      <Text tone="secondary" size="small">
+        不是 Hub 新产品件，是本机把 §1 sync 与 §3
+        保鲜/回写接成可重复入口。细节：docs/EC_BASELINE_LOOP.md。
+      </Text>
+      <Table
+        headers={["编号", "能力", "进度", "你们备注"]}
+        rows={rows([
+          {
+            id: "L.1",
+            what: "新对话 → 起草 seed → 人闸 → 入库",
+            status: "done",
+            note: "Skill 收尾清单 + seed-l2-to-hub",
+          },
+          {
+            id: "L.2",
+            what: "EC HEAD 基线差分（有变才跑）",
+            status: "done",
+            note: "state/last-ec-baseline；无变化直接退出",
+          },
+          {
+            id: "L.3",
+            what: "差分后：切片扩 → sync → 保鲜 → stitch B",
+            status: "done",
+            note: "sync-slice-from-ec 邻域扩拷；merge-safe 写 overlay",
+          },
+          {
+            id: "L.4",
+            what: "手动入口",
+            status: "done",
+            note: "bin/on-ec-baseline-change [--force]",
+          },
+          {
+            id: "L.5",
+            what: "定时入口（本机）",
+            status: "done",
+            note: "launchd 每天 10:30；可 uninstall",
+          },
+          {
+            id: "L.6",
+            what: "miss 自动改 Hub superseded",
+            status: "skip",
+            note: "刻意人闸；报告后人改 seed 再导入",
+          },
+          {
+            id: "L.7",
+            what: "全量 EC 新文件自动进合并切片",
+            status: "done",
+            note: "邻域扩拷（同目录已有则进）；无邻域 skipped_new 人拷",
+          },
+        ])}
+      />
       <H2>4. Skill</H2>
       <Table
         headers={["编号", "能力", "进度", "你们备注"]}
@@ -525,17 +603,19 @@ export default function MemoryHubCapabilities() {
       <H3>下一步</H3>
       <Row gap={8}>
         <Pill tone="success" active>
-          半自动回写 + 保鲜抽检
+          负例 N1–N3 过线
+        </Pill>
+        <Pill tone="success" active>
+          EC 基线 Loop（切片扩+sync+保鲜+stitch）
         </Pill>
         <Pill tone="warning" active>
-          负例 N1–N3 空目录再跑
+          同事贡献 1 条 seed
         </Pill>
-        <Pill tone="neutral">同事按 COLLEAGUE_TRAIN 贡献 seed</Pill>
         <Pill tone="neutral">Capillary bury（独立 Loop）</Pill>
       </Row>
       <Text size="small" tone="tertiary">
-        结构：§1–9 = Hub 能力大表 → §3/4/5/6/7 含 Memory
-        旁路进度 → §10 = Capillary 实现层 Agent（勿与 Memory 验收绑死）。
+        结构：§1–9 Hub 能力 → §3 Memory 旁路 → **§L 旁路 Loop（commit×对话）**
+        → §10 Capillary（独立）。渲染副本在 Cursor canvases/。
       </Text>
     </Stack>
   );

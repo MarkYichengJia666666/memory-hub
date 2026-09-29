@@ -52,5 +52,5 @@ python3 propose_diff.py --report reports/最新.md --vessel-id <id> --apply   # 
 - `live` — 还在跑 / 实验组有流量（非全量）→ 不管
 - `candidate_solidify` — **已全量**：去门闸、留赢家行为的修订候选
 - `candidate_bury` — 关量/结束，且能说清连着哪 → 可进删除候选
-- `manual_only` — 图穿不过（枚举/反射）或配置保护 → 不自动改
+- `manual_only` — 图穿不过（枚举/反射）或配置保护 → 不自动改；**stitch overlay 声明活边时 callers 空也不进 bury**
 - `unknown` — 查不到实验 → 标未知

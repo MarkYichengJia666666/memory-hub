@@ -1,0 +1,207 @@
+#!/usr/bin/env bash
+# EC HEAD 基线差分 →（可选）CodeGraph sync → Memory 保鲜抽检 → 更新基线。
+# 用法：
+#   ./bin/on-ec-baseline-change           # HEAD 相对基线有变才跑
+#   ./bin/on-ec-baseline-change --force   # 强制跑
+#   SKIP_SYNC=1 ./bin/on-ec-baseline-change
+#   SKIP_SLICE=1 ./bin/on-ec-baseline-change        # 不扩拷切片
+#   SKIP_STITCH=1 ./bin/on-ec-baseline-change
+#   STITCH_NO_MERGE=1 ./bin/on-ec-baseline-change   # 只出候选、不写 overlay
+#   EC_REPO=/path/to/ec ./bin/on-ec-baseline-change
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+REPO="$(cd "$ROOT/.." && pwd)"
+STATE_DIR="$ROOT/state"
+BASELINE_FILE="$STATE_DIR/last-ec-baseline"
+LOG_DIR="$STATE_DIR/logs"
+EC_REPO="${EC_REPO:-/Users/lipeng/IdeaProjects/ec}"
+SLICE="${SLICE:-$ROOT/slices/ec-cashloan-combined-slice}"
+CG_ID="${CG_ID:-cg-zp42c34n}"
+KS="${KS:-http://127.0.0.1:8424}"
+SERVICE_ID="${SERVICE_ID:-default}"
+SKIP_SYNC="${SKIP_SYNC:-0}"
+SKIP_SLICE="${SKIP_SLICE:-0}"
+FORCE=0
+LIMIT="${FRESHNESS_LIMIT:-20}"
+
+for a in "$@"; do
+  case "$a" in
+    --force|-f) FORCE=1 ;;
+    --skip-sync) SKIP_SYNC=1 ;;
+    --skip-slice) SKIP_SLICE=1 ;;
+    --help|-h)
+      sed -n '2,12p' "$0"
+      exit 0
+      ;;
+  esac
+done
+
+mkdir -p "$STATE_DIR" "$LOG_DIR"
+ts="$(date +%Y%m%d-%H%M%S)"
+log="$LOG_DIR/baseline-$ts.log"
+exec > >(tee -a "$log") 2>&1
+
+echo "=== on-ec-baseline-change $ts ==="
+echo "EC_REPO=$EC_REPO SLICE=$SLICE CG_ID=$CG_ID FORCE=$FORCE SKIP_SLICE=$SKIP_SLICE SKIP_SYNC=$SKIP_SYNC SKIP_STITCH=${SKIP_STITCH:-0}"
+
+if [[ ! -d "$EC_REPO/.git" ]]; then
+  echo "ERROR: EC repo not found: $EC_REPO" >&2
+  exit 2
+fi
+
+HEAD="$(git -C "$EC_REPO" rev-parse HEAD)"
+SHORT="$(git -C "$EC_REPO" rev-parse --short HEAD)"
+ONELINE="$(git -C "$EC_REPO" log -1 --oneline)"
+echo "current HEAD=$SHORT ($ONELINE)"
+
+PREV=""
+if [[ -f "$BASELINE_FILE" ]]; then
+  PREV="$(python3 -c "import json;print(json.load(open('$BASELINE_FILE')).get('sha',''))" 2>/dev/null || true)"
+fi
+echo "baseline sha=${PREV:-<none>}"
+
+if [[ "$FORCE" != "1" && -n "$PREV" && "$PREV" == "$HEAD" ]]; then
+  echo "No EC HEAD change; exit. (use --force to run anyway)"
+  exit 0
+fi
+
+# --- Slice：刷新已有 + 邻域扩拷新 Java（在 CodeGraph sync 之前） ---
+slice_rc=0
+if [[ "$SKIP_SLICE" != "1" ]]; then
+  slice_args=(--ec "$EC_REPO" --slice "$SLICE" --to-sha "$HEAD")
+  if [[ -n "$PREV" && "$PREV" != "$HEAD" ]]; then
+    slice_args+=(--from-sha "$PREV")
+  else
+    slice_args+=(--no-expand)
+  fi
+  echo "→ sync-slice-from-ec ${slice_args[*]}"
+  set +e
+  "$ROOT/bin/sync-slice-from-ec" "${slice_args[@]}"
+  slice_rc=$?
+  set -e
+  echo "slice_exit=$slice_rc"
+else
+  echo "SKIP_SLICE=1"
+fi
+
+# --- CodeGraph sync (best-effort; reindexes Hub-tracked slice after local expand) ---
+sync_status="skipped"
+if [[ "$SKIP_SYNC" != "1" ]]; then
+  if curl -sf -o /dev/null "$KS/health" 2>/dev/null || curl -sf -o /dev/null "$KS/" 2>/dev/null; then
+    echo "→ CodeGraph sync $CG_ID via $KS"
+    sync_resp="$(python3 - "$KS" "$CG_ID" "$SERVICE_ID" <<'PY'
+import json, sys, urllib.request, urllib.error
+ks, cg, sid = sys.argv[1], sys.argv[2], sys.argv[3]
+body = json.dumps({"code_graph_id": cg}).encode()
+req = urllib.request.Request(
+    f"{ks.rstrip('/')}/v3/code-graph/sync",
+    data=body,
+    headers={
+        "Content-Type": "application/json",
+        "x-tdai-service-id": sid,
+        "Authorization": "Bearer local",
+    },
+    method="POST",
+)
+try:
+    with urllib.request.urlopen(req, timeout=60) as resp:
+        print(resp.status, resp.read().decode()[:500])
+except urllib.error.HTTPError as e:
+    print(e.code, e.read().decode()[:500])
+    sys.exit(0)
+PY
+)" || true
+    echo "sync_http: $sync_resp"
+    if echo "$sync_resp" | grep -qE '^202|^200'; then
+      sync_status="accepted"
+      # poll status briefly
+      for i in 1 2 3 4 5 6; do
+        st="$(python3 - "$KS" "$CG_ID" "$SERVICE_ID" <<'PY'
+import json, sys, urllib.request
+ks, cg, sid = sys.argv[1], sys.argv[2], sys.argv[3]
+body = json.dumps({"code_graph_id": cg}).encode()
+req = urllib.request.Request(
+    f"{ks.rstrip('/')}/v3/code-graph/status",
+    data=body,
+    headers={"Content-Type": "application/json", "x-tdai-service-id": sid, "Authorization": "Bearer local"},
+    method="POST",
+)
+with urllib.request.urlopen(req, timeout=30) as resp:
+    data = json.load(resp)
+text = ((data.get("data") or {}).get("text") or "")
+print("ready" if "Files indexed" in text or "ready" in text.lower() else "wait")
+print(text[:120].replace("\n", " "))
+PY
+)"
+        echo "status_poll: $st"
+        echo "$st" | head -1 | grep -q ready && break
+        sleep 5
+      done
+    elif echo "$sync_resp" | grep -q '^409'; then
+      sync_status="busy"
+    else
+      sync_status="failed"
+    fi
+  else
+    echo "WARN: KS $KS not reachable; skip sync"
+    sync_status="ks_down"
+  fi
+else
+  echo "SKIP_SYNC=1"
+fi
+
+# --- Memory freshness (against full EC tree) ---
+echo "→ freshness-check --limit $LIMIT"
+set +e
+"$ROOT/bin/freshness-check" --ec "$EC_REPO" --limit "$LIMIT"
+fresh_rc=$?
+set -e
+echo "freshness_exit=$fresh_rc"
+
+# --- Stitch B：扫反射/枚举固定写法（安全模式自动并 overlay） ---
+SKIP_STITCH="${SKIP_STITCH:-0}"
+STITCH_ROOT="${STITCH_ROOT:-$EC_REPO}"
+STITCH_NO_MERGE="${STITCH_NO_MERGE:-0}"
+stitch_rc=0
+if [[ "$SKIP_STITCH" != "1" ]]; then
+  stitch_args=(--root "$STITCH_ROOT")
+  if [[ "$STITCH_NO_MERGE" != "1" ]]; then
+    stitch_args+=(--merge-safe)
+  fi
+  echo "→ extract-stitch-candidates ${stitch_args[*]}"
+  set +e
+  "$ROOT/bin/extract-stitch-candidates" "${stitch_args[@]}"
+  stitch_rc=$?
+  set -e
+  echo "stitch_exit=$stitch_rc"
+else
+  echo "SKIP_STITCH=1"
+fi
+
+# --- update baseline after we inspected this HEAD ---
+python3 - "$BASELINE_FILE" "$HEAD" "$SHORT" "$ONELINE" "$EC_REPO" "$sync_status" "$fresh_rc" "$stitch_rc" "$slice_rc" "$log" <<'PY'
+import json, sys
+from datetime import datetime, timezone
+path, sha, short, oneline, ec, sync_status, fresh_rc, stitch_rc, slice_rc, log = sys.argv[1:11]
+doc = {
+    "sha": sha,
+    "short": short,
+    "oneline": oneline,
+    "ec_repo": ec,
+    "checked_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+    "sync_status": sync_status,
+    "slice_exit": int(slice_rc),
+    "freshness_exit": int(fresh_rc),
+    "stitch_exit": int(stitch_rc),
+    "log": log,
+}
+open(path, "w").write(json.dumps(doc, ensure_ascii=False, indent=2) + "\n")
+print("baseline written", path)
+PY
+
+echo "=== done (slice_rc=$slice_rc sync=$sync_status freshness_rc=$fresh_rc stitch_rc=$stitch_rc log=$log) ==="
+echo "NOTE: 切片先 refresh+邻域 expand，再 CodeGraph sync；无邻域的新路径见 artifacts/slice-sync skipped_new。"
+echo "NOTE: miss 只出报告，请人审后改 seed status=superseded 再 seed-l2-to-hub。"
+echo "NOTE: stitch --merge-safe 只并入固定写法；Class.forName / 动态 getInstance 仍在 candidates 人审。"
+exit 0

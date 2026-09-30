@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# seed 树相对上次导入基线有变 → 自动写 Hub + 旁路回执。
+# 用法：
+#   ./bin/on-seed-change           # 有变才导入
+#   ./bin/on-seed-change --force   # 强制扫 changed（同 --changed）
+#   DRY_RUN=1 ./bin/on-seed-change
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+STATE="$ROOT/state/last-seed-import"
+LOG_DIR="$ROOT/state/logs"
+FORCE=0
+
+for a in "$@"; do
+  case "$a" in
+    --force|-f) FORCE=1 ;;
+    --help|-h) sed -n '2,8p' "$0"; exit 0 ;;
+  esac
+done
+
+mkdir -p "$LOG_DIR" "$ROOT/state"
+ts="$(date +%Y%m%d-%H%M%S)"
+log="$LOG_DIR/seed-import-$ts.log"
+exec > >(tee -a "$log") 2>&1
+
+echo "=== on-seed-change $ts FORCE=$FORCE ==="
+
+if [[ ! -f "$ROOT/.p0-memory-identity.json" ]]; then
+  echo "ERROR: missing $ROOT/.p0-memory-identity.json" >&2
+  exit 2
+fi
+
+# 无基线时先建空状态，再 --changed 会导入全部有 decision 的 seed
+if [[ ! -f "$STATE" ]]; then
+  echo "no last-seed-import; initializing then importing all eligible"
+  "$ROOT/bin/seed-l2-auto-import" --all-active
+  echo "log=$log"
+  exit 0
+fi
+
+echo "→ seed-l2-auto-import --changed"
+set +e
+"$ROOT/bin/seed-l2-auto-import" --changed
+rc=$?
+set -e
+echo "seed_import_exit=$rc"
+echo "旁路回执: $ROOT/artifacts/memory-l2/receipts/latest.md"
+echo "=== done log=$log ==="
+exit "$rc"

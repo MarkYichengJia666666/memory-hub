@@ -1,0 +1,64 @@
+{
+  "batch": "PR#1 9db468b",
+  "count": 34,
+  "write_ok": 34,
+  "fail": 0,
+  "import_status": 200,
+  "note": "seed-l2-to-hub docker drop + scenario/write + L0 import; all 34 responses write_ok=true import=200",
+  "paths": [
+    "ec/auth/exception-advice-registration-oracle.md",
+    "ec/coupon/deduct-limit-terms-must-fit-product-terms.md",
+    "ec/coupon/enrollment-not-equals-grant.md",
+    "ec/coupon/erank-openapp-grant-bypass-global-cache.md",
+    "ec/coupon/historical-avg-activation-single-product.md",
+    "ec/coupon/holdout-readonly-vs-passes-write.md",
+    "ec/coupon/openapp-grant-swimlane-kafka-shared-group.md",
+    "ec/coupon/resolve-next-coupon-higher-threshold-and-weak-pick.md",
+    "ec/coupon/retain-grant-idempotent-lock-not-db-unique.md",
+    "ec/coupon/second-order-must-keep-passes-holdout.md",
+    "ec/homepage/auto-jump-exemption-repay-precheck-not-list.md",
+    "ec/homepage/ktp-marketing-popup-l1-resolve-once.md",
+    "ec/homepage/reborrow-date-plus-one-display-only.md",
+    "ec/homepage/zero360-login-banner-via-login-banner-service.md",
+    "ec/living/living-diversion-shadow-keep-low-build-facepp.md",
+    "ec/living/privy-liveness-trust-client-loan-auth-only.md",
+    "ec/living/privy-request-hide-images-in-log.md",
+    "ec/living/privy-upload-images-are-qiniu-keys.md",
+    "ec/living/supplement-liveness-not-write-auth-master.md",
+    "ec/marketing/acquisition-mock-whitelist-per-benefit-tag.md",
+    "ec/marketing/appresource-strategy-empty-payload-full-check.md",
+    "ec/marketing/material-tag-post-auth-band-before-unattrib-ab.md",
+    "ec/marketing/qian1-postauth-must-not-exclude-wany-by-rate-only.md",
+    "ec/marketing/unattrib-wany-exp-key-from-sitevars.md",
+    "ec/marketing/wany-acquisition-appresource-filter-chain.md",
+    "ec/marketing/zero360-filter-scene-auth-mutex.md",
+    "ec/marketing/zero360-lottery-claim-api-means-granted.md",
+    "ec/marketing/zero360-lottery-interest-free-days-from-order-discounts.md",
+    "ec/marketing/zero360-rate-gate-green-card-not-loaninfo.md",
+    "ec/order/first-loan-borrow-more-delta-asc-coupon.md",
+    "ec/order/h5-api-protocol-preview-use-channel-config.md",
+    "ec/order/order-back-boost-coupon-scope.md",
+    "ec/order/post-confirm-borrow-more-cap-truncate.md",
+    "ec/order/zero360-coupon-area-via-green-card-corner-mark.md"
+  ],
+  "spot_read": [
+    {
+      "path": "ec/coupon/enrollment-not-equals-grant.md",
+      "ok": true,
+      "len": 977,
+      "title": "-----META-START-----"
+    },
+    {
+      "path": "ec/marketing/unattrib-wany-exp-key-from-sitevars.md",
+      "ok": true,
+      "len": 1161,
+      "title": "-----META-START-----"
+    },
+    {
+      "path": "ec/living/privy-liveness-trust-client-loan-auth-only.md",
+      "ok": true,
+      "len": 959,
+      "title": "-----META-START-----"
+    }
+  ]
+}

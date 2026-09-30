@@ -37,7 +37,7 @@
 
 ## 会话收尾 / 保鲜 / 负例
 
-详见 Skill 同名三节。导入脚本：[`../bin/seed-l2-to-hub`](../bin/seed-l2-to-hub)。
+详见 Skill 同名三节。自动导入：[`../bin/seed-l2-auto-import`](../bin/seed-l2-auto-import)（回执 `artifacts/memory-l2/receipts/latest.md`）。旧单条入口：[`../bin/seed-l2-to-hub`](../bin/seed-l2-to-hub)。
 
 ## EC 基线差分（commit → sync → 保鲜 → stitch）
 
@@ -46,6 +46,15 @@
 ```bash
 ./ec-workbench/bin/on-ec-baseline-change          # HEAD 有变才跑
 ./ec-workbench/bin/install-ec-baseline-launchd   # 每天 10:30
+```
+
+## seed → Hub（自动写 · 旁路回执）
+
+```bash
+./ec-workbench/bin/seed-l2-auto-import path/to/seed.md
+./ec-workbench/bin/on-seed-change                 # 相对上次有变才导入
+./ec-workbench/bin/install-seed-auto-import-launchd  # 每天 10:40
+# 回执：artifacts/memory-l2/receipts/latest.md
 ```
 
 ## 路径与正文

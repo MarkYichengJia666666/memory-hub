@@ -1,0 +1,361 @@
+#!/usr/bin/env python3
+"""自动把合格 seed 写入 Hub L2，并写旁路回执（给用户看「我记下了什么」）。
+
+默认：写 Hub + 出回执，不再等人点确认。
+纠错仍靠改 seed / superseded 后再跑一遍。
+
+用法：
+  ./bin/seed-l2-auto-import path/to/seed.md [more.md...]
+  ./bin/seed-l2-auto-import --all-active
+  ./bin/seed-l2-auto-import --from-git 9db468b^..9db468b
+  ./bin/seed-l2-auto-import --changed   # 相对 state/last-seed-import
+  DRY_RUN=1 ./bin/seed-l2-auto-import --changed
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+import re
+import subprocess
+import sys
+import time
+import urllib.error
+import urllib.request
+from datetime import datetime, timezone
+from pathlib import Path
+from urllib.parse import quote
+
+ROOT = Path(__file__).resolve().parents[1]
+REPO = ROOT.parent
+IDENT = ROOT / ".p0-memory-identity.json"
+SEED_ROOT = ROOT / "artifacts" / "memory-l2" / "seed"
+RECEIPT_DIR = ROOT / "artifacts" / "memory-l2" / "receipts"
+STATE_FILE = ROOT / "state" / "last-seed-import"
+CONTAINER = "tdai-memory-core"
+CORE = os.environ.get("CORE_URL", "http://127.0.0.1:8420")
+HUB = os.environ.get("HUB_URL", "http://127.0.0.1:8125")
+
+
+def load_ident() -> dict:
+    if not IDENT.is_file():
+        raise SystemExit(f"missing identity: {IDENT}")
+    return json.loads(IDENT.read_text())
+
+
+def hub_path_for(seed: Path) -> str:
+    env = os.environ.get("HUB_PATH")
+    if env:
+        return env
+    parts = seed.parts
+    if "seed" in parts:
+        i = parts.index("seed")
+        return "ec/" + Path(*parts[i + 1 :]).as_posix()
+    return f"ec/{seed.name}"
+
+
+def parse_seed(text: str) -> dict:
+    title = ""
+    m = re.search(r"^#\s+(.+)$", text, re.M)
+    if m:
+        title = m.group(1).strip()[:120]
+    decision = ""
+    dm = re.search(r"##\s*decision\s*\n(.*?)(?=\n##\s|\Z)", text, re.S | re.I)
+    if dm:
+        decision = " ".join(dm.group(1).strip().split())[:200]
+    status = "active"
+    sm = re.search(r"##\s*status\s*\n\s*(\w+)", text, re.I)
+    if sm:
+        status = sm.group(1).strip().lower()
+    return {"title": title, "decision": decision, "status": status}
+
+
+def eligible(seed: Path, text: str, allow_superseded: bool) -> tuple[bool, str]:
+    if seed.name == "README.md":
+        return False, "readme"
+    meta = parse_seed(text)
+    if not meta["decision"]:
+        return False, "no_decision"
+    if meta["status"] == "superseded" and not allow_superseded:
+        return False, "superseded"
+    if meta["status"] not in ("active", "superseded", "draft"):
+        return False, f"bad_status:{meta['status']}"
+    if meta["status"] == "draft":
+        return False, "draft"
+    return True, "ok"
+
+
+def file_sha(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def load_state() -> dict:
+    if STATE_FILE.is_file():
+        try:
+            return json.loads(STATE_FILE.read_text())
+        except json.JSONDecodeError:
+            return {}
+    return {}
+
+
+def save_state(files: dict[str, str], last_receipt: str) -> None:
+    STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
+    doc = {
+        "updated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "files": files,
+        "last_receipt": last_receipt,
+    }
+    STATE_FILE.write_text(json.dumps(doc, ensure_ascii=False, indent=2) + "\n")
+
+
+def collect_all_active() -> list[Path]:
+    return sorted(p for p in SEED_ROOT.rglob("*.md") if p.name != "README.md")
+
+
+def collect_from_git(rev_range: str) -> list[Path]:
+    r = subprocess.run(
+        ["git", "-C", str(REPO), "diff", "--name-only", "--diff-filter=AM", rev_range, "--", "ec-workbench/artifacts/memory-l2/seed"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    out: list[Path] = []
+    for line in r.stdout.splitlines():
+        p = REPO / line.strip()
+        if p.is_file() and p.suffix == ".md":
+            out.append(p)
+    return out
+
+
+def collect_changed(state: dict) -> list[Path]:
+    old = state.get("files") or {}
+    changed: list[Path] = []
+    for p in collect_all_active():
+        rel = str(p.relative_to(ROOT))
+        sha = file_sha(p)
+        if old.get(rel) != sha:
+            changed.append(p)
+    return changed
+
+
+def import_one(seed: Path, ident: dict, dry_run: bool) -> dict:
+    text = seed.read_text(encoding="utf-8", errors="ignore")
+    ok, reason = eligible(seed, text, allow_superseded=True)
+    meta = parse_seed(text)
+    hub_path = hub_path_for(seed)
+    base = {
+        "file": str(seed.relative_to(ROOT)) if ROOT in seed.parents else str(seed),
+        "hub_path": hub_path,
+        "title": meta["title"] or hub_path,
+        "decision": meta["decision"],
+        "status": meta["status"],
+    }
+    if not ok and reason != "superseded":
+        return {**base, "skipped": True, "reason": reason}
+    # superseded: still write so Hub reflects tombstone
+    if dry_run:
+        return {**base, "dry_run": True, "write_ok": True, "reason": reason}
+
+    team, agent, user = ident["team_id"], ident["agent_id"], ident["user_id"]
+    key = ident["user_key"]
+    service = ident.get("service_id", "default")
+    scope = f"team:{team}|agent:{agent}"
+    scope_enc = quote(scope, safe="")
+    dest_dir = f"/data/tdai-memory/profiles/{scope_enc}/scene_blocks/{Path(hub_path).parent.as_posix()}"
+    dest = f"/data/tdai-memory/profiles/{scope_enc}/scene_blocks/{hub_path}"
+
+    try:
+        subprocess.run(["docker", "exec", CONTAINER, "mkdir", "-p", dest_dir], check=True, capture_output=True)
+        subprocess.run(
+            ["docker", "exec", "-i", CONTAINER, "tee", dest],
+            input=text.encode(),
+            check=True,
+            capture_output=True,
+        )
+    except (subprocess.CalledProcessError, FileNotFoundError) as e:
+        return {**base, "write_ok": False, "error": f"docker:{e}"}
+
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer local",
+        "x-tdai-service-id": service,
+        "x-tdai-user-key": key,
+    }
+    iso = {"team_id": team, "agent_id": agent, "user_id": user}
+
+    def post(url: str, payload: dict) -> dict:
+        req = urllib.request.Request(
+            url, data=json.dumps(payload).encode(), headers=headers, method="POST"
+        )
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            return json.load(resp)
+
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
+    try:
+        write = post(
+            f"{CORE.rstrip('/')}/v3/scenario/write",
+            {**iso, "path": hub_path, "content": text, "summary": meta["title"] or hub_path, "updated_at": now},
+        )
+        read = post(f"{CORE.rstrip('/')}/v3/scenario/read", {**iso, "path": hub_path})
+    except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, json.JSONDecodeError) as e:
+        return {**base, "write_ok": False, "error": f"core:{e}"}
+
+    import_status: object = None
+    try:
+        l0 = {
+            "team_id": team,
+            "agent_id": agent,
+            "session_id": f"seed-auto-{Path(hub_path).stem}-{int(time.time())}",
+            "messages": [
+                {"role": "user", "content": f"请记住判决：{meta['title'] or hub_path}"},
+                {"role": "assistant", "content": text[:2000]},
+            ],
+        }
+        req = urllib.request.Request(
+            f"{HUB.rstrip('/')}/api/v1/chat-memory/import",
+            data=json.dumps(l0).encode(),
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {key}",
+                "x-tdai-user-key": key,
+                "x-tdai-service-id": service,
+            },
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            import_status = resp.status
+    except Exception as e:  # noqa: BLE001 — 回执里记错误即可
+        import_status = f"err:{e}"
+
+    content = (read or {}).get("content") or (read or {}).get("data")
+    return {
+        **base,
+        "write_ok": bool(write),
+        "read_has_content": bool(content),
+        "import_status": import_status,
+        "reason": reason,
+    }
+
+
+def write_receipt(results: list[dict], mode: str) -> Path:
+    RECEIPT_DIR.mkdir(parents=True, exist_ok=True)
+    day = datetime.now().strftime("%Y%m%d-%H%M%S")
+    written = [r for r in results if r.get("write_ok") and not r.get("skipped")]
+    skipped = [r for r in results if r.get("skipped")]
+    failed = [r for r in results if not r.get("skipped") and not r.get("write_ok")]
+
+    md = RECEIPT_DIR / f"receipt-{day}.md"
+    latest = RECEIPT_DIR / "latest.md"
+    lines = [
+        f"# Memory 回执 · {day}",
+        "",
+        f"模式：`{mode}` · 自动写入 Hub，旁路给你看「记下了什么」。纠错：改 seed / `superseded` 后再跑。",
+        "",
+        f"| 写入 | 跳过 | 失败 |",
+        f"|---|---|---|",
+        f"| {len(written)} | {len(skipped)} | {len(failed)} |",
+        "",
+    ]
+    if written:
+        lines += ["## 已记下", ""]
+        for r in written:
+            dec = r.get("decision") or ""
+            lines.append(f"- **`{r['hub_path']}`** — {r.get('title','')}")
+            if dec:
+                lines.append(f"  - {dec}")
+        lines.append("")
+    if skipped:
+        lines += ["## 跳过", ""]
+        for r in skipped:
+            lines.append(f"- `{r['hub_path']}` ({r.get('reason')})")
+        lines.append("")
+    if failed:
+        lines += ["## 失败", ""]
+        for r in failed:
+            lines.append(f"- `{r['hub_path']}` — {r.get('error') or r}")
+        lines.append("")
+
+    text = "\n".join(lines) + "\n"
+    md.write_text(text, encoding="utf-8")
+    latest.write_text(text, encoding="utf-8")
+    (RECEIPT_DIR / f"receipt-{day}.json").write_text(
+        json.dumps({"mode": mode, "results": results}, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    return md
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("seeds", nargs="*", type=Path, help="显式 seed 路径")
+    ap.add_argument("--all-active", action="store_true", help="扫全部 seed（跳过 draft/无 decision）")
+    ap.add_argument("--changed", action="store_true", help="相对 last-seed-import 有变的文件")
+    ap.add_argument("--from-git", default="", help="git rev range，如 HEAD1..HEAD")
+    ap.add_argument("--dry-run", action="store_true")
+    args = ap.parse_args()
+    dry = args.dry_run or os.environ.get("DRY_RUN") == "1"
+
+    paths: list[Path] = []
+    mode = "explicit"
+    if args.seeds:
+        paths = [p if p.is_absolute() else (Path.cwd() / p).resolve() for p in args.seeds]
+        mode = "explicit"
+    elif args.from_git:
+        paths = collect_from_git(args.from_git)
+        mode = f"from-git:{args.from_git}"
+    elif args.changed:
+        paths = collect_changed(load_state())
+        mode = "changed"
+    elif args.all_active:
+        paths = collect_all_active()
+        mode = "all-active"
+    else:
+        ap.print_help()
+        return 2
+
+    # dedupe
+    seen = set()
+    uniq: list[Path] = []
+    for p in paths:
+        rp = p.resolve()
+        if rp in seen or not rp.is_file():
+            continue
+        seen.add(rp)
+        uniq.append(rp)
+
+    if not uniq:
+        print("no seeds to import")
+        receipt = write_receipt([], mode)
+        print(f"receipt {receipt}")
+        return 0
+
+    ident = load_ident()
+    results = [import_one(p, ident, dry) for p in uniq]
+    receipt = write_receipt(results, mode + (" dry-run" if dry else ""))
+
+    # update state hashes for all current seeds after successful non-dry run
+    if not dry:
+        files = {str(p.relative_to(ROOT)): file_sha(p) for p in collect_all_active()}
+        save_state(files, str(receipt))
+
+    written = sum(1 for r in results if r.get("write_ok") and not r.get("skipped"))
+    skipped = sum(1 for r in results if r.get("skipped"))
+    failed = sum(1 for r in results if not r.get("skipped") and not r.get("write_ok"))
+
+    print(f"wrote={written} skipped={skipped} failed={failed}")
+    print(f"receipt {receipt}")
+    print(f"latest  {RECEIPT_DIR / 'latest.md'}")
+    # 旁路：stdout 再给人看一眼
+    for r in results:
+        if r.get("write_ok") and not r.get("skipped"):
+            print(f"  ✓ {r['hub_path']} — {r.get('title','')[:60]}")
+        elif r.get("skipped"):
+            print(f"  · skip {r['hub_path']} ({r.get('reason')})")
+        else:
+            print(f"  ✗ {r['hub_path']} {r.get('error')}")
+    return 1 if failed else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

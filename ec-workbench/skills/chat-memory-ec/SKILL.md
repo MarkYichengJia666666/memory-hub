@@ -64,21 +64,31 @@ triggers:
 
 数据面需要：`Authorization: Bearer <gateway>`、`x-tdai-service-id`、body 里 `team_id`/`agent_id`/`user_id`。
 
-## 会话收尾（半自动回写 · 人闸）
+## 会话收尾（自动写 Hub · 旁路回执）
 
 每次用 Memory 答完 / 挖出新结论，**必须**过一遍：
 
 1. 有没有**新判决**？有 → 按骨架起草到 `artifacts/memory-l2/seed/<业务口>/<slug>.md`（业务口为主路径；`## workspace` 标 SDD）
 2. 有没有**打脸旧 L2**？有 → 旧条改 `status: superseded` + 原因；新条另开 path
-3. **人确认**后导入 Hub（禁止静默直写）：
+3. **立刻自动导入 Hub**（不再等人点确认），并把回执给用户看：
 
 ```bash
-./ec-workbench/bin/seed-l2-to-hub ec-workbench/artifacts/memory-l2/seed/<业务口>/<slug>.md
+./ec-workbench/bin/seed-l2-auto-import artifacts/memory-l2/seed/<业务口>/<slug>.md
+# 或：相对上次有变的全部
+./ec-workbench/bin/on-seed-change
 ```
 
-4. 新开空目录用 `claude-via-memory` 或 `scenario/read` 确认能召回
+4. **旁路回执**（给用户看「我记下了什么」）：
+   - 终端会打印 `✓ ec/<biz>/<slug>.md — 标题`
+   - 全文：`artifacts/memory-l2/receipts/latest.md`
+5. 纠错：用户说记错了 → 改 seed / 标 `superseded` → 再跑一遍 auto-import
+6. 可选：新开空目录用 `claude-via-memory` 确认能召回
 
 样例判决：`ec/ops/session-closeout-writeback.md`（本流程自身）。
+
+定时：`./bin/install-seed-auto-import-launchd`（每天 10:40 扫变更）。
+
+单条旧入口仍可用：`./bin/seed-l2-to-hub <seed.md>`（无回执汇总）。
 
 ## 保鲜抽检
 
@@ -103,7 +113,7 @@ triggers:
 | 库存 | Panel → Chat_Memory → L2 能看到 path | 存住了 |
 | API 召回 | `scenario/read` 或 L1 `atomic/search` | 不问人也能答对要点 |
 | 对话注入 | Proxy + session/team/agent/task 头；L2 注入仅为索引，需读场景工具（或已蒸馏 L1） | 答出判决关键符号，非瞎编 |
-| 回写闭环 | 收尾起草 → 人闸 → `seed-l2-to-hub` → 再召回 | 用完能记 |
+| 回写闭环 | 起草 seed → **自动** `seed-l2-auto-import` → 回执给用户 → 再召回 | 用完能记；旁路可见 |
 | 负例 | 见上表 | 不瞎用 |
 
 Proxy 注入**必须**有会话头，否则 `injectedSkipped=true`：

@@ -1,0 +1,16 @@
+{
+  "mode": "explicit",
+  "results": [
+    {
+      "file": "artifacts/memory-l2/seed/ops/session-closeout-writeback.md",
+      "hub_path": "ec/ops/session-closeout-writeback.md",
+      "title": "会话收尾：新判决半自动回写（人闸）",
+      "decision": "用 Memory 答完或挖出**新业务判决**后，必须走「起草 seed → 人确认 → 导入 Hub」，禁止静默直写生产记忆。 下一轮空会话应能按 path 召回；未过闸的草稿只留在 `artifacts/memory-l2/seed/`。",
+      "status": "active",
+      "write_ok": true,
+      "read_has_content": true,
+      "import_status": 200,
+      "reason": "ok"
+    }
+  ]
+}

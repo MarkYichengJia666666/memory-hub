@@ -56,9 +56,9 @@ export default function MemoryHubCapabilities() {
           Agent**（不是 Hub 新产品件）。
         </Text>
         <Text size="small" tone="tertiary">
-          进度更新 Sep 29, 2026 · Hub :8125 / Core :8420 / Proxy :8096 / KS
+          进度更新 Sep 30, 2026 · Hub :8125 / Core :8420 / Proxy :8096 / KS
           :8424 · 隔离：只改切片/Hub，EC 与 ~/.cursor 不动 · memory-hub
-          feat/server_team @ 569e23c
+          feat/server_team
         </Text>
       </Stack>
 
@@ -66,16 +66,16 @@ export default function MemoryHubCapabilities() {
         <Stat value="1" label="合并图 ready" tone="success" />
         <Stat value="90" label="L2 seed active" tone="success" />
         <Stat value="127" label="stitch overlay 边" tone="success" />
-        <Stat value="3/3" label="负例 N1–N3" tone="success" />
+        <Stat value="auto" label="seed→Hub + 回执" tone="success" />
       </Grid>
 
       <Callout tone="info" title="怎么读这张表">
-        **§1–9**：Memory Hub 能力清单。**§3 Chat Memory 旁路**已收口：存/核/用
-        + 半自动回写 + 负例 3/3；同事 PR #1 已合入 Aug–Sep 蒸馏 seed（业务口路径 +
-        `workspace` 字段）。
-        **旁路 Loop**：新对话 → 人闸回写；新 commit → 切片邻域扩 → CodeGraph sync →
-        保鲜 → stitch B（`EC_BASELINE_LOOP.md`）。
-        **§10**：Capillary（独立，勿与 Memory 验收绑死）。
+        **§1–9**：Memory Hub 能力清单。**§3 Chat Memory**：存/核/用 + 负例 3/3；PR #1
+        seed 已合；**写 Hub = seed 文件就绪后脚本自动导入**（非 Proxy 静默写），旁路回执
+        `receipts/latest.md` 给人看记了啥。
+        **旁路 Loop**：对话 → 起草 seed → `seed-l2-auto-import` / `on-seed-change`；EC
+        commit → 切片扩 → sync → 保鲜 → stitch（`EC_BASELINE_LOOP.md`）。
+        **§10**：Capillary（独立）。
       </Callout>
 
       <H2>在线图（当前）</H2>
@@ -291,11 +291,11 @@ export default function MemoryHubCapabilities() {
         ])}
       />
 
-      <H2>3. Chat Memory（旁路 P0 · 2026-09-29）</H2>
+      <H2>3. Chat Memory（旁路 P0 · 2026-09-30）</H2>
       <Text tone="secondary" size="small">
-        L0→L1→L2→L3；路径 ec/&lt;业务口&gt;/&lt;slug&gt;.md + 正文
-        workspace。不改 EC 主仓。Playbook / Skill / COLLEAGUE_TRAIN /
-        EC_BASELINE_LOOP；PR #1 Aug–Sep 蒸馏已合。
+        L0→L1→L2→L3；路径 ec/&lt;业务口&gt;/&lt;slug&gt;.md + workspace。不改 EC。
+        写库：`seed-l2-auto-import`（docker 落盘 → scenario/write → L0
+        import）+ 回执；扫变更：`on-seed-change`；可选 launchd 10:40。
       </Text>
       <Table
         headers={["编号", "能力", "进度", "你们备注"]}
@@ -304,7 +304,7 @@ export default function MemoryHubCapabilities() {
             id: "3.1",
             what: "记下偏好、决策、坑",
             status: "done",
-            note: "seed 95（~90 active / 5 superseded）；Hub 写入仍人闸",
+            note: "seed 95（~90 active）；合格 seed 自动进 Hub",
           },
           {
             id: "3.2",
@@ -322,19 +322,19 @@ export default function MemoryHubCapabilities() {
             id: "3.4",
             what: "私有或分享给团队",
             status: "done",
-            note: "同事 PR #1 已合 memory-hub；业务口+workspace 约定落地",
+            note: "同事 PR #1 已合；业务口+workspace；合入后本机 on-seed-change",
           },
           {
             id: "3.5",
             what: "经 Proxy 自动写入、下一轮自动带上",
             status: "partial",
-            note: "注入+半自动回写人闸已通；全自动写入不做",
+            note: "召回注入已通；写 L2≠Proxy 静默，走 seed 脚本",
           },
           {
             id: "3.7",
-            what: "用后半自动回写（人闸）",
+            what: "用后自动回写（旁路回执）",
             status: "done",
-            note: "seed-l2-to-hub；样例 ec/ops/session-closeout-writeback",
+            note: "auto-import；receipts/latest.md（path+摘要）；纠错再导",
           },
           {
             id: "3.8",
@@ -359,17 +359,23 @@ export default function MemoryHubCapabilities() {
 
       <H2>L. 旁路 Loop（commit × 对话）</H2>
       <Text tone="secondary" size="small">
-        不是 Hub 新产品件，是本机把 §1 sync 与 §3
-        保鲜/回写接成可重复入口。细节：docs/EC_BASELINE_LOOP.md。
+        本机把 §3 回写与 §1 sync/保鲜接成可重复入口。Memory：自动写 +
+        回执可见；CodeGraph：EC_BASELINE_LOOP。
       </Text>
       <Table
         headers={["编号", "能力", "进度", "你们备注"]}
         rows={rows([
           {
             id: "L.1",
-            what: "新对话 → 起草 seed → 人闸 → 入库",
+            what: "新对话 → 起草 seed → 自动入库 + 回执",
             status: "done",
-            note: "Skill 收尾清单 + seed-l2-to-hub",
+            note: "Skill 收尾调 auto-import；latest.md 旁路给人看",
+          },
+          {
+            id: "L.1b",
+            what: "seed 树变更 → 差分导入 Hub",
+            status: "done",
+            note: "on-seed-change；state/last-seed-import hash",
           },
           {
             id: "L.2",
@@ -387,25 +393,31 @@ export default function MemoryHubCapabilities() {
             id: "L.4",
             what: "手动入口",
             status: "done",
-            note: "bin/on-ec-baseline-change [--force]",
+            note: "on-ec-baseline-change / on-seed-change / auto-import",
           },
           {
             id: "L.5",
             what: "定时入口（本机）",
             status: "done",
-            note: "launchd 每天 10:30；可 uninstall",
+            note: "EC 基线 10:30；seed 导入 10:40（可 uninstall）",
           },
           {
             id: "L.6",
             what: "miss 自动改 Hub superseded",
             status: "skip",
-            note: "刻意人闸；报告后人改 seed 再导入",
+            note: "刻意人闸；报告后人改 seed 再 auto-import",
           },
           {
             id: "L.7",
             what: "全量 EC 新文件自动进合并切片",
             status: "done",
-            note: "邻域扩拷（同目录已有则进）；无邻域 skipped_new 人拷",
+            note: "邻域扩拷；无邻域 skipped_new 人拷",
+          },
+          {
+            id: "L.8",
+            what: "云端 PR merge 直接写本机 Hub",
+            status: "skip",
+            note: "做不成；合入后本机扫 seed 变更即可",
           },
         ])}
       />
@@ -605,22 +617,20 @@ export default function MemoryHubCapabilities() {
       <H3>下一步</H3>
       <Row gap={8}>
         <Pill tone="success" active>
-          负例 N1–N3 过线
+          Memory Loop：自动写 + 回执
         </Pill>
         <Pill tone="success" active>
-          同事 PR #1 seed 合入
+          EC 基线 Loop
         </Pill>
         <Pill tone="success" active>
-          EC 基线 Loop（切片扩+sync+保鲜+stitch）
+          PR #1 seed + 负例过线
         </Pill>
-        <Pill tone="warning" active>
-          新 seed 批写进 Hub
-        </Pill>
-        <Pill tone="neutral">Capillary bury（独立 Loop）</Pill>
+        <Pill tone="neutral">Capillary bury（独立）</Pill>
+        <Pill tone="neutral">可选装 seed launchd 10:40</Pill>
       </Row>
       <Text size="small" tone="tertiary">
-        结构：§1–9 Hub 能力 → §3 Memory 旁路 → **§L 旁路 Loop（commit×对话）**
-        → §10 Capillary（独立）。渲染副本在 Cursor canvases/。
+        结构：§1–9 Hub → §3 Memory（脚本自动写，非 Proxy 静默）→ **§L Loop** →
+        §10 Capillary。渲染副本在 Cursor canvases/。
       </Text>
     </Stack>
   );

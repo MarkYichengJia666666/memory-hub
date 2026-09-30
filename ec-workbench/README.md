@@ -12,6 +12,8 @@
 | `docs/` | 能力看板、Playbook、[EC 基线 Loop](./docs/EC_BASELINE_LOOP.md)、[Graph Stitch](./docs/GRAPH_STITCH.md) |
 | `bin/on-ec-baseline-change` | EC HEAD 差分 → 切片扩 → sync → 保鲜 → stitch（手动/launchd） |
 | `bin/sync-slice-from-ec` | 合并切片：refresh 已有 + 同目录邻域 expand |
+| `bin/seed-l2-auto-import` | seed → Hub 自动写 + 旁路回执 `receipts/latest.md` |
+| `bin/on-seed-change` | seed 树相对基线有变才导入 |
 | `skills/chat-memory-ec/` | Chat Memory × EC 旁路 Skill（写 L2 / 召回 / Proxy） |
 | `artifacts/` | token 对照、capillary 报告、`memory-l2/` 样例 |
 

@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+# 安装 / 卸载本机定时 seed→Hub 自动导入（旁路回执）。
+# 默认定时：每天 10:40（紧接 EC 基线 10:30 之后）。
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+SRC="$ROOT/launchd/com.yqg.ec-seed-auto-import.plist"
+DST="$HOME/Library/LaunchAgents/com.yqg.ec-seed-auto-import.plist"
+LABEL="com.yqg.ec-seed-auto-import"
+
+mkdir -p "$ROOT/state/logs" "$HOME/Library/LaunchAgents"
+
+if [[ "${1:-}" == "--uninstall" ]]; then
+  launchctl bootout "gui/$(id -u)/$LABEL" 2>/dev/null || launchctl unload "$DST" 2>/dev/null || true
+  rm -f "$DST"
+  echo "uninstalled $LABEL"
+  exit 0
+fi
+
+# 生成 plist（绝对路径）
+cat > "$SRC" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>${LABEL}</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>${ROOT}/bin/on-seed-change</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>10</integer>
+    <key>Minute</key>
+    <integer>40</integer>
+  </dict>
+  <key>StandardOutPath</key>
+  <string>${ROOT}/state/logs/seed-launchd.out.log</string>
+  <key>StandardErrorPath</key>
+  <string>${ROOT}/state/logs/seed-launchd.err.log</string>
+  <key>WorkingDirectory</key>
+  <string>${ROOT}</string>
+</dict>
+</plist>
+EOF
+
+cp "$SRC" "$DST"
+launchctl bootout "gui/$(id -u)/$LABEL" 2>/dev/null || launchctl unload "$DST" 2>/dev/null || true
+if launchctl bootstrap "gui/$(id -u)" "$DST" 2>/dev/null; then
+  launchctl enable "gui/$(id -u)/$LABEL" 2>/dev/null || true
+  echo "installed+bootstrapped $DST"
+else
+  launchctl load -w "$DST"
+  echo "installed+loaded $DST"
+fi
+echo "schedule: daily 10:40 · manual: $ROOT/bin/on-seed-change"
+echo "receipts: $ROOT/artifacts/memory-l2/receipts/latest.md"

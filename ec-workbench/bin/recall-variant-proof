@@ -1,0 +1,223 @@
+#!/usr/bin/env python3
+"""问法变体召回验收：同一 L2，换措辞是否仍能命中。
+
+对每题跑若干 paraphrase：
+  1) Core /v3/atomic/search（L1）
+  2) 本地 seed 关键词兜底（证明库存侧可匹配）
+
+用法：
+  ./bin/recall-variant-proof
+  ./bin/recall-variant-proof --limit 2
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import sys
+import urllib.error
+import urllib.request
+from datetime import datetime, timezone
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+SEED = ROOT / "artifacts" / "memory-l2" / "seed"
+OUT = ROOT / "artifacts" / "memory-l2" / "proof"
+IDENT = ROOT / ".p0-memory-identity.json"
+CORE = os.environ.get("CORE_URL", "http://127.0.0.1:8420")
+
+CASES = [
+    {
+        "id": "Q1-saqu",
+        "hub_path": "ec/bindcard/saqu-superbank-pattern.md",
+        "seed": "bindcard/saqu-superbank-pattern.md",
+        "must": ["keepOnlySuperBankIfInExperiment", "SuperBank", "Saqu"],
+        "variants": [
+            "Saqu 绑卡只能绑自家卡要对标哪套？",
+            "印尼 Saqu 渠道绑卡过滤复用哪个方法？",
+            "只要自家卡且可开关，有没有现成 SuperBank 逻辑？",
+        ],
+    },
+    {
+        "id": "Q2-merge",
+        "hub_path": "ec/auth/merge-user-id-vs-merged-user-id.md",
+        "seed": "auth/merge-user-id-vs-merged-user-id.md",
+        "must": ["MERGE_USER_ID", "MERGED_USER_ID", "留存"],
+        "variants": [
+            "MERGE_ 和 MERGED_ 哪个是留存用户？",
+            "user_merge_history 合并后哪个字段是活账号？",
+            "insert(newUserId, oldUserId) 和字段语义是不是一回事？",
+        ],
+    },
+    {
+        "id": "Q3-h5",
+        "hub_path": "ec/homepage/h5-whole-process-hides-main-button.md",
+        "seed": "homepage/h5-whole-process-hides-main-button.md",
+        "must": ["showDownloadButton", "isWholeProcess", "立即申请"],
+        "variants": [
+            "H5 全流程为什么看不到立即申请？",
+            "whole process 首页主按钮被藏的判断字段是啥？",
+            "下载按钮和主申请按钮在全流程里怎么控？",
+        ],
+    },
+    {
+        "id": "Q4-startup",
+        "hub_path": "ec/kafka/app-startup-at-least-once-realtime.md",
+        "seed": "kafka/app-startup-at-least-once-realtime.md",
+        "must": ["APP_STARTUP", "Kafka", "0 点"],
+        "variants": [
+            "APP_STARTUP 是不是每天零点 cron？",
+            "开屏至少一次事件是实时还是批跑？",
+            "AppStartupAtLeastOnce 走什么链路？",
+        ],
+    },
+]
+
+
+def load_ident() -> dict:
+    return json.loads(IDENT.read_text())
+
+
+def atomic_search(ident: dict, query: str, limit: int = 5) -> list[dict]:
+    body = {
+        "team_id": ident["team_id"],
+        "agent_id": ident["agent_id"],
+        "user_id": ident["user_id"],
+        "query": query,
+        "limit": limit,
+    }
+    req = urllib.request.Request(
+        f"{CORE.rstrip('/')}/v3/atomic/search",
+        data=json.dumps(body).encode(),
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": "Bearer local",
+            "x-tdai-service-id": ident.get("service_id", "default"),
+            "x-tdai-user-key": ident["user_key"],
+        },
+        method="POST",
+    )
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        doc = json.load(resp)
+    data = doc.get("data") or {}
+    return list(data.get("items") or [])
+
+
+def hit_must(blob: str, must: list[str], need: int = 1) -> tuple[bool, list[str]]:
+    found = [m for m in must if m.lower() in blob.lower()]
+    return len(found) >= need, found
+
+
+def local_seed_hit(seed_rel: str, query: str, must: list[str]) -> tuple[bool, list[str]]:
+    """库存侧：对应 seed 是否含 must（不问法重叠——证明「有货可答」）。"""
+    del query  # 变体问法由 L1 承担；本地只验库存
+    text = (SEED / seed_rel).read_text(encoding="utf-8")
+    return hit_must(text, must, need=1)
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--limit", type=int, default=0, help="只跑前 N 题，0=全部")
+    args = ap.parse_args()
+    if not IDENT.is_file():
+        print(f"missing {IDENT}", file=sys.stderr)
+        return 2
+    ident = load_ident()
+    cases = CASES[: args.limit] if args.limit > 0 else CASES
+
+    rows = []
+    l1_pass = seed_pass = total = 0
+    for case in cases:
+        for i, q in enumerate(case["variants"], 1):
+            total += 1
+            try:
+                items = atomic_search(ident, q)
+                blob = "\n".join(
+                    str(it.get("content") or "") + "\n" + str(it.get("background") or "")
+                    for it in items
+                )
+                l1_ok, l1_found = hit_must(blob, case["must"], need=1)
+                # also path-ish
+                if case["hub_path"].split("/")[-1].replace(".md", "") in blob:
+                    l1_ok = True
+            except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, json.JSONDecodeError) as e:
+                items = []
+                l1_ok, l1_found = False, []
+                blob = f"ERR:{e}"
+
+            s_ok, s_found = local_seed_hit(case["seed"], q, case["must"])
+            if l1_ok:
+                l1_pass += 1
+            if s_ok:
+                seed_pass += 1
+            rows.append(
+                {
+                    "case": case["id"],
+                    "variant": i,
+                    "query": q,
+                    "hub_path": case["hub_path"],
+                    "l1_hit": l1_ok,
+                    "l1_found": l1_found,
+                    "l1_items": len(items),
+                    "seed_hit": s_ok,
+                    "seed_found": s_found,
+                }
+            )
+
+    day = datetime.now().strftime("%Y%m%d-%H%M%S")
+    OUT.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "title": "问法变体召回验收",
+        "measured_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "core": CORE,
+        "totals": {
+            "variants": total,
+            "l1_hit": l1_pass,
+            "l1_rate_pct": round(100.0 * l1_pass / total, 1) if total else None,
+            "seed_hit": seed_pass,
+            "seed_rate_pct": round(100.0 * seed_pass / total, 1) if total else None,
+        },
+        "rows": rows,
+        "method": "每问法 → Core atomic/search；本地 seed 关键词对照。命中=must 关键字≥1。",
+    }
+    js = OUT / f"recall-variant-{day}.json"
+    md = OUT / f"recall-variant-{day}.md"
+    latest_js = OUT / "recall-variant-latest.json"
+    latest_md = OUT / "recall-variant-latest.md"
+    js.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n")
+    latest_js.write_text(js.read_text())
+
+    t = payload["totals"]
+    lines = [
+        f"# {payload['title']} · {day}",
+        "",
+        payload["method"],
+        "",
+        f"**L1 atomic/search：{t['l1_hit']}/{t['variants']}（{t['l1_rate_pct']}%）** · "
+        f"**本地 seed：{t['seed_hit']}/{t['variants']}（{t['seed_rate_pct']}%）**",
+        "",
+        "| 题 | # | 问法 | L1 | seed | 命中片段 |",
+        "|---|---:|---|---|---|---|",
+    ]
+    for r in rows:
+        lines.append(
+            f"| {r['case']} | {r['variant']} | {r['query']} | "
+            f"{'✓' if r['l1_hit'] else '✗'} | {'✓' if r['seed_hit'] else '✗'} | "
+            f"{','.join(r['l1_found'] or r['seed_found'])} |"
+        )
+    lines += ["", f"> Core `{CORE}` · team `{ident['team_id']}`", ""]
+    md.write_text("\n".join(lines) + "\n")
+    latest_md.write_text(md.read_text())
+    print(md.read_text())
+    print(f"wrote {md}")
+    # 门禁：L1 ≥ 75%；seed 库存 must 应 100%
+    if t["seed_rate_pct"] is not None and t["seed_rate_pct"] < 100:
+        return 2
+    if t["l1_rate_pct"] is not None and t["l1_rate_pct"] < 75:
+        return 3
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

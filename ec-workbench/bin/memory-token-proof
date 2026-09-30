@@ -1,0 +1,254 @@
+#!/usr/bin/env python3
+"""Memory vs 搜仓 · 阅读 token 对照（证明旁路 Memory 有用）。
+
+对每道验收题：
+  Memory 臂 = 读对应 L2 seed 全文的 token
+  搜仓臂   = 打开 anchors 里符号所在 Java 文件全文的 token（下限：命中文件必读）
+
+编码器：优先 tiktoken cl100k_base；否则按 len/4 近似并标注。
+"""
+from __future__ import annotations
+
+import json
+import re
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]  # ec-workbench
+SEED = ROOT / "artifacts" / "memory-l2" / "seed"
+EC = Path("/Users/lipeng/IdeaProjects/ec")
+OUT = ROOT / "artifacts" / "memory-l2" / "proof"
+
+CASES = [
+    {
+        "id": "Q1-saqu",
+        "question": "Saqu 绑卡对标哪套？关键方法名？",
+        "seed": "bindcard/saqu-superbank-pattern.md",
+        "must_hit": ["keepOnlySuperBankIfInExperiment"],
+        # 搜仓下限：只计业务入口类（不含巨型 enum/常量仓）
+        "code_classes": [
+            "LoanBankAccountService",
+            "LoanBankAccountController",
+        ],
+    },
+    {
+        "id": "Q2-merge",
+        "question": "MERGE_ vs MERGED_ 谁留存？",
+        "seed": "auth/merge-user-id-vs-merged-user-id.md",
+        "must_hit": ["MERGE_", "MERGED_"],
+        "code_classes": [
+            "UserMergeHistoryModel",
+            "UserMobileChangeService",
+        ],
+    },
+    {
+        "id": "Q3-h5-btn",
+        "question": "H5 全流程为何不见「立即申请」？",
+        "seed": "homepage/h5-whole-process-hides-main-button.md",
+        "must_hit": ["showDownloadButton", "isWholeProcess"],
+        "code_classes": [
+            "HomePageMainCardInfo",
+            "MultiLoanProductProcessor",
+            "OrderProgressStepProcessor",
+        ],
+    },
+    {
+        "id": "Q4-startup",
+        "question": "APP_STARTUP 是否 0 点 cron？",
+        "seed": "kafka/app-startup-at-least-once-realtime.md",
+        "must_hit": ["AppStartup", "processAppStartupEvent"],
+        "code_classes": [
+            "AppStartupService",
+            "AppStartupAtLeastOnceEventProcessor",
+        ],
+    },
+]
+
+
+def encoder():
+    try:
+        import tiktoken
+
+        enc = tiktoken.get_encoding("cl100k_base")
+        return "tiktoken/cl100k_base", lambda s: len(enc.encode(s))
+    except Exception:
+        return "approx/len÷4", lambda s: max(1, len(s) // 4)
+
+
+def is_java_class_name(name: str) -> bool:
+    """PascalCase 类名；排除 ALL_CAPS 常量（MERGE_USER_ID / SELECTED）。"""
+    if len(name) < 4 or "_" in name:
+        return False
+    if not re.match(r"^[A-Z][A-Za-z0-9]+$", name):
+        return False
+    # 至少含一个小写 → 排除纯大写常量
+    return any(c.islower() for c in name)
+
+
+def extract_symbols(text: str) -> list[str]:
+    syms: list[str] = []
+    for m in re.finditer(r"`([A-Za-z][\w.$#]+)`", text):
+        s = m.group(1)
+        if "/" in s or s.startswith("http"):
+            continue
+        # UserMergeHistoryModel#insert → UserMergeHistoryModel
+        if "#" in s:
+            s = s.split("#", 1)[0]
+        simple = s.split(".")[0]
+        if is_java_class_name(simple):
+            syms.append(simple)
+    seen = set()
+    out = []
+    for s in syms:
+        if s not in seen:
+            seen.add(s)
+            out.append(s)
+    return out
+
+
+def find_java_for_symbol(sym: str) -> list[Path]:
+    hits: list[Path] = []
+    for p in EC.rglob(f"{sym}.java"):
+        rel = str(p).replace("\\", "/")
+        if "/test/" in rel or "/tests/" in rel or "/target/" in rel:
+            continue
+        hits.append(p)
+        if len(hits) >= 2:
+            break
+    return hits
+
+
+def main() -> int:
+    enc_name, tok = encoder()
+    if not EC.is_dir():
+        print(f"EC not found: {EC}", file=sys.stderr)
+        return 2
+
+    rows = []
+    for case in CASES:
+        seed_path = SEED / case["seed"]
+        body = seed_path.read_text(encoding="utf-8")
+        mem_tokens = tok(body)
+        # 只用题目声明的业务入口类计搜仓下限（避免 enum/常量仓虚高）
+        symbols = list(case.get("code_classes") or [])
+        if not symbols:
+            symbols = extract_symbols(body)
+        files: list[Path] = []
+        seen = set()
+        for sym in symbols:
+            for p in find_java_for_symbol(sym):
+                if p not in seen:
+                    seen.add(p)
+                    files.append(p)
+        code_tokens = 0
+        file_rows = []
+        for p in files:
+            try:
+                t = p.read_text(encoding="utf-8", errors="ignore")
+            except OSError:
+                continue
+            n = tok(t)
+            code_tokens += n
+            file_rows.append({"path": str(p.relative_to(EC)), "tokens": n})
+        ratio = round(100.0 * mem_tokens / code_tokens, 1) if code_tokens else None
+        rows.append(
+            {
+                "id": case["id"],
+                "question": case["question"],
+                "seed": case["seed"],
+                "must_hit": case["must_hit"],
+                "memory_tokens": mem_tokens,
+                "code_tokens": code_tokens,
+                "code_files": len(file_rows),
+                "files": file_rows,
+                "symbols_used": symbols[:12],
+                "token_ratio_pct": ratio,
+                "delta": code_tokens - mem_tokens,
+            }
+        )
+
+    total_m = sum(r["memory_tokens"] for r in rows)
+    total_c = sum(r["code_tokens"] for r in rows)
+    payload = {
+        "title": "Memory vs 搜仓 · 阅读 token 对照",
+        "encoder": enc_name,
+        "ec_repo": str(EC),
+        "measured_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "method": (
+            "Memory臂=L2 seed全文；搜仓臂=题目声明业务入口类对应Java文件全文之和"
+            "（未计全仓grep试错；故搜仓为下限）"
+        ),
+        "cases": rows,
+        "totals": {
+            "memory_tokens": total_m,
+            "code_tokens": total_c,
+            "ratio_pct": round(100.0 * total_m / total_c, 1) if total_c else None,
+            "saved_tokens": total_c - total_m,
+        },
+        "acceptance": {
+            "usefulness_smoke": "4/4",
+            "usefulness_source": "usefulness-batch-20260924.md",
+            "negative_n1_n3": "3/3",
+            "negative_source": "negative-batch-20260927.md",
+            "freshness_sample": "20/20 ok",
+            "freshness_source": "freshness-batch-20260927-104248.md",
+            "seed_md_count": sum(1 for _ in SEED.rglob("*.md")),
+            "isolation_myself_vs_team": "pass",
+        },
+        "caveat": (
+            "搜仓臂=命中 Java 文件全文之和，未计 grep 试错/多轮工具调用；"
+            "故省 token 为保守下限。编码器无 tiktoken 时用 len÷4 近似。"
+        ),
+    }
+
+    OUT.mkdir(parents=True, exist_ok=True)
+    day = datetime.now().strftime("%Y%m%d-%H%M%S")
+    js = OUT / f"token-proof-{day}.json"
+    md = OUT / f"token-proof-{day}.md"
+    latest_js = OUT / "token-proof-latest.json"
+    latest_md = OUT / "token-proof-latest.md"
+    js.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n")
+    latest_js.write_text(js.read_text())
+
+    lines = [
+        f"# {payload['title']} · {day}",
+        "",
+        f"编码器：`{enc_name}` · EC：`{EC}`",
+        "",
+        payload["method"],
+        "",
+        "| 题 | Memory token | 搜仓 token | 比率 | 省下 | 搜仓文件数 |",
+        "|---|---:|---:|---:|---:|---:|",
+    ]
+    for r in rows:
+        lines.append(
+            f"| {r['id']} | {r['memory_tokens']} | {r['code_tokens']} | "
+            f"{r['token_ratio_pct']}% | {r['delta']} | {r['code_files']} |"
+        )
+    t = payload["totals"]
+    lines += [
+        "",
+        f"**合计** Memory **{t['memory_tokens']}** vs 搜仓 **{t['code_tokens']}** "
+        f"（≈**{t['ratio_pct']}%**，省 **{t['saved_tokens']}** token）",
+        "",
+        "## 验收硬数据（已有批次）",
+        "",
+        f"- 有用性冒烟：{payload['acceptance']['usefulness_smoke']}（{payload['acceptance']['usefulness_source']}）",
+        f"- 负例 N1–N3：{payload['acceptance']['negative_n1_n3']}（{payload['acceptance']['negative_source']}）",
+        f"- 保鲜抽样：{payload['acceptance']['freshness_sample']}（{payload['acceptance']['freshness_source']}）",
+        f"- L2 seed `.md` 数：{payload['acceptance']['seed_md_count']}",
+        f"- myself×team 隔离：{payload['acceptance']['isolation_myself_vs_team']}",
+        "",
+        f"> {payload['caveat']}",
+        "",
+    ]
+    md.write_text("\n".join(lines) + "\n")
+    latest_md.write_text(md.read_text())
+    print(md.read_text())
+    print(f"wrote {md}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

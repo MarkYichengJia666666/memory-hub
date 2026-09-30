@@ -1,0 +1,485 @@
+#!/usr/bin/env python3
+"""Memory ON vs OFF · 对话上下文 / Proxy 账单证明。
+
+对同一批验收题构建两臂 prompt，计量会进模型的上下文 token：
+
+  Memory ON  = 系统壳 + Core scenario/read(L2) + 用户问
+  Memory OFF = 系统壳 + 题目声明业务入口类 Java 全文 + 用户问
+
+若 Proxy `/proxy/default/v1/chat/completions` 可用，再各打一枪拿 usage
+（prompt_tokens / completion_tokens）；上游 502 时仅落盘 context 账单并标注 mode=context_only。
+
+复跑：./bin/memory-bill-proof
+依赖：Core :8420 · 身份 .p0-memory-identity.json · EC 仓
+"""
+from __future__ import annotations
+
+import json
+import os
+import sys
+import time
+import urllib.error
+import urllib.request
+from datetime import datetime, timezone
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+SEED = ROOT / "artifacts" / "memory-l2" / "seed"
+OUT = ROOT / "artifacts" / "memory-l2" / "proof"
+IDENT_PATH = ROOT / ".p0-memory-identity.json"
+EC = Path(os.environ.get("EC_ROOT", "/Users/lipeng/IdeaProjects/ec"))
+CORE = os.environ.get("CORE_URL", "http://127.0.0.1:8420")
+MODEL = os.environ.get("BILL_MODEL", "deepseek-v4-flash-0731")
+
+SYS_MEM = (
+    "你是 EC 旁路助手。优先用下方 Memory L2 判决回答。"
+    "开头写【来源：Memory】path=...；无结果再说不知道。"
+)
+SYS_CODE = (
+    "你是 EC 旁路助手。下方是已打开的 Java 源文件全文。"
+    "根据源码回答问题；开头写【来源：代码】。"
+)
+
+CASES = [
+    {
+        "id": "Q1-saqu",
+        "question": "Saqu「只能绑自家卡 + 要可开关」，应对标哪套已有过滤逻辑？关键方法名？",
+        "hub_path": "ec/bindcard/saqu-superbank-pattern.md",
+        "seed": "bindcard/saqu-superbank-pattern.md",
+        "code_classes": ["LoanBankAccountService", "LoanBankAccountController"],
+        "must_hit": ["keepOnlySuperBankIfInExperiment"],
+    },
+    {
+        "id": "Q2-merge",
+        "question": "user_merge_history 里 MERGE_USER_ID 与 MERGED_USER_ID，谁是留存用户？",
+        "hub_path": "ec/auth/merge-user-id-vs-merged-user-id.md",
+        "seed": "auth/merge-user-id-vs-merged-user-id.md",
+        "code_classes": ["UserMergeHistoryModel", "UserMobileChangeService"],
+        "must_hit": ["MERGE_", "MERGED_"],
+    },
+    {
+        "id": "Q3-h5-btn",
+        "question": "H5 全流程为什么经常看不到「立即申请」主按钮？关键判断字段？",
+        "hub_path": "ec/homepage/h5-whole-process-hides-main-button.md",
+        "seed": "homepage/h5-whole-process-hides-main-button.md",
+        "code_classes": [
+            "HomePageMainCardInfo",
+            "MultiLoanProductProcessor",
+            "OrderProgressStepProcessor",
+        ],
+        "must_hit": ["showDownloadButton", "isWholeProcess"],
+    },
+    {
+        "id": "Q4-startup",
+        "question": "APP_STARTUP_AT_LEAST_ONCE 是不是每天 0 点 cron 批量跑？",
+        "hub_path": "ec/kafka/app-startup-at-least-once-realtime.md",
+        "seed": "kafka/app-startup-at-least-once-realtime.md",
+        "code_classes": ["AppStartupService", "AppStartupAtLeastOnceEventProcessor"],
+        "must_hit": ["AppStartup", "processAppStartupEvent"],
+    },
+]
+
+
+def encoder():
+    try:
+        import tiktoken
+
+        enc = tiktoken.get_encoding("cl100k_base")
+        return "tiktoken/cl100k_base", lambda s: len(enc.encode(s))
+    except Exception:
+        return "approx/len÷4", lambda s: max(1, len(s) // 4)
+
+
+def find_java(sym: str) -> list[Path]:
+    hits: list[Path] = []
+    for p in EC.rglob(f"{sym}.java"):
+        rel = str(p).replace("\\", "/")
+        if "/test/" in rel or "/tests/" in rel or "/target/" in rel:
+            continue
+        hits.append(p)
+        if len(hits) >= 2:
+            break
+    return hits
+
+
+def load_ident() -> dict:
+    if not IDENT_PATH.is_file():
+        raise SystemExit(f"missing {IDENT_PATH}")
+    return json.loads(IDENT_PATH.read_text())
+
+
+def core_scenario_read(ident: dict, path: str) -> str:
+    payload = {
+        "team_id": ident["team_id"],
+        "agent_id": ident["agent_id"],
+        "user_id": ident["user_id"],
+        "path": path,
+    }
+    req = urllib.request.Request(
+        f"{CORE.rstrip('/')}/v3/scenario/read",
+        data=json.dumps(payload).encode(),
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": "Bearer local",
+            "x-tdai-service-id": ident.get("service_id", "default"),
+            "x-tdai-user-key": ident["user_key"],
+        },
+        method="POST",
+    )
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        doc = json.load(resp)
+    data = doc.get("data") or doc
+    content = data.get("content") if isinstance(data, dict) else None
+    if not content:
+        raise RuntimeError(f"empty scenario/read for {path}: {doc!r}"[:300])
+    return str(content)
+
+
+def build_code_bundle(classes: list[str]) -> tuple[str, list[dict]]:
+    parts: list[str] = []
+    meta: list[dict] = []
+    seen: set[Path] = set()
+    for sym in classes:
+        for p in find_java(sym):
+            if p in seen:
+                continue
+            seen.add(p)
+            text = p.read_text(encoding="utf-8", errors="ignore")
+            rel = str(p.relative_to(EC))
+            parts.append(f"===== FILE: {rel} =====\n{text}")
+            meta.append({"path": rel, "chars": len(text)})
+    return "\n\n".join(parts), meta
+
+
+def chat_usage(ident: dict, messages: list[dict], session: str, timeout: float = 120) -> dict:
+    """Return usage + wall-clock latency_ms for the Proxy round-trip."""
+    url = ident["proxy_base"].rstrip("/") + ident.get(
+        "proxy_openai_path", "/proxy/default/v1/chat/completions"
+    )
+    body = {
+        "model": MODEL,
+        "messages": messages,
+        "max_tokens": 256,
+        "temperature": 0,
+    }
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(body).encode(),
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {ident['user_key']}",
+            "x-tdai-user-key": ident["user_key"],
+            "x-tdai-service-id": ident.get("service_id", "default"),
+            "x-session-id": session,
+            "x-conversation-id": session,
+            "x-team-id": ident["team_id"],
+            "x-agent-id": ident["agent_id"],
+            "x-task-id": ident.get("task_id", ""),
+        },
+        method="POST",
+    )
+    t0 = time.perf_counter()
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            doc = json.load(resp)
+        latency_ms = int((time.perf_counter() - t0) * 1000)
+    except urllib.error.HTTPError as e:
+        latency_ms = int((time.perf_counter() - t0) * 1000)
+        err = e.read().decode(errors="replace")[:240]
+        return {"ok": False, "error": f"HTTP {e.code}: {err}", "latency_ms": latency_ms}
+    except Exception as e:  # noqa: BLE001
+        latency_ms = int((time.perf_counter() - t0) * 1000)
+        return {"ok": False, "error": str(e), "latency_ms": latency_ms}
+    usage = doc.get("usage") or {}
+    answer = ""
+    try:
+        answer = (doc["choices"][0]["message"]["content"] or "")[:400]
+    except (KeyError, IndexError, TypeError):
+        answer = ""
+    return {
+        "ok": True,
+        "usage": usage,
+        "prompt_tokens": usage.get("prompt_tokens"),
+        "completion_tokens": usage.get("completion_tokens"),
+        "total_tokens": usage.get("total_tokens"),
+        "answer_preview": answer,
+        "latency_ms": latency_ms,
+    }
+
+
+def probe_live(ident: dict) -> dict:
+    """One cheap probe; if upstream dead, skip all live calls."""
+    if os.environ.get("BILL_SKIP_LIVE", "").strip() in ("1", "true", "yes"):
+        return {"ok": False, "error": "BILL_SKIP_LIVE=1"}
+    return chat_usage(
+        ident,
+        [{"role": "user", "content": "只回复：ok"}],
+        "bill-probe",
+        timeout=12,
+    )
+
+
+def main() -> int:
+    enc_name, tok = encoder()
+    if not EC.is_dir():
+        print(f"EC not found: {EC}", file=sys.stderr)
+        return 2
+    ident = load_ident()
+    live_ok = 0
+    rows = []
+    probe = probe_live(ident)
+    live_enabled = bool(probe.get("ok"))
+    if not live_enabled:
+        print(f"live skipped: {probe.get('error', 'probe failed')}", file=sys.stderr)
+
+    for case in CASES:
+        t_prep_m = time.perf_counter()
+        l2 = core_scenario_read(ident, case["hub_path"])
+        prep_mem_ms = int((time.perf_counter() - t_prep_m) * 1000)
+
+        t_prep_c = time.perf_counter()
+        code_bundle, file_meta = build_code_bundle(case["code_classes"])
+        prep_code_ms = int((time.perf_counter() - t_prep_c) * 1000)
+
+        mem_msgs = [
+            {"role": "system", "content": SYS_MEM},
+            {
+                "role": "user",
+                "content": (
+                    f"## Memory L2 path={case['hub_path']}\n\n{l2}\n\n"
+                    f"## 问题\n{case['question']}"
+                ),
+            },
+        ]
+        code_msgs = [
+            {"role": "system", "content": SYS_CODE},
+            {
+                "role": "user",
+                "content": (
+                    f"## 已打开源码\n\n{code_bundle}\n\n"
+                    f"## 问题\n{case['question']}"
+                ),
+            },
+        ]
+
+        def ctx_tokens(msgs: list[dict]) -> int:
+            return sum(tok(m["content"]) for m in msgs)
+
+        mem_ctx = ctx_tokens(mem_msgs)
+        code_ctx = ctx_tokens(code_msgs)
+
+        live_mem: dict | None
+        live_code: dict | None
+        if live_enabled:
+            live_mem = chat_usage(ident, mem_msgs, f"bill-mem-{case['id']}")
+            live_code = None
+            if live_mem.get("ok"):
+                live_ok += 1
+                if code_ctx <= 120_000:
+                    # 大 prompt 给更长超时
+                    to = 180 if code_ctx > 20_000 else 120
+                    live_code = chat_usage(
+                        ident, code_msgs, f"bill-code-{case['id']}", timeout=to
+                    )
+                    if live_code.get("ok"):
+                        live_ok += 1
+                    else:
+                        live_enabled = False
+            else:
+                live_enabled = False
+        else:
+            live_mem = {"ok": False, "error": probe.get("error", "live skipped"), "latency_ms": None}
+            live_code = {"ok": False, "error": "live skipped", "latency_ms": None}
+
+        mem_llm_ms = (live_mem or {}).get("latency_ms")
+        code_llm_ms = (live_code or {}).get("latency_ms") if live_code else None
+        mem_total_ms = prep_mem_ms + (mem_llm_ms or 0) if mem_llm_ms is not None else None
+        code_total_ms = prep_code_ms + (code_llm_ms or 0) if code_llm_ms is not None else None
+
+        ratio = round(100.0 * mem_ctx / code_ctx, 1) if code_ctx else None
+        rows.append(
+            {
+                "id": case["id"],
+                "question": case["question"],
+                "hub_path": case["hub_path"],
+                "must_hit": case["must_hit"],
+                "memory": {
+                    "context_tokens": mem_ctx,
+                    "l2_chars": len(l2),
+                    "prepare_ms": prep_mem_ms,
+                    "llm_ms": mem_llm_ms,
+                    "total_ms": mem_total_ms,
+                    "live": live_mem,
+                },
+                "search": {
+                    "context_tokens": code_ctx,
+                    "files": file_meta,
+                    "file_count": len(file_meta),
+                    "prepare_ms": prep_code_ms,
+                    "llm_ms": code_llm_ms,
+                    "total_ms": code_total_ms,
+                    "live": live_code,
+                },
+                "context_ratio_pct": ratio,
+                "context_saved": code_ctx - mem_ctx,
+                "latency_saved_ms": (
+                    (code_total_ms - mem_total_ms)
+                    if mem_total_ms is not None and code_total_ms is not None
+                    else None
+                ),
+            }
+        )
+
+    total_m = sum(r["memory"]["context_tokens"] for r in rows)
+    total_c = sum(r["search"]["context_tokens"] for r in rows)
+    mode = "live_partial" if live_ok else "context_only"
+    if live_ok >= len(CASES) * 2:
+        mode = "live"
+
+    payload = {
+        "title": "Memory ON vs OFF · 对话上下文 / Proxy 账单",
+        "mode": mode,
+        "encoder": enc_name,
+        "model": MODEL,
+        "core": CORE,
+        "ec_repo": str(EC),
+        "measured_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "method": (
+            "Memory ON=system+scenario/read(L2)+问；"
+            "Memory OFF=system+入口类 Java 全文+问。"
+            "计量：Proxy usage + 墙钟（prepare_ms + llm_ms）。"
+            "上游不可用时仅 context token。"
+        ),
+        "cases": rows,
+        "totals": {
+            "memory_context_tokens": total_m,
+            "search_context_tokens": total_c,
+            "ratio_pct": round(100.0 * total_m / total_c, 1) if total_c else None,
+            "saved_context_tokens": total_c - total_m,
+            "live_calls_ok": live_ok,
+            "live_memory_tokens": sum(
+                (r["memory"]["live"] or {}).get("total_tokens") or 0
+                for r in rows
+                if (r["memory"]["live"] or {}).get("ok")
+            ),
+            "live_search_tokens": sum(
+                (r["search"]["live"] or {}).get("total_tokens") or 0
+                for r in rows
+                if r["search"]["live"] and (r["search"]["live"] or {}).get("ok")
+            ),
+            "memory_total_ms": sum(
+                r["memory"]["total_ms"] or 0
+                for r in rows
+                if r["memory"]["total_ms"] is not None
+            ),
+            "search_total_ms": sum(
+                r["search"]["total_ms"] or 0
+                for r in rows
+                if r["search"]["total_ms"] is not None
+            ),
+            "memory_llm_ms": sum(
+                r["memory"]["llm_ms"] or 0
+                for r in rows
+                if r["memory"]["llm_ms"] is not None
+            ),
+            "search_llm_ms": sum(
+                r["search"]["llm_ms"] or 0
+                for r in rows
+                if r["search"]["llm_ms"] is not None
+            ),
+        },
+        "static_reading_proof": "token-proof-latest.json",
+        "caveat": (
+            "墙钟=本机 prepare（读 L2 / 读 Java）+ Proxy LLM round-trip；"
+            "未计多轮 grep 试错。completion 两端同 max_tokens=256。"
+            "live 依赖 all-in-one-ai；502 时 mode=context_only。"
+        ),
+    }
+
+    t = payload["totals"]
+    lm = t.get("live_memory_tokens") or 0
+    ls = t.get("live_search_tokens") or 0
+    live_ratio = round(100.0 * lm / ls, 1) if ls else None
+    if ls:
+        t["live_ratio_pct"] = live_ratio
+        t["live_saved_tokens"] = ls - lm
+    mt = t.get("memory_total_ms") or 0
+    st = t.get("search_total_ms") or 0
+    if mt and st:
+        t["latency_ratio_pct"] = round(100.0 * mt / st, 1)
+        t["latency_saved_ms"] = st - mt
+        t["latency_speedup_x"] = round(st / mt, 2)
+
+    OUT.mkdir(parents=True, exist_ok=True)
+    day = datetime.now().strftime("%Y%m%d-%H%M%S")
+    js = OUT / f"bill-proof-{day}.json"
+    md = OUT / f"bill-proof-{day}.md"
+    latest_js = OUT / "bill-proof-latest.json"
+    latest_md = OUT / "bill-proof-latest.md"
+
+    lines = [
+        f"# {payload['title']} · {day}",
+        "",
+        f"mode=`{mode}` · encoder=`{enc_name}` · model=`{MODEL}`",
+        "",
+        payload["method"],
+        "",
+        "| 题 | Mem tok | 搜仓 tok | Mem ms | 搜仓 ms | 省 ms | live Mem | live 搜仓 |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|",
+    ]
+    for r in rows:
+        lm_live = r["memory"]["live"]
+        lc = r["search"]["live"]
+        lm_s = (
+            f"{lm_live.get('total_tokens')}"
+            if lm_live and lm_live.get("ok")
+            else (lm_live.get("error", "—")[:24] if lm_live else "—")
+        )
+        lc_s = (
+            f"{lc.get('total_tokens')}"
+            if lc and lc.get("ok")
+            else (lc.get("error", "—")[:24] if lc else "skip/—")
+        )
+        mm = r["memory"]["total_ms"]
+        sm = r["search"]["total_ms"]
+        saved = r.get("latency_saved_ms")
+        lines.append(
+            f"| {r['id']} | {r['memory']['context_tokens']} | {r['search']['context_tokens']} | "
+            f"{mm if mm is not None else '—'} | {sm if sm is not None else '—'} | "
+            f"{saved if saved is not None else '—'} | {lm_s} | {lc_s} |"
+        )
+    lines += [
+        "",
+        f"**合计上下文** Memory **{t['memory_context_tokens']}** vs 搜仓 "
+        f"**{t['search_context_tokens']}**（≈**{t['ratio_pct']}%**，省 "
+        f"**{t['saved_context_tokens']}**）· live_ok={t['live_calls_ok']}",
+    ]
+    if ls:
+        lines.append(
+            f"**合计 live usage** Memory **{lm}** vs 搜仓 **{ls}**"
+            f"（≈**{live_ratio}%**，省 **{ls - lm}**）"
+        )
+    if mt and st:
+        lines.append(
+            f"**合计墙钟** Memory **{mt} ms** vs 搜仓 **{st} ms**"
+            f"（≈**{t['latency_ratio_pct']}%**，省 **{st - mt} ms**，约 **{t['latency_speedup_x']}×**）"
+        )
+        lines.append(
+            f"  · 其中 LLM round-trip：Mem {t['memory_llm_ms']} ms / 搜仓 {t['search_llm_ms']} ms"
+        )
+    lines += [
+        "",
+        f"> {payload['caveat']}",
+        "",
+    ]
+    md.write_text("\n".join(lines) + "\n")
+    latest_md.write_text(md.read_text())
+    js.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n")
+    latest_js.write_text(js.read_text())
+    print(md.read_text())
+    print(f"wrote {md}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

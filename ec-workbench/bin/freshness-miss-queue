@@ -1,0 +1,120 @@
+#!/usr/bin/env python3
+"""保鲜 miss → 待办队列（人审后 superseded / 改锚）。
+
+优先读最新 freshness-batch-*.json；也可 --from 指定。
+写出：
+  artifacts/memory-l2/queues/freshness-miss-latest.md
+  artifacts/memory-l2/queues/freshness-miss-latest.json
+
+用法：
+  ./bin/freshness-miss-queue
+  ./bin/freshness-miss-queue --from artifacts/memory-l2/freshness-batch-….json
+  ./bin/freshness-check --limit 20 && ./bin/freshness-miss-queue
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+ART = ROOT / "artifacts" / "memory-l2"
+QUEUE = ART / "queues"
+SEED = ART / "seed"
+
+
+def latest_freshness_json() -> Path | None:
+    cands = sorted(ART.glob("freshness-batch-*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+    return cands[0] if cands else None
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--from", dest="src", type=Path, default=None)
+    args = ap.parse_args()
+    src = args.src or latest_freshness_json()
+    if not src or not src.is_file():
+        print("找不到 freshness-batch-*.json，先跑 ./bin/freshness-check", file=sys.stderr)
+        return 2
+
+    doc = json.loads(src.read_text(encoding="utf-8"))
+    rows = [r for r in doc.get("rows") or [] if r.get("status") == "miss"]
+    QUEUE.mkdir(parents=True, exist_ok=True)
+    day = datetime.now().strftime("%Y%m%d-%H%M%S")
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    items = []
+    for r in rows:
+        rel = r["path"]
+        seed_path = SEED / rel
+        hub = f"ec/{rel}" if not str(rel).startswith("ec/") else str(rel)
+        items.append(
+            {
+                "seed": rel,
+                "hub_path": hub,
+                "exists_local": seed_path.is_file(),
+                "symbols": r.get("symbols") or [],
+                "todo": [
+                    f"打开 `{seed_path.relative_to(ROOT) if seed_path.is_file() else seed_path}`",
+                    "对着当前 EC 核符号；失效则改 `status: superseded` 并注明替代 path",
+                    "仍有效则修正 anchors 后 `./bin/seed-l2-auto-import --scope team <seed>`",
+                ],
+                "status": "open",
+            }
+        )
+
+    payload = {
+        "title": "保鲜 miss 待办队列",
+        "source": str(src),
+        "built_at": now,
+        "ec_oneline": doc.get("ec_oneline"),
+        "checked": doc.get("checked"),
+        "miss_count": len(items),
+        "items": items,
+    }
+
+    latest_js = QUEUE / "freshness-miss-latest.json"
+    latest_md = QUEUE / "freshness-miss-latest.md"
+    stamped = QUEUE / f"freshness-miss-{day}.json"
+    latest_js.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n")
+    stamped.write_text(latest_js.read_text())
+
+    lines = [
+        f"# 保鲜 miss 待办 · {day}",
+        "",
+        f"来源：`{src.name}` · miss **{len(items)}** / checked {doc.get('checked')}",
+        f"EC：`{doc.get('ec_oneline')}`",
+        "",
+    ]
+    if not items:
+        lines += ["本批无 miss，队列为空。", ""]
+    else:
+        lines += ["| # | seed | 建议 |", "|---:|---|---|"]
+        for i, it in enumerate(items, 1):
+            lines.append(
+                f"| {i} | `{it['seed']}` | superseded 或改锚后 auto-import |"
+            )
+        lines.append("")
+        for i, it in enumerate(items, 1):
+            lines.append(f"## {i}. `{it['seed']}`")
+            lines.append(f"- hub: `{it['hub_path']}`")
+            for d in it["symbols"]:
+                lines.append(
+                    f"- symbol `{d.get('symbol')}` files={d.get('files')} "
+                    f"method_ok={d.get('method_ok')} {d.get('sample') or ''}"
+                )
+            for step in it["todo"]:
+                lines.append(f"- [ ] {step}")
+            lines.append("")
+
+    latest_md.write_text("\n".join(lines) + "\n")
+    (QUEUE / f"freshness-miss-{day}.md").write_text(latest_md.read_text())
+    print(latest_md.read_text())
+    print(f"wrote {latest_md}")
+    return 0 if not items else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

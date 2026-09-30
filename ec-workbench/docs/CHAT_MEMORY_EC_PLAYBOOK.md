@@ -1,8 +1,9 @@
 # Chat Memory × EC 旁路 · Playbook
 
-> 状态：2026-09-24 主线收口（存 / 核 / 用）+ 半自动回写 / 保鲜抽检  
+> 状态：2026-09-30 主线收口（存 / 核 / 用）+ 自动回写 / 保鲜 / **Proxy 账单 live**  
 > Skill：[`../skills/chat-memory-ec/SKILL.md`](../skills/chat-memory-ec/SKILL.md)  
 > 有用性：[`../artifacts/memory-l2/usefulness-batch-20260924.md`](../artifacts/memory-l2/usefulness-batch-20260924.md)  
+> Token 证明：[`../artifacts/memory-l2/proof/bill-proof-latest.md`](../artifacts/memory-l2/proof/bill-proof-latest.md)（live）· [`token-proof-latest.md`](../artifacts/memory-l2/proof/token-proof-latest.md)（静态）  
 > 回写+保鲜：[`../artifacts/memory-l2/writeback-freshness-20260924.md`](../artifacts/memory-l2/writeback-freshness-20260924.md)  
 > 同事从对话挖判决：[`CHAT_MEMORY_EC_COLLEAGUE_TRAIN.md`](./CHAT_MEMORY_EC_COLLEAGUE_TRAIN.md)
 
@@ -37,7 +38,18 @@
 
 ## 会话收尾 / 保鲜 / 负例
 
-详见 Skill 同名三节。自动导入：[`../bin/seed-l2-auto-import`](../bin/seed-l2-auto-import)（回执 `artifacts/memory-l2/receipts/latest.md`）。旧单条入口：[`../bin/seed-l2-to-hub`](../bin/seed-l2-to-hub)。
+详见 Skill 同名三节。
+
+```bash
+# 收尾起草骨架 → 人闸改 mouths/anchors → 导入
+./ec-workbench/bin/draft-seed-from-session --scope team --biz <口> --slug <slug> \
+  --title "…" --decision "…"
+./ec-workbench/bin/seed-l2-auto-import --scope team path/in/seed/...
+```
+
+自动导入回执：`artifacts/memory-l2/receipts/{team,myself}/latest.md`。旧单条入口：[`../bin/seed-l2-to-hub`](../bin/seed-l2-to-hub)。
+
+证明复跑：`./bin/memory-bill-proof`（Proxy usage）· `./bin/memory-token-proof`（静态阅读）。
 
 ## EC 基线差分（commit → sync → 保鲜 → stitch）
 
@@ -48,13 +60,17 @@
 ./ec-workbench/bin/install-ec-baseline-launchd   # 每天 10:30
 ```
 
-## seed → Hub（自动写 · 旁路回执）
+## seed → Hub（自动写 · 旁路回执 · myself/team）
+
+见 [`MEMORY_LOOP_SCOPES.md`](./MEMORY_LOOP_SCOPES.md)。
 
 ```bash
-./ec-workbench/bin/seed-l2-auto-import path/to/seed.md
-./ec-workbench/bin/on-seed-change                 # 相对上次有变才导入
-./ec-workbench/bin/install-seed-auto-import-launchd  # 每天 10:40
-# 回执：artifacts/memory-l2/receipts/latest.md
+./ec-workbench/bin/seed-l2-auto-import --scope team path/to/seed.md
+./ec-workbench/bin/seed-l2-auto-import --scope myself path/to/seed-myself.md
+./ec-workbench/bin/on-seed-change
+./ec-workbench/bin/claude-via-memory                 # team
+./ec-workbench/bin/claude-via-memory --scope myself
+# 回执：receipts/{team,myself}/latest.md
 ```
 
 ## 路径与正文

@@ -1,0 +1,20 @@
+{
+  "mode": "explicit",
+  "scope": "myself",
+  "results": [
+    {
+      "scope": "myself",
+      "file": "artifacts/memory-l2/seed-myself/ops/myself-loop-isolation-smoke.md",
+      "hub_path": "ec/ops/myself-loop-isolation-smoke.md",
+      "title": "仅给自己看的试写：Memory Loop myself 隔离",
+      "decision": "这条判决只进 **Loop for myself**（`ec-memory-myself`），不进 team 共享库存。用来冒烟：team 身份 `scenario/read` 应读不到同 path。",
+      "status": "active",
+      "team_id": "team-fup41y2jfn",
+      "agent_id": "agt-fup4iu53zb",
+      "write_ok": true,
+      "read_has_content": true,
+      "import_status": 200,
+      "reason": "ok"
+    }
+  ]
+}

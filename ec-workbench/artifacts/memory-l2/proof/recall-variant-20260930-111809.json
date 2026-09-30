@@ -1,0 +1,234 @@
+{
+  "title": "问法变体召回验收",
+  "measured_at": "2026-09-30T03:18:09Z",
+  "core": "http://127.0.0.1:8420",
+  "totals": {
+    "variants": 12,
+    "l1_hit": 11,
+    "l1_rate_pct": 91.7,
+    "seed_hit": 12,
+    "seed_rate_pct": 100.0
+  },
+  "rows": [
+    {
+      "case": "Q1-saqu",
+      "variant": 1,
+      "query": "Saqu 绑卡只能绑自家卡要对标哪套？",
+      "hub_path": "ec/bindcard/saqu-superbank-pattern.md",
+      "l1_hit": true,
+      "l1_found": [
+        "keepOnlySuperBankIfInExperiment",
+        "SuperBank",
+        "Saqu"
+      ],
+      "l1_items": 5,
+      "seed_hit": true,
+      "seed_found": [
+        "keepOnlySuperBankIfInExperiment",
+        "SuperBank",
+        "Saqu"
+      ]
+    },
+    {
+      "case": "Q1-saqu",
+      "variant": 2,
+      "query": "印尼 Saqu 渠道绑卡过滤复用哪个方法？",
+      "hub_path": "ec/bindcard/saqu-superbank-pattern.md",
+      "l1_hit": true,
+      "l1_found": [
+        "keepOnlySuperBankIfInExperiment",
+        "SuperBank",
+        "Saqu"
+      ],
+      "l1_items": 5,
+      "seed_hit": true,
+      "seed_found": [
+        "keepOnlySuperBankIfInExperiment",
+        "SuperBank",
+        "Saqu"
+      ]
+    },
+    {
+      "case": "Q1-saqu",
+      "variant": 3,
+      "query": "只要自家卡且可开关，有没有现成 SuperBank 逻辑？",
+      "hub_path": "ec/bindcard/saqu-superbank-pattern.md",
+      "l1_hit": true,
+      "l1_found": [
+        "keepOnlySuperBankIfInExperiment",
+        "SuperBank",
+        "Saqu"
+      ],
+      "l1_items": 5,
+      "seed_hit": true,
+      "seed_found": [
+        "keepOnlySuperBankIfInExperiment",
+        "SuperBank",
+        "Saqu"
+      ]
+    },
+    {
+      "case": "Q2-merge",
+      "variant": 1,
+      "query": "MERGE_ 和 MERGED_ 哪个是留存用户？",
+      "hub_path": "ec/auth/merge-user-id-vs-merged-user-id.md",
+      "l1_hit": true,
+      "l1_found": [
+        "MERGE_USER_ID",
+        "MERGED_USER_ID",
+        "留存"
+      ],
+      "l1_items": 5,
+      "seed_hit": true,
+      "seed_found": [
+        "MERGE_USER_ID",
+        "MERGED_USER_ID",
+        "留存"
+      ]
+    },
+    {
+      "case": "Q2-merge",
+      "variant": 2,
+      "query": "user_merge_history 合并后哪个字段是活账号？",
+      "hub_path": "ec/auth/merge-user-id-vs-merged-user-id.md",
+      "l1_hit": true,
+      "l1_found": [
+        "MERGE_USER_ID",
+        "MERGED_USER_ID",
+        "留存"
+      ],
+      "l1_items": 5,
+      "seed_hit": true,
+      "seed_found": [
+        "MERGE_USER_ID",
+        "MERGED_USER_ID",
+        "留存"
+      ]
+    },
+    {
+      "case": "Q2-merge",
+      "variant": 3,
+      "query": "insert(newUserId, oldUserId) 和字段语义是不是一回事？",
+      "hub_path": "ec/auth/merge-user-id-vs-merged-user-id.md",
+      "l1_hit": true,
+      "l1_found": [
+        "MERGE_USER_ID",
+        "MERGED_USER_ID",
+        "留存"
+      ],
+      "l1_items": 5,
+      "seed_hit": true,
+      "seed_found": [
+        "MERGE_USER_ID",
+        "MERGED_USER_ID",
+        "留存"
+      ]
+    },
+    {
+      "case": "Q3-h5",
+      "variant": 1,
+      "query": "H5 全流程为什么看不到立即申请？",
+      "hub_path": "ec/homepage/h5-whole-process-hides-main-button.md",
+      "l1_hit": true,
+      "l1_found": [
+        "showDownloadButton",
+        "isWholeProcess",
+        "立即申请"
+      ],
+      "l1_items": 5,
+      "seed_hit": true,
+      "seed_found": [
+        "showDownloadButton",
+        "isWholeProcess",
+        "立即申请"
+      ]
+    },
+    {
+      "case": "Q3-h5",
+      "variant": 2,
+      "query": "whole process 首页主按钮被藏的判断字段是啥？",
+      "hub_path": "ec/homepage/h5-whole-process-hides-main-button.md",
+      "l1_hit": true,
+      "l1_found": [
+        "showDownloadButton",
+        "isWholeProcess",
+        "立即申请"
+      ],
+      "l1_items": 5,
+      "seed_hit": true,
+      "seed_found": [
+        "showDownloadButton",
+        "isWholeProcess",
+        "立即申请"
+      ]
+    },
+    {
+      "case": "Q3-h5",
+      "variant": 3,
+      "query": "下载按钮和主申请按钮在全流程里怎么控？",
+      "hub_path": "ec/homepage/h5-whole-process-hides-main-button.md",
+      "l1_hit": true,
+      "l1_found": [
+        "showDownloadButton",
+        "isWholeProcess",
+        "立即申请"
+      ],
+      "l1_items": 5,
+      "seed_hit": true,
+      "seed_found": [
+        "showDownloadButton",
+        "isWholeProcess",
+        "立即申请"
+      ]
+    },
+    {
+      "case": "Q4-startup",
+      "variant": 1,
+      "query": "APP_STARTUP 是不是每天零点 cron？",
+      "hub_path": "ec/kafka/app-startup-at-least-once-realtime.md",
+      "l1_hit": true,
+      "l1_found": [
+        "APP_STARTUP",
+        "Kafka",
+        "0 点"
+      ],
+      "l1_items": 5,
+      "seed_hit": true,
+      "seed_found": [
+        "APP_STARTUP",
+        "Kafka"
+      ]
+    },
+    {
+      "case": "Q4-startup",
+      "variant": 2,
+      "query": "开屏至少一次事件是实时还是批跑？",
+      "hub_path": "ec/kafka/app-startup-at-least-once-realtime.md",
+      "l1_hit": true,
+      "l1_found": [
+        "Kafka"
+      ],
+      "l1_items": 5,
+      "seed_hit": true,
+      "seed_found": [
+        "APP_STARTUP",
+        "Kafka"
+      ]
+    },
+    {
+      "case": "Q4-startup",
+      "variant": 3,
+      "query": "AppStartupAtLeastOnce 走什么链路？",
+      "hub_path": "ec/kafka/app-startup-at-least-once-realtime.md",
+      "l1_hit": false,
+      "l1_found": [],
+      "l1_items": 5,
+      "seed_hit": true,
+      "seed_found": [
+        "APP_STARTUP",
+        "Kafka"
+      ]
+    }
+  ],
+  "method": "每问法 → Core atomic/search；本地 seed 关键词对照。命中=must 关键字≥1。"
+}

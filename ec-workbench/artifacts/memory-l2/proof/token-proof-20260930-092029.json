@@ -1,0 +1,177 @@
+{
+  "title": "Memory vs 搜仓 · 阅读 token 对照",
+  "encoder": "approx/len÷4",
+  "ec_repo": "/Users/lipeng/IdeaProjects/ec",
+  "measured_at": "2026-09-30T01:20:29Z",
+  "method": "Memory臂=L2 seed全文；搜仓臂=anchors符号对应Java文件全文之和（未计全仓grep试错；故搜仓为下限）",
+  "cases": [
+    {
+      "id": "Q1-saqu",
+      "question": "Saqu 绑卡对标哪套？关键方法名？",
+      "seed": "bindcard/saqu-superbank-pattern.md",
+      "must_hit": [
+        "keepOnlySuperBankIfInExperiment"
+      ],
+      "memory_tokens": 174,
+      "code_tokens": 51201,
+      "code_files": 5,
+      "files": [
+        {
+          "path": "ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java",
+          "tokens": 17159
+        },
+        {
+          "path": "ec-internal-api/src/main/java/com/miyou/controllers/cashloan/LoanBankAccountController.java",
+          "tokens": 2612
+        },
+        {
+          "path": "ec-api/src/main/java/com/miyou/controllers/cashloan/LoanBankAccountController.java",
+          "tokens": 6471
+        },
+        {
+          "path": "ec-core/src/main/java/com/yqg/core/service/abtest/enums/ExperimentNameSpace.java",
+          "tokens": 15170
+        },
+        {
+          "path": "ec-core/src/main/java/com/yqg/core/model/sql/bankaccount/enums/BankType.java",
+          "tokens": 9789
+        }
+      ],
+      "symbols_used": [
+        "LoanBankAccountService",
+        "LoanBankAccountController",
+        "ExperimentNameSpace",
+        "BankType"
+      ],
+      "token_ratio_pct": 0.3,
+      "delta": 51027
+    },
+    {
+      "id": "Q2-merge",
+      "question": "MERGE_ vs MERGED_ 谁留存？",
+      "seed": "auth/merge-user-id-vs-merged-user-id.md",
+      "must_hit": [
+        "MERGE_",
+        "MERGED_"
+      ],
+      "memory_tokens": 189,
+      "code_tokens": 27516,
+      "code_files": 2,
+      "files": [
+        {
+          "path": "ec-core/src/main/java/com/yqg/core/model/sql/user/UserMergeHistoryModel.java",
+          "tokens": 2303
+        },
+        {
+          "path": "ec-core/src/main/java/com/yqg/core/service/user/UserMobileChangeService.java",
+          "tokens": 25213
+        }
+      ],
+      "symbols_used": [
+        "UserMergeHistoryModel",
+        "UserMobileChangeService"
+      ],
+      "token_ratio_pct": 0.7,
+      "delta": 27327
+    },
+    {
+      "id": "Q3-h5-btn",
+      "question": "H5 全流程为何不见「立即申请」？",
+      "seed": "homepage/h5-whole-process-hides-main-button.md",
+      "must_hit": [
+        "showDownloadButton",
+        "isWholeProcess"
+      ],
+      "memory_tokens": 198,
+      "code_tokens": 6548,
+      "code_files": 5,
+      "files": [
+        {
+          "path": "ec-api/src/main/java/com/miyou/controllers/cashloan/response/v5/user/HomePageMainCardInfo.java",
+          "tokens": 715
+        },
+        {
+          "path": "ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/elementmodel/order/MultiLoanProductProcessor.java",
+          "tokens": 444
+        },
+        {
+          "path": "ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/elementmodel/orderstep/OrderProgressStepProcessor.java",
+          "tokens": 3683
+        },
+        {
+          "path": "ec-core/src/main/java/com/yqg/core/service/cashloan/homepage/utilities/HomepageWholeProcessTool.java",
+          "tokens": 347
+        },
+        {
+          "path": "ec-core/src/main/java/com/yqg/core/common/enums/RequestClientType.java",
+          "tokens": 1359
+        }
+      ],
+      "symbols_used": [
+        "HomePageMainCardInfo",
+        "MultiLoanProductProcessor",
+        "OrderProgressStepProcessor",
+        "PageCardV3",
+        "HomepageWholeProcessTool",
+        "RequestClientType"
+      ],
+      "token_ratio_pct": 3.0,
+      "delta": 6350
+    },
+    {
+      "id": "Q4-startup",
+      "question": "APP_STARTUP 是否 0 点 cron？",
+      "seed": "kafka/app-startup-at-least-once-realtime.md",
+      "must_hit": [
+        "AppStartup",
+        "processAppStartupEvent"
+      ],
+      "memory_tokens": 199,
+      "code_tokens": 7321,
+      "code_files": 4,
+      "files": [
+        {
+          "path": "ec-core/src/main/java/com/yqg/core/service/app/AppStartupService.java",
+          "tokens": 981
+        },
+        {
+          "path": "ec-core/src/main/java/com/yqg/core/service/kafka/consumer/processor/AppStartupAtLeastOnceEventProcessor.java",
+          "tokens": 1646
+        },
+        {
+          "path": "ec-api/src/main/java/com/miyou/controllers/realtimeevent/RealTimeEventController.java",
+          "tokens": 3521
+        },
+        {
+          "path": "ec-api/src/main/java/com/miyou/controllers/cashloan/utilities/LoanHomePageLogService.java",
+          "tokens": 1173
+        }
+      ],
+      "symbols_used": [
+        "AppStartupService",
+        "AppStartupAtLeastOnceEventProcessor",
+        "RealTimeEventController",
+        "LoanHomePageLogService"
+      ],
+      "token_ratio_pct": 2.7,
+      "delta": 7122
+    }
+  ],
+  "totals": {
+    "memory_tokens": 760,
+    "code_tokens": 92586,
+    "ratio_pct": 0.8,
+    "saved_tokens": 91826
+  },
+  "acceptance": {
+    "usefulness_smoke": "4/4",
+    "usefulness_source": "usefulness-batch-20260924.md",
+    "negative_n1_n3": "3/3",
+    "negative_source": "negative-batch-20260927.md",
+    "freshness_sample": "20/20 ok",
+    "freshness_source": "freshness-batch-20260927-104248.md",
+    "seed_md_count": 96,
+    "isolation_myself_vs_team": "pass"
+  },
+  "caveat": "搜仓臂=命中 Java 文件全文之和，未计 grep 试错/多轮工具调用；故省 token 为保守下限。编码器无 tiktoken 时用 len÷4 近似。"
+}

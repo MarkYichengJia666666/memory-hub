@@ -1,0 +1,149 @@
+{
+  "title": "Memory vs 搜仓 · 阅读 token 对照",
+  "encoder": "approx/len÷4",
+  "ec_repo": "/Users/lipeng/IdeaProjects/ec",
+  "measured_at": "2026-09-30T01:18:28Z",
+  "method": "Memory臂=L2 seed全文；搜仓臂=anchors符号对应Java文件全文之和（未计全仓grep试错；故搜仓为下限）",
+  "cases": [
+    {
+      "id": "Q1-saqu",
+      "question": "Saqu 绑卡对标哪套？关键方法名？",
+      "seed": "bindcard/saqu-superbank-pattern.md",
+      "must_hit": [
+        "keepOnlySuperBankIfInExperiment"
+      ],
+      "memory_tokens": 174,
+      "code_tokens": 51201,
+      "code_files": 5,
+      "files": [
+        {
+          "path": "ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java",
+          "tokens": 17159
+        },
+        {
+          "path": "ec-internal-api/src/main/java/com/miyou/controllers/cashloan/LoanBankAccountController.java",
+          "tokens": 2612
+        },
+        {
+          "path": "ec-api/src/main/java/com/miyou/controllers/cashloan/LoanBankAccountController.java",
+          "tokens": 6471
+        },
+        {
+          "path": "ec-core/src/main/java/com/yqg/core/service/abtest/enums/ExperimentNameSpace.java",
+          "tokens": 15170
+        },
+        {
+          "path": "ec-core/src/main/java/com/yqg/core/model/sql/bankaccount/enums/BankType.java",
+          "tokens": 9789
+        }
+      ],
+      "symbols_used": [
+        "LoanBankAccountService",
+        "LoanBankAccountController",
+        "ExperimentNameSpace",
+        "BankType",
+        "keepOnlySuperBankIfInExperiment"
+      ],
+      "token_ratio_pct": 0.3,
+      "delta": 51027
+    },
+    {
+      "id": "Q2-merge",
+      "question": "MERGE_ vs MERGED_ 谁留存？",
+      "seed": "auth/merge-user-id-vs-merged-user-id.md",
+      "must_hit": [
+        "MERGE_",
+        "MERGED_"
+      ],
+      "memory_tokens": 189,
+      "code_tokens": 0,
+      "code_files": 0,
+      "files": [],
+      "symbols_used": [
+        "MERGE_USER_ID",
+        "MERGED_USER_ID",
+        "SELECTED",
+        "NOT_SELECTED"
+      ],
+      "token_ratio_pct": null,
+      "delta": -189
+    },
+    {
+      "id": "Q3-h5-btn",
+      "question": "H5 全流程为何不见「立即申请」？",
+      "seed": "homepage/h5-whole-process-hides-main-button.md",
+      "must_hit": [
+        "showDownloadButton",
+        "isWholeProcess"
+      ],
+      "memory_tokens": 198,
+      "code_tokens": 4842,
+      "code_files": 3,
+      "files": [
+        {
+          "path": "ec-api/src/main/java/com/miyou/controllers/cashloan/response/v5/user/HomePageMainCardInfo.java",
+          "tokens": 715
+        },
+        {
+          "path": "ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/elementmodel/order/MultiLoanProductProcessor.java",
+          "tokens": 444
+        },
+        {
+          "path": "ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/elementmodel/orderstep/OrderProgressStepProcessor.java",
+          "tokens": 3683
+        }
+      ],
+      "symbols_used": [
+        "PageCardV3",
+        "MULTI_LOAN_INIT",
+        "HomePageMainCardInfo",
+        "MultiLoanProductProcessor",
+        "OrderProgressStepProcessor"
+      ],
+      "token_ratio_pct": 4.1,
+      "delta": 4644
+    },
+    {
+      "id": "Q4-startup",
+      "question": "APP_STARTUP 是否 0 点 cron？",
+      "seed": "kafka/app-startup-at-least-once-realtime.md",
+      "must_hit": [
+        "AppStartup",
+        "processAppStartupEvent"
+      ],
+      "memory_tokens": 199,
+      "code_tokens": 2627,
+      "code_files": 2,
+      "files": [
+        {
+          "path": "ec-core/src/main/java/com/yqg/core/service/app/AppStartupService.java",
+          "tokens": 981
+        },
+        {
+          "path": "ec-core/src/main/java/com/yqg/core/service/kafka/consumer/processor/AppStartupAtLeastOnceEventProcessor.java",
+          "tokens": 1646
+        }
+      ],
+      "symbols_used": [
+        "APP_STARTUP_AT_LEAST_ONCE",
+        "AppStartupService",
+        "AppStartupAtLeastOnceEventProcessor"
+      ],
+      "token_ratio_pct": 7.6,
+      "delta": 2428
+    }
+  ],
+  "totals": {
+    "memory_tokens": 760,
+    "code_tokens": 58670,
+    "ratio_pct": 1.3,
+    "saved_tokens": 57910
+  },
+  "acceptance": {
+    "usefulness_smoke": "4/4",
+    "negative_n1_n3": "3/3",
+    "freshness_sample": "20/20 ok",
+    "seed_active_approx": 90,
+    "isolation_myself_vs_team": "pass"
+  }
+}

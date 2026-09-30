@@ -1,0 +1,244 @@
+{
+  "title": "Memory ON vs OFF · 对话上下文 / Proxy 账单",
+  "mode": "live",
+  "encoder": "approx/len÷4",
+  "model": "deepseek-v4-flash-0731",
+  "core": "http://127.0.0.1:8420",
+  "ec_repo": "/Users/lipeng/IdeaProjects/ec",
+  "measured_at": "2026-09-30T01:37:17Z",
+  "method": "Memory ON=system+scenario/read(L2)+问；Memory OFF=system+入口类 Java 全文+问。优先 Proxy usage；上游不可用时仅 context token。",
+  "cases": [
+    {
+      "id": "Q1-saqu",
+      "question": "Saqu「只能绑自家卡 + 要可开关」，应对标哪套已有过滤逻辑？关键方法名？",
+      "hub_path": "ec/bindcard/saqu-superbank-pattern.md",
+      "must_hit": [
+        "keepOnlySuperBankIfInExperiment"
+      ],
+      "memory": {
+        "context_tokens": 252,
+        "l2_chars": 844,
+        "live": {
+          "ok": true,
+          "usage": {
+            "prompt_tokens": 4748,
+            "completion_tokens": 256,
+            "total_tokens": 5004
+          },
+          "prompt_tokens": 4748,
+          "completion_tokens": 256,
+          "total_tokens": 5004,
+          "answer_preview": "【来源：Memory】path=ec/bindcard/saqu-superbank-pattern.md\n\nSaqu「只能绑自家卡 + 可开关」应对标 **SuperBank 渠道绑卡逻辑**，关键方法名是 `LoanBankAccountService.keepOnlySuperBankIfInExperiment`。\n\n要点：\n- **复用/对标** `keepOnlySuperBankIfInExperiment` 模式，不要另起一套过滤\n- 行为链路：`deviceId → mediaSource 白名单 → 命中实验才过滤 → 仅保留 `BankType.FAMA`（SuperBank）`\n- 开关要能随时切「只自家卡 / 全部卡」\n- 实验枚举对标：`ExperimentNameSpace.SUPERBANK_CHANNEL_USER_BINDING_CARD`\n- 涉及 m"
+        }
+      },
+      "search": {
+        "context_tokens": 26348,
+        "files": [
+          {
+            "path": "ec-core/src/main/java/com/yqg/core/service/loan/bankaccount/LoanBankAccountService.java",
+            "chars": 68636
+          },
+          {
+            "path": "ec-internal-api/src/main/java/com/miyou/controllers/cashloan/LoanBankAccountController.java",
+            "chars": 10448
+          },
+          {
+            "path": "ec-api/src/main/java/com/miyou/controllers/cashloan/LoanBankAccountController.java",
+            "chars": 25884
+          }
+        ],
+        "file_count": 3,
+        "live": {
+          "ok": true,
+          "usage": {
+            "prompt_tokens": 29813,
+            "completion_tokens": 256,
+            "total_tokens": 30069
+          },
+          "prompt_tokens": 29813,
+          "completion_tokens": 256,
+          "total_tokens": 30069,
+          "answer_preview": "【来源：代码】\n\nSaqu「只能绑自家卡 + 要可开关」应对标 **SuperBank 渠道绑卡** 的过滤逻辑，关键方法是 `LoanBankAccountService.keepOnlySuperBankIfInExperiment(...)`。\n\n---\n\n### 对标依据\n\n在 `ec-api/.../LoanBankAccountController.getIdnSupportedBankListWithLogo()` 中，SuperBank 渠道绑卡逻辑的调用链是：\n\n```java\nList<BankConfigVO> bankList = loanBankAccountService.getSupportedBankVOList(viewerContext.sdkType);\nbankList = loanBankAccountService.keepOnlySuperBa"
+        }
+      },
+      "context_ratio_pct": 1.0,
+      "context_saved": 26096
+    },
+    {
+      "id": "Q2-merge",
+      "question": "user_merge_history 里 MERGE_USER_ID 与 MERGED_USER_ID，谁是留存用户？",
+      "hub_path": "ec/auth/merge-user-id-vs-merged-user-id.md",
+      "must_hit": [
+        "MERGE_",
+        "MERGED_"
+      ],
+      "memory": {
+        "context_tokens": 323,
+        "l2_chars": 1102,
+        "live": {
+          "ok": true,
+          "usage": {
+            "prompt_tokens": 4860,
+            "completion_tokens": 125,
+            "total_tokens": 4985
+          },
+          "prompt_tokens": 4860,
+          "completion_tokens": 125,
+          "total_tokens": 4985,
+          "answer_preview": "【来源：Memory】path=ec/auth/merge-user-id-vs-merged-user-id.md\n\n**`MERGE_USER_ID` = 合并后留存可用账号**；**`MERGED_USER_ID` = 被注销废弃账号**。\n\n⚠️ 注意：`UserMergeHistoryModel.insert(newUserId, oldUserId, …)` 参数名易误导——实际 `setMergeUserId(oldUserId)`、`setMergedUserId(newUserId)`，调用方传入的「被删」常落在第一参数。查合并关系请认字段语义，不要按参数名字面理解。"
+        }
+      },
+      "search": {
+        "context_tokens": 27595,
+        "files": [
+          {
+            "path": "ec-core/src/main/java/com/yqg/core/model/sql/user/UserMergeHistoryModel.java",
+            "chars": 9212
+          },
+          {
+            "path": "ec-core/src/main/java/com/yqg/core/service/user/UserMobileChangeService.java",
+            "chars": 100853
+          }
+        ],
+        "file_count": 2,
+        "live": {
+          "ok": true,
+          "usage": {
+            "prompt_tokens": 33693,
+            "completion_tokens": 256,
+            "total_tokens": 33949
+          },
+          "prompt_tokens": 33693,
+          "completion_tokens": 256,
+          "total_tokens": 33949,
+          "answer_preview": "【来源：代码】\n\n在 `user_merge_history` 表中，**`MERGE_USER_ID` 是留存用户（存活账号）**，`MERGED_USER_ID` 是被合并掉（注销）的账号。\n\n依据如下：\n\n1. **`UserMergeHistoryModel.insert` 的调用语义**（`UserMobileChangeService.doMergeAccount`）：\n   ```java\n   userMergeHistoryModel.insert(userId, oldUserId, oldMobileNumber, newMobileNumber, UserMergeAccountReason.SELECTED);\n   ```\n   其中 `userId` 是**新手机号用户**（合并后保留），`oldUserId` 是**旧手机号用户**（被合并注销）。而 `in"
+        }
+      },
+      "context_ratio_pct": 1.2,
+      "context_saved": 27272
+    },
+    {
+      "id": "Q3-h5-btn",
+      "question": "H5 全流程为什么经常看不到「立即申请」主按钮？关键判断字段？",
+      "hub_path": "ec/homepage/h5-whole-process-hides-main-button.md",
+      "must_hit": [
+        "showDownloadButton",
+        "isWholeProcess"
+      ],
+      "memory": {
+        "context_tokens": 333,
+        "l2_chars": 1160,
+        "live": {
+          "ok": true,
+          "usage": {
+            "prompt_tokens": 4879,
+            "completion_tokens": 206,
+            "total_tokens": 5085
+          },
+          "prompt_tokens": 4879,
+          "completion_tokens": 206,
+          "total_tokens": 5085,
+          "answer_preview": "【来源：Memory】path=ec/homepage/h5-whole-process-hides-main-button.md\n\nH5 全流程看不到「立即申请」主按钮，关键判断字段是 **`RequestClientType#isWholeProcess`**。\n\n**核心逻辑**：MAIN_BUTTON 是否展示统一受 `HomepageWholeProcessTool#showDownloadButton()` 控制——H5 全流程（`isWholeProcess=true`）直接返回 false，不展示按钮；App / 非全流程 H5 才展示。\n\n**注意例外**：`MULTI_LOAN_INIT`（可续借测算）仍走老的 `HomePageMainCardInfo`，不是 `PageCardV3`，测算额度阶段是另一条老主卡链路。\n\n**排查建议**：H5 全流程看不到「立即申请"
+        }
+      },
+      "search": {
+        "context_tokens": 4962,
+        "files": [
+          {
+            "path": "ec-api/src/main/java/com/miyou/controllers/cashloan/response/v5/user/HomePageMainCardInfo.java",
+            "chars": 2860
+          },
+          {
+            "path": "ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/elementmodel/order/MultiLoanProductProcessor.java",
+            "chars": 1776
+          },
+          {
+            "path": "ec-api/src/main/java/com/miyou/controllers/cashloan/newhomepage/elementmodel/orderstep/OrderProgressStepProcessor.java",
+            "chars": 14732
+          }
+        ],
+        "file_count": 3,
+        "live": {
+          "ok": true,
+          "usage": {
+            "prompt_tokens": 10011,
+            "completion_tokens": 256,
+            "total_tokens": 10267
+          },
+          "prompt_tokens": 10011,
+          "completion_tokens": 256,
+          "total_tokens": 10267,
+          "answer_preview": "【来源：代码】\n\nH5 全流程经常看不到「立即申请」主按钮，关键判断字段是 **`HomePageContext.getUserDeviceContextVO().getChannel()`**（渠道号）。\n\n具体链路在 `MultiLoanProductProcessor`：\n\n1. `doCreateButton` 里先判断 `homepageWholeProcessTool.showDownloadButton()`，为 `true` 才继续；否则进入第二步判断。\n2. 若 `showDownloadButton()` 为 `false`，再调用 `isWebRevolvingChannel(homePageContext)` 判断是否为 **WEB 续借白名单渠道**：\n   - 先取 `homePageContext.getUserDeviceContextVO()`，为 `nu"
+        }
+      },
+      "context_ratio_pct": 6.7,
+      "context_saved": 4629
+    },
+    {
+      "id": "Q4-startup",
+      "question": "APP_STARTUP_AT_LEAST_ONCE 是不是每天 0 点 cron 批量跑？",
+      "hub_path": "ec/kafka/app-startup-at-least-once-realtime.md",
+      "must_hit": [
+        "AppStartup",
+        "processAppStartupEvent"
+      ],
+      "memory": {
+        "context_tokens": 334,
+        "l2_chars": 1156,
+        "live": {
+          "ok": true,
+          "usage": {
+            "prompt_tokens": 4882,
+            "completion_tokens": 190,
+            "total_tokens": 5072
+          },
+          "prompt_tokens": 4882,
+          "completion_tokens": 190,
+          "total_tokens": 5072,
+          "answer_preview": "【来源：Memory】path=ec/kafka/app-startup-at-least-once-realtime.md\n\n不是。`APP_STARTUP_AT_LEAST_ONCE` 是 **C 端实时行为 → outbox/Kafka → 异步消费**，代码里**不存在**「每天 00:00 cron 批量扫用户」的 Job。\n\n午夜看起来像批处理，是因为午夜 C 端流量高峰。\n\n**入口链路**：\n- `openApp` / 首页 `asyncLogUserInfo` / `app/startup`\n- → `AppStartupService.sendAppStartupEvent`\n- → topic `app_startup_at_least_once_event`\n- → `AppStartupAtLeastOnceEventProcessor`\n\n**排障提示**：不要"
+        }
+      },
+      "search": {
+        "context_tokens": 2710,
+        "files": [
+          {
+            "path": "ec-core/src/main/java/com/yqg/core/service/app/AppStartupService.java",
+            "chars": 3926
+          },
+          {
+            "path": "ec-core/src/main/java/com/yqg/core/service/kafka/consumer/processor/AppStartupAtLeastOnceEventProcessor.java",
+            "chars": 6586
+          }
+        ],
+        "file_count": 2,
+        "live": {
+          "ok": true,
+          "usage": {
+            "prompt_tokens": 6988,
+            "completion_tokens": 256,
+            "total_tokens": 7244
+          },
+          "prompt_tokens": 6988,
+          "completion_tokens": 256,
+          "total_tokens": 7244,
+          "answer_preview": "【来源：代码】\n\n不是。`APP_STARTUP_AT_LEAST_ONCE_EVENT` 不是每天 0 点 cron 批量跑，而是**实时事件驱动**的 Kafka 消息链路。\n\n依据如下：\n\n1. **生产端（投递）**：`AppStartupService.processAppStartupEvent` 在用户打开 App 时被调用（注释明确说明 \"This method is called from multiple endpoints\"），通过 `kafkaMessageService.schedule(...)` 将事件实时投递到 `APP_STARTUP_AT_LEAST_ONCE_EVENT` topic。这是**用户行为触发的实时事件**，不是定时任务。\n\n2. **消费端（处理）**：`AppStartupAtLeastOnceEventProcessor.proces"
+        }
+      },
+      "context_ratio_pct": 12.3,
+      "context_saved": 2376
+    }
+  ],
+  "totals": {
+    "memory_context_tokens": 1242,
+    "search_context_tokens": 61615,
+    "ratio_pct": 2.0,
+    "saved_context_tokens": 60373,
+    "live_calls_ok": 8,
+    "live_memory_tokens": 20146,
+    "live_search_tokens": 81529,
+    "live_ratio_pct": 24.7,
+    "live_saved_tokens": 61383
+  },
+  "static_reading_proof": "token-proof-latest.json",
+  "caveat": "context 账单=塞进模型前的字；未计多轮 grep 试错。live 依赖 all-in-one-ai；502 时 mode=context_only。"
+}

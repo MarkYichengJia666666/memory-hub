@@ -1,0 +1,278 @@
+#!/usr/bin/env python3
+"""有用性验收 · 8 题（读 Hub L2 + Proxy 作答，检查 must_hit）。
+
+模拟「空目录只靠 Memory」：先 scenario/read 期望 path，再把 L2 塞进模型答题。
+（比完整 Claude Code 工具环轻，可回归。）
+
+用法：
+  ./bin/usefulness-batch-proof
+  ./bin/usefulness-batch-proof --only 4,5,7,8
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import sys
+import urllib.error
+import urllib.request
+from datetime import datetime, timezone
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+OUT = ROOT / "artifacts" / "memory-l2"
+IDENT = ROOT / ".p0-memory-identity.json"
+CORE = os.environ.get("CORE_URL", "http://127.0.0.1:8420")
+MODEL = os.environ.get("USEFULNESS_MODEL", "deepseek-v4-flash-0731")
+
+CASES = [
+    {
+        "n": 1,
+        "id": "Q1-saqu",
+        "question": "Saqu「只能绑自家卡 + 要可开关」，应对标哪套已有过滤逻辑？关键方法名？",
+        "hub_path": "ec/bindcard/saqu-superbank-pattern.md",
+        "must_hit": ["keepOnlySuperBankIfInExperiment"],
+    },
+    {
+        "n": 2,
+        "id": "Q2-merge",
+        "question": "user_merge_history 里 MERGE_USER_ID 与 MERGED_USER_ID，谁是留存用户？",
+        "hub_path": "ec/auth/merge-user-id-vs-merged-user-id.md",
+        "must_hit": ["MERGE_USER_ID", "MERGED"],
+    },
+    {
+        "n": 3,
+        "id": "Q3-h5",
+        "question": "H5 全流程为什么经常看不到「立即申请」主按钮？关键判断？",
+        "hub_path": "ec/homepage/h5-whole-process-hides-main-button.md",
+        "must_hit": ["showDownloadButton", "isWholeProcess"],
+    },
+    {
+        "n": 4,
+        "id": "Q4-web-calc",
+        "question": "WEB 测额 / 额度过期重新测额的风控 trace 有没有 flip/ovo 等细分 channel？",
+        "hub_path": "ec/risk/web-calc-credits-no-channel.md",
+        "must_hit": ["WEB", "channel"],
+    },
+    {
+        "n": 5,
+        "id": "Q5-lazada-reject",
+        "question": "Lazada 首贷长拒可重审（FIRST_LOAN_REJECT_LONG_CAN_RETRY）下单撞库还会不会拒？",
+        "hub_path": "ec/apichannel/lazada-first-reject-long-can-retry.md",
+        "must_hit": ["LazadaCreateOrderChecker", "LAZADA_WITHIN_REJECTION_PERIOD"],
+    },
+    {
+        "n": 6,
+        "id": "Q6-startup",
+        "question": "APP_STARTUP_AT_LEAST_ONCE 是不是每天 0 点 cron 批量跑？",
+        "hub_path": "ec/kafka/app-startup-at-least-once-realtime.md",
+        "must_hit": ["Kafka"],
+    },
+    {
+        "n": 7,
+        "id": "Q7-lrd",
+        "question": "贷款到期还款提醒带账单日参数时，常见对应哪个 Selector / queryType？",
+        "hub_path": "ec/notif/repay-due-lrd-selector-chain.md",
+        "must_hit": ["LRD", "LoanRepaymentDueSelector"],
+    },
+    {
+        "n": 8,
+        "id": "Q8-1001",
+        "question": "Gopay 遇到 API_CHANNEL_USER_REJECTED 应对前端映成什么？现码落在哪？",
+        "hub_path": "ec/gopay/api-channel-rejected-map-1001.md",
+        "must_hit": ["1001", "GopayController"],
+    },
+]
+
+
+def load_ident() -> dict:
+    return json.loads(IDENT.read_text())
+
+
+def scenario_read(ident: dict, path: str) -> str:
+    body = {
+        "team_id": ident["team_id"],
+        "agent_id": ident["agent_id"],
+        "user_id": ident["user_id"],
+        "path": path,
+    }
+    req = urllib.request.Request(
+        f"{CORE.rstrip('/')}/v3/scenario/read",
+        data=json.dumps(body).encode(),
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": "Bearer local",
+            "x-tdai-service-id": ident.get("service_id", "default"),
+            "x-tdai-user-key": ident["user_key"],
+        },
+        method="POST",
+    )
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        doc = json.load(resp)
+    data = doc.get("data") or doc
+    content = data.get("content") if isinstance(data, dict) else None
+    if not content:
+        raise RuntimeError(f"empty read {path}")
+    return str(content)
+
+
+def chat(ident: dict, messages: list[dict], session: str) -> dict:
+    url = ident["proxy_base"].rstrip("/") + ident.get(
+        "proxy_openai_path", "/proxy/default/v1/chat/completions"
+    )
+    body = {"model": MODEL, "messages": messages, "max_tokens": 400, "temperature": 0}
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(body).encode(),
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {ident['user_key']}",
+            "x-tdai-user-key": ident["user_key"],
+            "x-tdai-service-id": ident.get("service_id", "default"),
+            "x-session-id": session,
+            "x-conversation-id": session,
+            "x-team-id": ident["team_id"],
+            "x-agent-id": ident["agent_id"],
+            "x-task-id": ident.get("task_id", ""),
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=90) as resp:
+            doc = json.load(resp)
+    except urllib.error.HTTPError as e:
+        return {"ok": False, "error": f"HTTP {e.code}: {e.read().decode(errors='replace')[:200]}"}
+    except Exception as e:  # noqa: BLE001
+        return {"ok": False, "error": str(e)}
+    try:
+        answer = doc["choices"][0]["message"]["content"] or ""
+    except (KeyError, IndexError, TypeError):
+        return {"ok": False, "error": "bad response"}
+    return {"ok": True, "answer": answer, "usage": doc.get("usage") or {}}
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--only", default="", help="逗号分隔题号，如 4,5,7,8；空=全部")
+    args = ap.parse_args()
+    if not IDENT.is_file():
+        print(f"missing {IDENT}", file=sys.stderr)
+        return 2
+    ident = load_ident()
+    only = {int(x) for x in args.only.split(",") if x.strip().isdigit()}
+    cases = [c for c in CASES if not only or c["n"] in only]
+
+    rows = []
+    passed = 0
+    for case in cases:
+        try:
+            l2 = scenario_read(ident, case["hub_path"])
+        except Exception as e:  # noqa: BLE001
+            rows.append({**case, "pass": False, "error": f"read:{e}", "answer": ""})
+            continue
+        msgs = [
+            {
+                "role": "system",
+                "content": (
+                    "你只根据下方 Memory L2 回答。开头写【来源：Memory】path=...；"
+                    "不要编造 L2 没有的类名。"
+                ),
+            },
+            {
+                "role": "user",
+                "content": f"## Memory L2 path={case['hub_path']}\n\n{l2}\n\n## 问题\n{case['question']}",
+            },
+        ]
+        resp = chat(ident, msgs, f"useful-{case['id']}")
+        if not resp.get("ok"):
+            rows.append({**case, "pass": False, "error": resp.get("error"), "answer": ""})
+            continue
+        answer = resp["answer"]
+        hits = [m for m in case["must_hit"] if m.lower() in answer.lower()]
+        # need all must_hit
+        ok = len(hits) == len(case["must_hit"]) and (
+            "【来源：Memory】" in answer or "来源：Memory" in answer or case["hub_path"] in answer
+        )
+        if ok:
+            passed += 1
+        rows.append(
+            {
+                "n": case["n"],
+                "id": case["id"],
+                "question": case["question"],
+                "hub_path": case["hub_path"],
+                "must_hit": case["must_hit"],
+                "hits": hits,
+                "pass": ok,
+                "answer": answer[:500],
+                "usage": resp.get("usage"),
+            }
+        )
+
+    day = datetime.now().strftime("%Y%m%d-%H%M%S")
+    total = len(cases)
+    payload = {
+        "title": "Memory 有用性验收 · Proxy+L2",
+        "measured_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "model": MODEL,
+        "method": "scenario/read 期望 path → Proxy 作答 → must_hit 全中且标明来源 Memory",
+        "totals": {"pass": passed, "total": total, "rate": f"{passed}/{total}"},
+        "cases": rows,
+    }
+    js = OUT / f"usefulness-batch-{day}.json"
+    md = OUT / f"usefulness-batch-{day}-proxy.md"
+    latest_js = OUT / "usefulness-batch-latest.json"
+    latest_md = OUT / "usefulness-batch-latest.md"
+    # also update the canonical 20260924 story with extension note via latest
+
+    lines = [
+        f"# {payload['title']} · {day}",
+        "",
+        f"model=`{MODEL}` · **{passed}/{total}**",
+        "",
+        payload["method"],
+        "",
+        "| # | id | 结果 | 命中 | hub |",
+        "|---:|---|---|---|---|",
+    ]
+    for r in rows:
+        mark = "过" if r.get("pass") else "未过"
+        lines.append(
+            f"| {r['n']} | {r['id']} | **{mark}** | {','.join(r.get('hits') or [])} | `{r['hub_path']}` |"
+        )
+    lines += ["", "## 答摘录", ""]
+    for r in rows:
+        lines.append(f"### {r['n']}. {r['id']} · {'过' if r.get('pass') else '未过'}")
+        lines.append(f"问：{r['question']}")
+        if r.get("error"):
+            lines.append(f"错误：{r['error']}")
+        else:
+            lines.append("```")
+            lines.append((r.get("answer") or "")[:400])
+            lines.append("```")
+        lines.append("")
+
+    md.write_text("\n".join(lines) + "\n")
+    js.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n")
+    latest_md.write_text(md.read_text())
+    latest_js.write_text(js.read_text())
+
+    # append pointer on classic batch doc
+    classic = OUT / "usefulness-batch-20260924.md"
+    if classic.is_file() and passed == total and total >= 8:
+        note = (
+            f"\n\n---\n\n## 续跑补全（{day}）\n\n"
+            f"Proxy+L2 回归 **{passed}/{total}**：见 [`usefulness-batch-latest.md`](./usefulness-batch-latest.md)。\n"
+            "含原未跑 4/5/7/8（WEB 测额 channel、Lazada 长拒下单、到期 LRD、USER_REJECTED→1001）。\n"
+        )
+        text = classic.read_text(encoding="utf-8")
+        if "续跑补全" not in text:
+            classic.write_text(text.rstrip() + note)
+
+    print(md.read_text())
+    print(f"wrote {md}")
+    return 0 if passed == total else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

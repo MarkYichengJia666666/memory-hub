@@ -1,3 +1,7 @@
+# Loop for team · 组内共享 seed
+
+个人判决请写到 `../seed-myself/`（见 `docs/MEMORY_LOOP_SCOPES.md`）。
+
 # Memory L2 seed 目录约定
 
 ## 双维度

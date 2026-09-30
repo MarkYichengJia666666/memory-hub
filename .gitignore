@@ -70,6 +70,8 @@ deploy/global-images/.memory-core-config/
 
 # EC Memory P0 身份凭据（含 user_key 明文）
 ec-workbench/.p0-memory-identity.json
+ec-workbench/.p0-memory-identity-myself.json
+ec-workbench/.p0-memory-identity-*.json
 
 # Eval scripts output
 scripts/eval-report.json

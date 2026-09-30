@@ -1,0 +1,20 @@
+{
+  "mode": "explicit",
+  "scope": "myself",
+  "results": [
+    {
+      "scope": "myself",
+      "file": "artifacts/memory-l2/seed-myself/ops/draft-seed-tool-smoke.md",
+      "hub_path": "ec/ops/draft-seed-tool-smoke.md",
+      "title": "draft-seed 工具冒烟",
+      "decision": "会话收尾可用 draft-seed-from-session 生成 L2 骨架，人闸后再 auto-import。",
+      "status": "active",
+      "team_id": "team-fup41y2jfn",
+      "agent_id": "agt-fup4iu53zb",
+      "write_ok": true,
+      "read_has_content": true,
+      "import_status": 200,
+      "reason": "ok"
+    }
+  ]
+}

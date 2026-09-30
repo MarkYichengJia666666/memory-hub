@@ -54,3 +54,10 @@
 - 启动：`bin/claude-via-memory` · 开场白：`MEMORY-FIRST-PROMPT.md`
 - 核写收尾：`train-durable-closeout-20260924.md` · `verify-and-extract-20260924.md`
 - Playbook：`../../docs/CHAT_MEMORY_EC_PLAYBOOK.md`
+
+---
+
+## 续跑补全（20260930-113055）
+
+Proxy+L2 回归 **8/8**：见 [`usefulness-batch-latest.md`](./usefulness-batch-latest.md)。
+含原未跑 4/5/7/8（WEB 测额 channel、Lazada 长拒下单、到期 LRD、USER_REJECTED→1001）。

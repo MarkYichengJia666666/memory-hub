@@ -182,6 +182,18 @@ def main() -> int:
     print(f"report={out}")
     print(f"json={json_out}")
     print(f"miss={miss}")
+
+    # 同步刷新 miss 待办队列
+    queue_bin = ROOT / "bin" / "freshness-miss-queue"
+    if queue_bin.is_file():
+        try:
+            subprocess.run(
+                [str(queue_bin), "--from", str(json_out)],
+                check=False,
+            )
+        except OSError as e:
+            print(f"warn: freshness-miss-queue failed: {e}", file=sys.stderr)
+
     return 0 if miss == 0 else 1
 
 

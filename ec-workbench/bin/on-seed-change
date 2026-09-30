@@ -1,20 +1,25 @@
 #!/usr/bin/env bash
-# seed 树相对上次导入基线有变 → 自动写 Hub + 旁路回执。
+# seed 树（team + myself）相对基线有变 → 自动写 Hub + 旁路回执。
 # 用法：
-#   ./bin/on-seed-change           # 有变才导入
-#   ./bin/on-seed-change --force   # 强制扫 changed（同 --changed）
+#   ./bin/on-seed-change
+#   ./bin/on-seed-change --scope myself
 #   DRY_RUN=1 ./bin/on-seed-change
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-STATE="$ROOT/state/last-seed-import"
 LOG_DIR="$ROOT/state/logs"
-FORCE=0
+SCOPE="all"
 
-for a in "$@"; do
-  case "$a" in
-    --force|-f) FORCE=1 ;;
-    --help|-h) sed -n '2,8p' "$0"; exit 0 ;;
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --scope)
+      SCOPE="${2:-all}"; shift 2 ;;
+    --scope=*)
+      SCOPE="${1#*=}"; shift ;;
+    --help|-h)
+      sed -n '2,8p' "$0"; exit 0 ;;
+    *)
+      shift ;;
   esac
 done
 
@@ -23,27 +28,26 @@ ts="$(date +%Y%m%d-%H%M%S)"
 log="$LOG_DIR/seed-import-$ts.log"
 exec > >(tee -a "$log") 2>&1
 
-echo "=== on-seed-change $ts FORCE=$FORCE ==="
+echo "=== on-seed-change $ts scope=$SCOPE ==="
 
 if [[ ! -f "$ROOT/.p0-memory-identity.json" ]]; then
-  echo "ERROR: missing $ROOT/.p0-memory-identity.json" >&2
+  echo "ERROR: missing team identity" >&2
   exit 2
 fi
-
-# 无基线时先建空状态，再 --changed 会导入全部有 decision 的 seed
-if [[ ! -f "$STATE" ]]; then
-  echo "no last-seed-import; initializing then importing all eligible"
-  "$ROOT/bin/seed-l2-auto-import" --all-active
-  echo "log=$log"
-  exit 0
+if [[ "$SCOPE" == "myself" || "$SCOPE" == "all" ]]; then
+  if [[ ! -f "$ROOT/.p0-memory-identity-myself.json" ]]; then
+    echo "ERROR: missing myself identity" >&2
+    exit 2
+  fi
 fi
 
-echo "→ seed-l2-auto-import --changed"
+echo "→ seed-l2-auto-import --scope $SCOPE --changed"
 set +e
-"$ROOT/bin/seed-l2-auto-import" --changed
+"$ROOT/bin/seed-l2-auto-import" --scope "$SCOPE" --changed
 rc=$?
 set -e
 echo "seed_import_exit=$rc"
-echo "旁路回执: $ROOT/artifacts/memory-l2/receipts/latest.md"
+echo "回执 team:   $ROOT/artifacts/memory-l2/receipts/team/latest.md"
+echo "回执 myself: $ROOT/artifacts/memory-l2/receipts/myself/latest.md"
 echo "=== done log=$log ==="
 exit "$rc"

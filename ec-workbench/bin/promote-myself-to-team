@@ -1,0 +1,153 @@
+#!/usr/bin/env python3
+"""myself → team 晋升：个人试写合入共享库存。
+
+步骤：
+  1. 读 seed-myself/…md
+  2. 写入 seed/ 同相对路径（去 ## scope myself，加晋升 evidence）
+  3. 可选：myself 原条标 superseded，指向 team hub path
+  4. 可选：--import 两边 auto-import
+
+用法：
+  ./bin/promote-myself-to-team artifacts/memory-l2/seed-myself/ops/foo.md
+  ./bin/promote-myself-to-team ops/foo.md --import
+  ./bin/promote-myself-to-team ops/foo.md --keep-myself   # 默认会 superseded myself
+"""
+from __future__ import annotations
+
+import argparse
+import re
+import subprocess
+import sys
+from datetime import date
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+SEED_ME = ROOT / "artifacts" / "memory-l2" / "seed-myself"
+SEED_TEAM = ROOT / "artifacts" / "memory-l2" / "seed"
+AUTO = ROOT / "bin" / "seed-l2-auto-import"
+
+
+def resolve_myself(path: Path) -> Path:
+    if path.is_file():
+        return path.resolve()
+    cand = SEED_ME / path
+    if cand.is_file():
+        return cand.resolve()
+    cand2 = SEED_ME / Path(*path.parts)
+    if cand2.is_file():
+        return cand2.resolve()
+    raise SystemExit(f"找不到 myself seed: {path}")
+
+
+def strip_scope_myself(text: str) -> str:
+    return re.sub(r"\n##\s*scope\s*\nmyself\s*\n?", "\n", text, flags=re.I)
+
+
+def ensure_evidence(text: str, note: str) -> str:
+    if "## evidence" in text.lower():
+        return re.sub(
+            r"(##\s*evidence\s*\n)",
+            rf"\1- {note}\n",
+            text,
+            count=1,
+            flags=re.I,
+        )
+    return text.rstrip() + f"\n\n## evidence\n- {note}\n"
+
+
+def set_superseded(text: str, team_hub: str) -> str:
+    text = re.sub(
+        r"(##\s*status\s*\n)\s*active",
+        rf"\1superseded\n\n## superseded_by\n{team_hub}\n",
+        text,
+        count=1,
+        flags=re.I,
+    )
+    if "## status" not in text.lower():
+        text = text.rstrip() + f"\n\n## status\nsuperseded\n\n## superseded_by\n{team_hub}\n"
+    today = date.today().isoformat()
+    if re.search(r"##\s*updated", text, re.I):
+        text = re.sub(
+            r"(##\s*updated\s*\n).+",
+            lambda m: m.group(1) + today,
+            text,
+            count=1,
+            flags=re.I,
+        )
+    else:
+        text += f"\n## updated\n{today}\n"
+    return ensure_evidence(text, f"已晋升 team → `{team_hub}`（{today}）")
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("path", type=Path, help="myself seed 路径或相对 seed-myself 的路径")
+    ap.add_argument("--force", action="store_true", help="覆盖已有 team seed")
+    ap.add_argument("--keep-myself", action="store_true", help="保留 myself active（默认 superseded）")
+    ap.add_argument("--import", dest="do_import", action="store_true")
+    ap.add_argument("--dry-run", action="store_true")
+    args = ap.parse_args()
+
+    src = resolve_myself(args.path)
+    if SEED_ME not in src.parents and src.parent != SEED_ME:
+        # still allow if path contains seed-myself
+        if "seed-myself" not in src.parts:
+            raise SystemExit(f"必须是 seed-myself 下的文件: {src}")
+
+    rel = Path(*src.parts[src.parts.index("seed-myself") + 1 :])
+    dst = SEED_TEAM / rel
+    hub = f"ec/{rel.as_posix()}"
+    raw = src.read_text(encoding="utf-8")
+    team_text = strip_scope_myself(raw)
+    team_text = ensure_evidence(
+        team_text, f"promote-myself-to-team from `seed-myself/{rel.as_posix()}` · {date.today().isoformat()}"
+    )
+    # ensure active
+    if re.search(r"##\s*status\s*\n\s*superseded", team_text, re.I):
+        team_text = re.sub(
+            r"(##\s*status\s*\n)\s*superseded",
+            r"\1active",
+            team_text,
+            count=1,
+            flags=re.I,
+        )
+
+    print(f"myself {src.relative_to(ROOT)}")
+    print(f"team   {dst.relative_to(ROOT)}")
+    print(f"hub    {hub}")
+
+    if args.dry_run:
+        print("--- team draft head ---")
+        print("\n".join(team_text.splitlines()[:20]))
+        return 0
+
+    if dst.exists() and not args.force:
+        print(f"team 已存在（--force 覆盖）：{dst}", file=sys.stderr)
+        return 3
+
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    dst.write_text(team_text, encoding="utf-8")
+    print(f"wrote team seed {dst.relative_to(ROOT)}")
+
+    if not args.keep_myself:
+        me_text = set_superseded(raw, hub)
+        src.write_text(me_text, encoding="utf-8")
+        print(f"myself → superseded → {hub}")
+
+    if args.do_import:
+        rc = subprocess.call([str(AUTO), "--scope", "team", str(dst)])
+        if rc != 0:
+            return rc
+        if not args.keep_myself:
+            rc = subprocess.call([str(AUTO), "--scope", "myself", str(src)])
+            if rc != 0:
+                return rc
+        print("imported team" + ("" if args.keep_myself else " + myself superseded"))
+
+    print("下一步核对接：")
+    print(f"  ./bin/claude-via-memory   # team 应能读到 {hub}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

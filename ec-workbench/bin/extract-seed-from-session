@@ -1,0 +1,417 @@
+#!/usr/bin/env python3
+"""从会话文本 / transcript 抽出 L2 seed 草稿（人闸后再 import）。
+
+默认：启发式抽取 → Proxy LLM 精修 JSON（失败则回退启发式）。
+可用 --no-llm 强制只走启发式。
+
+用法：
+  ./bin/extract-seed-from-session --text "Saqu 只能绑自家卡应对标 SuperBank… keepOnlySuperBankIfInExperiment"
+  pbpaste | ./bin/extract-seed-from-session --scope myself --biz bindcard
+  ./bin/extract-seed-from-session --transcript path/to/chat.jsonl --tail 40 --scope team
+  ./bin/extract-seed-from-session --file notes.md --slug saqu-foo --import
+  ./bin/extract-seed-from-session --text "…" --no-llm --dry-run
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import subprocess
+import sys
+import urllib.error
+import urllib.request
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+DRAFT = ROOT / "bin" / "draft-seed-from-session"
+IDENT = ROOT / ".p0-memory-identity.json"
+MODEL = os.environ.get("EXTRACT_MODEL", "deepseek-v4-flash-0731")
+
+BIZ_HINTS = [
+    ("bindcard", ("绑卡", "bindcard", "superbank", "saqu", "bankaccount")),
+    ("auth", ("merge", "合并", "otp", "登录", "注销", "user_merge")),
+    ("homepage", ("首页", "主按钮", "立即申请", "h5", "wholeprocess", "whole-process")),
+    ("kafka", ("kafka", "startup", "开屏", "app_startup", "consumer")),
+    ("coupon", ("发券", "coupon", "灌券", "息费")),
+    ("gopay", ("gopay", "go-pay")),
+    ("apichannel", ("撞库", "apichannel", "collision")),
+    ("order", ("下单", "借款", "测额")),
+    ("notif", ("提醒", "notif", "到期", "lrd")),
+    ("risk", ("测额", "风控", "risk_trace", "channel")),
+    ("ops", ("隔离", "loop", "memory", "旁路")),
+]
+
+
+def slugify(s: str) -> str:
+    s = s.strip().lower()
+    s = re.sub(r"[^a-z0-9\-]+", "-", s)
+    return re.sub(r"-{2,}", "-", s).strip("-") or "from-session"
+
+
+def read_transcript(path: Path, tail: int) -> str:
+    lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()
+    if tail > 0:
+        lines = lines[-tail:]
+    chunks: list[str] = []
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            obj = json.loads(line)
+        except json.JSONDecodeError:
+            chunks.append(line)
+            continue
+        msg = obj.get("message") or obj
+        content = msg.get("content") if isinstance(msg, dict) else None
+        if isinstance(content, list):
+            for part in content:
+                if isinstance(part, dict) and part.get("type") == "text":
+                    chunks.append(str(part.get("text") or ""))
+                elif isinstance(part, str):
+                    chunks.append(part)
+        elif isinstance(content, str):
+            chunks.append(content)
+        elif isinstance(obj.get("text"), str):
+            chunks.append(obj["text"])
+    return "\n".join(chunks)
+
+
+def extract_symbols(text: str) -> list[str]:
+    out: list[str] = []
+    for m in re.finditer(
+        r"\b([A-Z][A-Za-z0-9]+(?:Service|Model|Controller|Processor|Handler|Client|Checker|Selector|Job)?)"
+        r"(?:[#.]([A-Za-z_][A-Za-z0-9_]*))?",
+        text,
+    ):
+        cls, meth = m.group(1), m.group(2)
+        if len(cls) < 4 or cls.isupper():
+            continue
+        token = f"{cls}#{meth}" if meth else cls
+        if token not in out:
+            out.append(token)
+        if len(out) >= 8:
+            break
+    for m in re.finditer(r"`([A-Za-z][\w.#]+)`", text):
+        s = m.group(1)
+        if "/" in s:
+            continue
+        if s not in out and re.search(r"[a-z]", s):
+            out.append(s)
+        if len(out) >= 10:
+            break
+    return out[:8]
+
+
+def extract_routes(text: str) -> list[str]:
+    routes = re.findall(r"`(/api/[A-Za-z0-9_./\-]+)`", text)
+    routes += re.findall(r"(?<![`\w])(/api/[A-Za-z0-9_./\-]+)", text)
+    out: list[str] = []
+    for r in routes:
+        if r not in out:
+            out.append(r)
+        if len(out) >= 4:
+            break
+    return out
+
+
+def infer_biz(text: str, override: str | None) -> str:
+    if override:
+        return override
+    low = text.lower()
+    for biz, keys in BIZ_HINTS:
+        if any(k.lower() in low for k in keys):
+            return biz
+    return "ops"
+
+
+def extract_decision(text: str) -> str:
+    for pat in (
+        r"(?:##\s*decision\s*\n)(.+?)(?:\n##|\Z)",
+        r"(?:【来源：Memory】[^\n]*\n)(.+?)(?:\n\n|\Z)",
+        r"(?:结论[:：]\s*)(.+?)(?:\n\n|\Z)",
+        r"(?:判决[:：]\s*)(.+?)(?:\n\n|\Z)",
+    ):
+        m = re.search(pat, text, re.S | re.I)
+        if m and len(m.group(1).strip()) > 20:
+            return re.sub(r"\s+", " ", m.group(1).strip())[:800]
+
+    sents = re.split(r"(?<=[。！？\n])", text)
+    scored: list[tuple[int, str]] = []
+    keys = ("对标", "不要", "必须", "结论", "留存", "不是", "应为", "走", "复用", "superseded", "应对标")
+    for s in sents:
+        s = s.strip()
+        if len(s) < 16 or len(s) > 280:
+            continue
+        score = sum(1 for k in keys if k in s)
+        if "`" in s:
+            score += 1
+        if score:
+            scored.append((score, s))
+    scored.sort(key=lambda x: (-x[0], -len(x[1])))
+    if scored:
+        return " ".join(s for _, s in scored[:3])[:800]
+    paras = [p.strip() for p in text.split("\n\n") if len(p.strip()) > 40]
+    return (paras[0] if paras else text.strip())[:800]
+
+
+def extract_title(text: str, decision: str) -> str:
+    m = re.search(r"^#\s+(.+)$", text, re.M)
+    if m:
+        return m.group(1).strip()[:60]
+    line = decision.split("。")[0].strip()
+    line = re.sub(r"^【来源：Memory】\s*path=\S+\s*", "", line)
+    return (line[:48] + ("…" if len(line) > 48 else "")) or "会话判决草稿"
+
+
+def extract_constraints(text: str) -> list[str]:
+    out: list[str] = []
+    for m in re.finditer(r"((?:不要|禁止|必须|勿)[^\n。；]{2,60})", text):
+        c = m.group(1).strip()
+        if c not in out:
+            out.append(c[:80])
+        if len(out) >= 4:
+            break
+    return out
+
+
+def heuristic_draft(text: str, args: argparse.Namespace) -> dict:
+    decision = extract_decision(text)
+    return {
+        "title": args.title or extract_title(text, decision),
+        "biz": infer_biz(text, args.biz),
+        "slug": args.slug,
+        "decision": decision,
+        "symbols": extract_symbols(text),
+        "routes": extract_routes(text),
+        "constraints": extract_constraints(text),
+        "mouths": [],
+        "source": "heuristic",
+    }
+
+
+def proxy_chat(ident: dict, messages: list[dict], session: str, max_tokens: int = 900) -> dict:
+    url = ident["proxy_base"].rstrip("/") + ident.get(
+        "proxy_openai_path", "/proxy/default/v1/chat/completions"
+    )
+    body = {
+        "model": MODEL,
+        "messages": messages,
+        "max_tokens": max_tokens,
+        "temperature": 0,
+    }
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(body).encode(),
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {ident['user_key']}",
+            "x-tdai-user-key": ident["user_key"],
+            "x-tdai-service-id": ident.get("service_id", "default"),
+            "x-session-id": session,
+            "x-conversation-id": session,
+            "x-team-id": ident["team_id"],
+            "x-agent-id": ident["agent_id"],
+            "x-task-id": ident.get("task_id", ""),
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=90) as resp:
+            doc = json.load(resp)
+    except urllib.error.HTTPError as e:
+        return {"ok": False, "error": f"HTTP {e.code}: {e.read().decode(errors='replace')[:200]}"}
+    except Exception as e:  # noqa: BLE001
+        return {"ok": False, "error": str(e)}
+    try:
+        content = doc["choices"][0]["message"]["content"] or ""
+    except (KeyError, IndexError, TypeError):
+        return {"ok": False, "error": "bad response shape"}
+    return {"ok": True, "content": content}
+
+
+def parse_json_object(text: str) -> dict | None:
+    text = text.strip()
+    if text.startswith("```"):
+        text = re.sub(r"^```(?:json)?\s*", "", text)
+        text = re.sub(r"\s*```$", "", text)
+    try:
+        obj = json.loads(text)
+        return obj if isinstance(obj, dict) else None
+    except json.JSONDecodeError:
+        m = re.search(r"\{[\s\S]*\}", text)
+        if not m:
+            return None
+        try:
+            obj = json.loads(m.group(0))
+            return obj if isinstance(obj, dict) else None
+        except json.JSONDecodeError:
+            return None
+
+
+def llm_refine(text: str, draft: dict, ident: dict) -> dict | None:
+    sys_p = (
+        "你是 EC 旁路 Chat Memory 编辑。把会话压成一条可入库的 L2 判决草稿。"
+        "只输出一个 JSON 对象，不要 Markdown。字段："
+        "title,biz,slug,decision,symbols(array),routes(array),constraints(array),mouths(array)。"
+        "规则：decision 2–6 句说清判决；symbols 只保留原文出现过的类/方法；"
+        "禁止编造；biz 用短英文业务口（bindcard/auth/homepage/kafka/coupon/gopay/apichannel/order/notif/risk/ops）；"
+        "slug 用 kebab-case。"
+    )
+    user_p = (
+        "## 会话原文（可截断）\n"
+        + text[:6000]
+        + "\n\n## 启发式草稿（可改）\n"
+        + json.dumps(draft, ensure_ascii=False, indent=2)
+    )
+    resp = proxy_chat(
+        ident,
+        [{"role": "system", "content": sys_p}, {"role": "user", "content": user_p}],
+        session="extract-refine",
+        max_tokens=900,
+    )
+    if not resp.get("ok"):
+        print(f"llm refine skip: {resp.get('error')}", file=sys.stderr)
+        return None
+    obj = parse_json_object(resp["content"])
+    if not obj:
+        print("llm refine skip: JSON 解析失败", file=sys.stderr)
+        return None
+    out = dict(draft)
+    for k in ("title", "biz", "slug", "decision"):
+        v = obj.get(k)
+        if isinstance(v, str) and v.strip():
+            out[k] = v.strip()
+    for k in ("symbols", "routes", "constraints", "mouths"):
+        v = obj.get(k)
+        if isinstance(v, list):
+            cleaned = [str(x).strip() for x in v if str(x).strip()]
+            if cleaned:
+                out[k] = cleaned[:10]
+    out["source"] = "heuristic+llm"
+    out["biz"] = re.sub(r"[^a-zA-Z0-9_\-]+", "-", str(out.get("biz") or "ops")).strip("-") or "ops"
+    if out.get("slug"):
+        out["slug"] = slugify(str(out["slug"]))
+    return out
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--scope", choices=("team", "myself"), default="myself")
+    ap.add_argument("--biz", default=None)
+    ap.add_argument("--slug", default=None)
+    ap.add_argument("--title", default=None)
+    ap.add_argument("--text", default="")
+    ap.add_argument("--file", type=Path, default=None)
+    ap.add_argument("--transcript", type=Path, default=None)
+    ap.add_argument("--tail", type=int, default=60, help="transcript 末尾 N 行")
+    ap.add_argument("--evidence", default="")
+    ap.add_argument("--force", action="store_true")
+    ap.add_argument("--import", dest="do_import", action="store_true")
+    ap.add_argument("--print-only", action="store_true")
+    ap.add_argument("--dry-run", action="store_true", help="只打印抽取结果，不调 draft")
+    ap.add_argument("--llm", dest="use_llm", action="store_true", default=True, help="Proxy LLM 精修（默认开）")
+    ap.add_argument("--no-llm", dest="use_llm", action="store_false", help="只用启发式")
+    args = ap.parse_args()
+
+    parts: list[str] = []
+    if args.text:
+        parts.append(args.text)
+    if args.file:
+        parts.append(args.file.read_text(encoding="utf-8", errors="ignore"))
+    if args.transcript:
+        parts.append(read_transcript(args.transcript, args.tail))
+    if not parts and not sys.stdin.isatty():
+        parts.append(sys.stdin.read())
+    text = "\n\n".join(p for p in parts if p and p.strip()).strip()
+    if not text:
+        print("无输入：用 --text / --file / --transcript / stdin", file=sys.stderr)
+        return 2
+
+    draft = heuristic_draft(text, args)
+    if args.use_llm and IDENT.is_file():
+        ident = json.loads(IDENT.read_text())
+        refined = llm_refine(text, draft, ident)
+        if refined:
+            if args.title:
+                refined["title"] = args.title
+            if args.biz:
+                refined["biz"] = args.biz
+            if args.slug:
+                refined["slug"] = slugify(args.slug)
+            draft = refined
+    elif args.use_llm and not IDENT.is_file():
+        print(f"llm refine skip: missing {IDENT}", file=sys.stderr)
+
+    title = draft["title"]
+    biz = draft["biz"]
+    slug = draft.get("slug") or slugify(title)[:48]
+    decision = draft["decision"]
+    symbols = list(draft.get("symbols") or [])
+    routes = list(draft.get("routes") or [])
+    constraints = list(draft.get("constraints") or [])
+    mouths = list(draft.get("mouths") or [])
+    evidence = args.evidence or f"extract-seed-from-session（{draft.get('source', 'heuristic')}，待人闸）"
+
+    print("## extract preview", file=sys.stderr)
+    print(f"source={draft.get('source')} biz={biz} slug={slug}", file=sys.stderr)
+    print(f"title={title}", file=sys.stderr)
+    print(f"symbols={symbols}", file=sys.stderr)
+    print(f"routes={routes}", file=sys.stderr)
+    print(f"decision[:160]={decision[:160]}", file=sys.stderr)
+
+    if args.dry_run:
+        print(
+            json.dumps(
+                {
+                    "source": draft.get("source"),
+                    "biz": biz,
+                    "slug": slug,
+                    "title": title,
+                    "decision": decision,
+                    "symbols": symbols,
+                    "routes": routes,
+                    "constraints": constraints,
+                    "mouths": mouths,
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+        return 0
+
+    cmd = [
+        str(DRAFT),
+        "--scope",
+        args.scope,
+        "--biz",
+        biz,
+        "--slug",
+        slug,
+        "--title",
+        title,
+        "--decision",
+        decision,
+        "--evidence",
+        evidence,
+    ]
+    for s in symbols:
+        cmd += ["--symbol", s]
+    for r in routes:
+        cmd += ["--route", r]
+    for c in constraints:
+        cmd += ["--constraint", c]
+    for m in mouths:
+        cmd += ["--mouth", m]
+    if args.force:
+        cmd.append("--force")
+    if args.print_only:
+        cmd.append("--print-only")
+    if args.do_import:
+        cmd.append("--import")
+    return subprocess.call(cmd)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

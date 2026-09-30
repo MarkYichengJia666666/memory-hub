@@ -1,0 +1,159 @@
+#!/usr/bin/env python3
+"""会话收尾 → L2 seed 草稿（人闸后再 auto-import）。
+
+用法：
+  ./bin/draft-seed-from-session \\
+    --scope team --biz bindcard --slug saqu-foo \\
+    --title "一句话标题" \\
+    --decision "判决正文…"
+
+  # 从 stdin 读 decision（可多行）
+  pbpaste | ./bin/draft-seed-from-session --scope myself --biz ops --slug foo --title "…"
+
+  # 起草后立刻导入 Hub
+  ./bin/draft-seed-from-session ... --import
+
+不覆盖已有文件（除非 --force）。
+"""
+from __future__ import annotations
+
+import argparse
+import re
+import subprocess
+import sys
+from datetime import date
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+SEED_ROOT = {
+    "team": ROOT / "artifacts" / "memory-l2" / "seed",
+    "myself": ROOT / "artifacts" / "memory-l2" / "seed-myself",
+}
+
+
+def slugify(s: str) -> str:
+    s = s.strip().lower()
+    s = re.sub(r"[^a-z0-9\-]+", "-", s)
+    s = re.sub(r"-{2,}", "-", s).strip("-")
+    return s or "untitled"
+
+
+def render(
+    *,
+    title: str,
+    decision: str,
+    mouths: list[str],
+    symbols: list[str],
+    routes: list[str],
+    constraints: list[str],
+    evidence: str,
+    scope: str,
+) -> str:
+    mouths_b = "\n".join(f"- {m}" for m in mouths) or "- （待填）"
+    sym_b = "\n".join(f"  - `{s}`" for s in symbols) or "  - （待填）"
+    routes_b = ", ".join(f"`{r}`" for r in routes) if routes else "（待填）"
+    cons_b = "\n".join(f"- {c}" for c in constraints) or "- （待填）"
+    evid = evidence.strip() or "本会话拍板"
+    today = date.today().isoformat()
+    scope_line = f"\n## scope\n{scope}\n" if scope == "myself" else ""
+    return f"""# {title}
+
+## decision
+{decision.strip()}
+
+## mouths
+{mouths_b}
+
+## anchors
+- routes: {routes_b}
+- symbols:
+{sym_b}
+
+## constraints
+{cons_b}
+
+## evidence
+- {evid}
+
+## status
+active
+
+## updated
+{today}
+{scope_line}"""
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description="Draft L2 seed from session closeout")
+    ap.add_argument("--scope", choices=("team", "myself"), default="team")
+    ap.add_argument("--biz", required=True, help="业务口目录，如 bindcard / auth / ops")
+    ap.add_argument("--slug", required=True, help="文件名 slug（不含 .md）")
+    ap.add_argument("--title", required=True)
+    ap.add_argument("--decision", default="", help="判决；空则读 stdin")
+    ap.add_argument("--mouth", action="append", default=[], dest="mouths")
+    ap.add_argument("--symbol", action="append", default=[], dest="symbols")
+    ap.add_argument("--route", action="append", default=[], dest="routes")
+    ap.add_argument("--constraint", action="append", default=[], dest="constraints")
+    ap.add_argument("--evidence", default="")
+    ap.add_argument("--force", action="store_true")
+    ap.add_argument("--import", dest="do_import", action="store_true", help="起草后跑 seed-l2-auto-import")
+    ap.add_argument("--print-only", action="store_true", help="只打印不写盘")
+    args = ap.parse_args()
+
+    decision = args.decision.strip()
+    if not decision:
+        if sys.stdin.isatty():
+            print("请用 --decision 或管道传入判决正文", file=sys.stderr)
+            return 2
+        decision = sys.stdin.read().strip()
+    if not decision:
+        print("decision 为空", file=sys.stderr)
+        return 2
+
+    biz = re.sub(r"[^a-zA-Z0-9_\-]+", "-", args.biz.strip().strip("/")).strip("-") or "ops"
+    slug = slugify(args.slug)
+    out = SEED_ROOT[args.scope] / biz / f"{slug}.md"
+    text = render(
+        title=args.title.strip(),
+        decision=decision,
+        mouths=args.mouths,
+        symbols=args.symbols,
+        routes=args.routes,
+        constraints=args.constraints,
+        evidence=args.evidence,
+        scope=args.scope,
+    )
+
+    if args.print_only:
+        print(text)
+        print(f"# would write → {out}", file=sys.stderr)
+        return 0
+
+    if out.exists() and not args.force:
+        print(f"已存在（改 --force 覆盖）：{out}", file=sys.stderr)
+        return 3
+
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(text, encoding="utf-8")
+    hub = f"ec/{biz}/{slug}.md"
+    print(f"wrote {out}")
+    print(f"hub_path {hub}")
+    print(f"scope {args.scope}")
+    print("下一步：核对 mouths/anchors 后：")
+    print(f"  ./bin/seed-l2-auto-import --scope {args.scope} {out.relative_to(ROOT)}")
+
+    if args.do_import:
+        cmd = [
+            str(ROOT / "bin" / "seed-l2-auto-import"),
+            "--scope",
+            args.scope,
+            str(out),
+        ]
+        print("+", " ".join(cmd))
+        return subprocess.call(cmd)
+
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

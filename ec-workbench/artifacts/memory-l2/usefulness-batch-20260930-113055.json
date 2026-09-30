@@ -1,0 +1,177 @@
+{
+  "title": "Memory 有用性验收 · Proxy+L2",
+  "measured_at": "2026-09-30T03:30:55Z",
+  "model": "deepseek-v4-flash-0731",
+  "method": "scenario/read 期望 path → Proxy 作答 → must_hit 全中且标明来源 Memory",
+  "totals": {
+    "pass": 8,
+    "total": 8,
+    "rate": "8/8"
+  },
+  "cases": [
+    {
+      "n": 1,
+      "id": "Q1-saqu",
+      "question": "Saqu「只能绑自家卡 + 要可开关」，应对标哪套已有过滤逻辑？关键方法名？",
+      "hub_path": "ec/bindcard/saqu-superbank-pattern.md",
+      "must_hit": [
+        "keepOnlySuperBankIfInExperiment"
+      ],
+      "hits": [
+        "keepOnlySuperBankIfInExperiment"
+      ],
+      "pass": true,
+      "answer": "【来源：Memory】path=ec/bindcard/saqu-superbank-pattern.md\n\nSaqu「只能绑自家卡 + 可开关」应对标已落地的 **SuperBank 渠道逻辑**，H5（WEB）与同一套接口。\n\n关键方法名：`LoanBankAccountService.keepOnlySuperBankIfInExperiment`\n\n行为要点：\n- deviceId → mediaSource 白名单 → 命中实验才过滤 → 仅保留 `BankType.FAMA`（SuperBank）\n\n约束：不要另起一套过滤，直接复用/对标该模式；开关要能随时切「只自家卡 / 全部卡」。",
+      "usage": {
+        "prompt_tokens": 4787,
+        "completion_tokens": 134,
+        "total_tokens": 4921
+      }
+    },
+    {
+      "n": 2,
+      "id": "Q2-merge",
+      "question": "user_merge_history 里 MERGE_USER_ID 与 MERGED_USER_ID，谁是留存用户？",
+      "hub_path": "ec/auth/merge-user-id-vs-merged-user-id.md",
+      "must_hit": [
+        "MERGE_USER_ID",
+        "MERGED"
+      ],
+      "hits": [
+        "MERGE_USER_ID",
+        "MERGED"
+      ],
+      "pass": true,
+      "answer": "【来源：Memory】path=ec/auth/merge-user-id-vs-merged-user-id.md\n\n`MERGE_USER_ID` = **合并后留存可用账号**；`MERGED_USER_ID` = **被注销废弃账号**。\n\n注意 `UserMergeHistoryModel.insert(newUserId, oldUserId, …)` 参数名易误导：实际 `setMergeUserId(oldUserId)`、`setMergedUserId(newUserId)`——调用方传入的「被删」常落在第一参数。查合并关系先认字段语义，不要按参数名字面理解。",
+      "usage": {
+        "prompt_tokens": 4899,
+        "completion_tokens": 119,
+        "total_tokens": 5018
+      }
+    },
+    {
+      "n": 3,
+      "id": "Q3-h5",
+      "question": "H5 全流程为什么经常看不到「立即申请」主按钮？关键判断？",
+      "hub_path": "ec/homepage/h5-whole-process-hides-main-button.md",
+      "must_hit": [
+        "showDownloadButton",
+        "isWholeProcess"
+      ],
+      "hits": [
+        "showDownloadButton",
+        "isWholeProcess"
+      ],
+      "pass": true,
+      "answer": "【来源：Memory】path=ec/homepage/h5-whole-process-hides-main-button.md\n\nH5 全流程看不到「立即申请」主按钮，关键判断是：\n\n**MAIN_BUTTON 是否展示统一受 `HomepageWholeProcessTool#showDownloadButton()` 控制**——H5 全流程（`isWholeProcess=true`）直接返回 false，不展示按钮；App / 非全流程 H5 才展示。\n\n排查时先查 `showDownloadButton`，不要先怪产品 Processor（如 `MultiLoanProductProcessor`、`OrderProgressStepProcessor`）。\n\n注意例外：`MULTI_LOAN_INIT`（可续借测算）仍走老的 `HomePageMainCardInfo`，不是 PageCardV3——测算额度阶段是另一条老主卡链路。",
+      "usage": {
+        "prompt_tokens": 4914,
+        "completion_tokens": 175,
+        "total_tokens": 5089
+      }
+    },
+    {
+      "n": 4,
+      "id": "Q4-web-calc",
+      "question": "WEB 测额 / 额度过期重新测额的风控 trace 有没有 flip/ovo 等细分 channel？",
+      "hub_path": "ec/risk/web-calc-credits-no-channel.md",
+      "must_hit": [
+        "WEB",
+        "channel"
+      ],
+      "hits": [
+        "WEB",
+        "channel"
+      ],
+      "pass": true,
+      "answer": "【来源：Memory】path=ec/risk/web-calc-credits-no-channel.md\n\n没有。WEB 下「戳额 / 额度过期重新测额」的风控 trace **没有 flip/ovo 等细分 channel**，只记到 `source_type = WEB`。\n\n原因：入口 `LoanAccountService.submitCalcCreditsApplication` → `SubmitCalcCreditsApplicationVO` **无 channel 字段**，`RiskProcessParam.fromForCalcCredits()` 也就带不进细分渠道。\n\n查渠道应看 `user.channel` / `loan_account_details_new.channel` 做归因推断，不要指望本次测额 risk_trace 精确到页面渠道。",
+      "usage": {
+        "prompt_tokens": 4901,
+        "completion_tokens": 146,
+        "total_tokens": 5047
+      }
+    },
+    {
+      "n": 5,
+      "id": "Q5-lazada-reject",
+      "question": "Lazada 首贷长拒可重审（FIRST_LOAN_REJECT_LONG_CAN_RETRY）下单撞库还会不会拒？",
+      "hub_path": "ec/apichannel/lazada-first-reject-long-can-retry.md",
+      "must_hit": [
+        "LazadaCreateOrderChecker",
+        "LAZADA_WITHIN_REJECTION_PERIOD"
+      ],
+      "hits": [
+        "LazadaCreateOrderChecker",
+        "LAZADA_WITHIN_REJECTION_PERIOD"
+      ],
+      "pass": true,
+      "answer": "【来源：Memory】path=ec/apichannel/lazada-first-reject-long-can-retry.md\n\n会拒。\n\n按该 L2 场景块的记录：\n\n- **前筛 / 二次撞库侧**（`LazadaPreSelectChecker` / `LazadaSecondPreSelectChecker`）：可映射 **`LAZADA_APPROVE`**，分组 **`LAPSED_USER`**，即允许重回授信审批。\n- **下单撞库侧**（`LazadaCreateOrderChecker`）：仍映射 **`LAZADA_WITHIN_REJECTION_PERIOD`（拒）**。\n\n也就是说：`FIRST_LOAN_REJECT_LONG_CAN_RETRY` 只放开到**二次撞库**，**未过审不能直接借款**——下单撞库依然会拒。改规则时需按 Checker 阶段分别改映射，不要只改一处。",
+      "usage": {
+        "prompt_tokens": 4979,
+        "completion_tokens": 197,
+        "total_tokens": 5176
+      }
+    },
+    {
+      "n": 6,
+      "id": "Q6-startup",
+      "question": "APP_STARTUP_AT_LEAST_ONCE 是不是每天 0 点 cron 批量跑？",
+      "hub_path": "ec/kafka/app-startup-at-least-once-realtime.md",
+      "must_hit": [
+        "Kafka"
+      ],
+      "hits": [
+        "Kafka"
+      ],
+      "pass": true,
+      "answer": "【来源：Memory】path=ec/kafka/app-startup-at-least-once-realtime.md\n\n不是。代码里**不存在**「每天 00:00 cron 批量扫用户」的 Job。\n\n`APP_STARTUP_AT_LEAST_ONCE` 是 **C 端实时行为 → outbox/Kafka → 异步消费**链路。午夜看起来像批处理，只是因为午夜 C 端流量高峰。\n\n触发入口包括：\n- `openApp`（`RealTimeEventController#openApp`）\n- 首页 `asyncLogUserInfo`（`LoanHomePageLogService#asyncLogUserInfo`）\n- `app/startup` → `AppStartupService.sendAppStartupEvent` → topic `app_startup_at_least_once_event` → `AppStartupAtLeastOnceEventProcessor`\n\n排障建议：不要按「零点定时批」去排查放大/突增，先看触发入口与消费放大，再怀",
+      "usage": {
+        "prompt_tokens": 4921,
+        "completion_tokens": 209,
+        "total_tokens": 5130
+      }
+    },
+    {
+      "n": 7,
+      "id": "Q7-lrd",
+      "question": "贷款到期还款提醒带账单日参数时，常见对应哪个 Selector / queryType？",
+      "hub_path": "ec/notif/repay-due-lrd-selector-chain.md",
+      "must_hit": [
+        "LRD",
+        "LoanRepaymentDueSelector"
+      ],
+      "hits": [
+        "LRD",
+        "LoanRepaymentDueSelector"
+      ],
+      "pass": true,
+      "answer": "【来源：Memory】path=ec/notif/repay-due-lrd-selector-chain.md\n\n贷款到期还款提醒带账单日参数 `INSTALMENT_BILLING_DATE` 时，最常见对应 **`LoanRepaymentDueSelector`（queryType=`LRD`）**；人维度则可能是 `RepaymentReminderInPersonDimensionSelector`（`RRIPD`）。\n\n链路：`ec-scheduler` 的 `TargetTaskProducerJob` 按后台 Selector 配置筛用户 → 写 notif 任务 → Consumer 填模板发送。查配置看 Admin「通知用户 Selector」或表 `notif_user_selector`。\n\n排「谁发的到期提醒」时先对 Selector/queryType，不要只搜短信通道；LRD vs RRIPD 看模板参数名区分。",
+      "usage": {
+        "prompt_tokens": 4906,
+        "completion_tokens": 178,
+        "total_tokens": 5084
+      }
+    },
+    {
+      "n": 8,
+      "id": "Q8-1001",
+      "question": "Gopay 遇到 API_CHANNEL_USER_REJECTED 应对前端映成什么？现码落在哪？",
+      "hub_path": "ec/gopay/api-channel-rejected-map-1001.md",
+      "must_hit": [
+        "1001",
+        "GopayController"
+      ],
+      "hits": [
+        "1001",
+        "GopayController"
+      ],
+      "pass": true,
+      "answer": "【来源：Memory】path=ec/gopay/api-channel-rejected-map-1001.md\n\n`API_CHANNEL_USER_REJECTED` 对前端应映射为 `COMMON_SERVER_ERROR(1001)`，避免英文 `detailTT` 直出。\n\n**现码落地位置**：已在 `GopayController`（含 pollAuthStatus 相关 catch）落地——命中该异常类型则 `throw EcException.error(COMMON_SERVER_ERROR, …)`。`EcControllerExceptionAdvice` 全局转换**尚未**见到。\n\n排障/改文案先看 `GopayController`；若要全渠道覆盖再考虑 Advice。注意：其它渠道若仍直出 REJECTED 英文，不要假设全局已映射；ERROR 级还会被 `EcResponse.errStatus` 再盖成通用 toast。",
+      "usage": {
+        "prompt_tokens": 4942,
+        "completion_tokens": 178,
+        "total_tokens": 5120
+      }
+    }
+  ]
+}
